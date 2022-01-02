@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>My first Three.js app</title>
+    <style>
+      body { margin: 0; }
+      canvas { width: 100%; height: 100% }
+      </style>
+  </head>
+  <body>
+    <p id = "screene"></p>
+    <script src="js/three.js"></script>
+    <script>
+    	var rotx = 0;  // speed of rotation x
+    	var roty = 0;  // speed of rotation y
+    	var pi2 = Math.PI * 2;
+    	
+    	var scene = new THREE.Scene();
+        size_of_scene = 75
+		var camera = new THREE.PerspectiveCamera( size_of_scene, window.innerWidth / window.innerHeight, 0.1, 1000 );  // camera perspective
+        camera.position.z = 2;
+
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight);  //cube lesson size on the screen
+		document.body.appendChild( renderer.domElement);
+
+		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+		const loader = new THREE.TextureLoader();
+        const materials = [
+            new THREE.MeshBasicMaterial({map: loader.load('images/glommer.png')}),
+            new THREE.MeshBasicMaterial({map: loader.load('images/glommer.png')}),
+            new THREE.MeshBasicMaterial({map: loader.load('images/glommer.png')}),
+            new THREE.MeshBasicMaterial({map: loader.load('images/glommer.png')}),
+            new THREE.MeshBasicMaterial({map: loader.load('images/glommer.png')}),
+            new THREE.MeshBasicMaterial({map: loader.load('images/glommer.png')}),
+        ];
+        const cube = new THREE.Mesh(geometry, materials);
+        scene.add( cube );
+
+
+        document.addEventListener('mousedown', logKey);
+        function logKey(e) {
+            var x = e.clientX;
+            var y = e.clientY;
+            if (e.which == 1 && y <= 365 && y >= 265 && x >= 733 && x <= 1148){ // UP
+                roty = 0.1;
+            }
+            if (e.which == 1 && y <= 680 && y >= 265 && x >= 1148 && x <= 1248){ // RIGHT
+                rotx = -0.1;
+            }
+            if (e.which == 1 && y <= 780 && y >= 680 && x >= 733 && x <= 1148){ // DOWN
+                roty = -0.1;
+            }
+            if (e.which == 1 && y <= 680 && y >= 265 && x >= 633 && x <= 733){ // LEFT
+                rotx = 0.1;
+            }
+        }
+
+        let screenLog = document.querySelector('#screene');
+		function render() {
+			requestAnimationFrame( render );
+			cube.rotation.y += rotx;
+			cube.rotation.x += roty;
+
+			degreex = cube.rotation.y;
+			degreey = cube.rotation.x;
+
+			if (degreex > 0){
+				if ((degreex % (Math.PI * 0.5)) < 0.1){
+					cube.rotation.y = 0;
+    				rotx = 0;
+    				}
+    			}
+    		if (degreex < 0) {
+    			if (((pi2 + degreex) % (Math.PI * 0.5)) < 0.1){
+					cube.rotation.y = 0;
+    				rotx = 0;
+    			}
+    		}
+    		if (degreey > 0){
+    			if ((degreey % (Math.PI * 0.5)) < 0.1){
+    				cube.rotation.x = 0;
+    				roty = 0;
+    			}
+    		}
+    		if (degreey < 0){
+    			if (((pi2 + degreey) % (Math.PI * 0.5)) < 0.1){
+    				cube.rotation.x = 0;
+    				roty = 0;
+    			}
+    		}
+			// updating scene size
+            var camera = new THREE.PerspectiveCamera( size_of_scene, window.innerWidth / window.innerHeight, 0.1, 1000 );  // camera perspective
+            camera.position.z = 2;
+            renderer.setSize( window.innerWidth, window.innerHeight);  //cube lesson size on the screen
+            document.body.appendChild( renderer.domElement);
+            renderer.render( scene, camera );
+            // check log
+            screenLog.innerText = `${window.innerHeight}`;
+		}
+  		render();
+        
+    </script>
+  </body>
+</html>
