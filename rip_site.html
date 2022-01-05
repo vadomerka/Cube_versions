@@ -16,6 +16,7 @@
         var angle_of_rotation_x = 0;
         var angle_of_rotation_y = 0;
     	var pi2 = Math.PI * 2;
+        var playing = true;
 
         var size_coef = 0.336487907;
         var width = window.innerWidth;
@@ -39,8 +40,15 @@
             camera = new THREE.PerspectiveCamera( size_of_scene, width / height, 0.1, 5);  // camera perspective
             camera.position.z = 2;
             renderer.setSize( width, height);  // cube lesson size on the screene
+            renderer.setClearColor("#01131E");
             document.body.appendChild( renderer.domElement);
+            // renderer.setClearColor("#01131E");
             renderer.render( scene, camera );
+            if (playing){
+                sound.play(0);
+            } else {
+                sound.pause();
+            }
 
             geometry = new THREE.BoxGeometry( 1, 1, 1 );
             const loader = new THREE.TextureLoader();
@@ -189,8 +197,11 @@
                         if (current_side_x == -1){current_side_x = 3};
                     }
                 } else {
-                    //alert(cube_sides_x[current_side_x]);
-                    alert(cube_sides_y[current_side_y]);
+                    // alert(cube_sides_x[current_side_x]);
+                    // alert(cube_sides_y[current_side_y]);
+                    if (playing){
+                        playing = false;
+                    } else {playing = true;}
                 }
             }
         }
@@ -296,6 +307,23 @@
         ];
         cube = new THREE.Mesh(geometry, materials);
         scene.add( cube );
+
+        var listener = new THREE.AudioListener();
+        camera.add( listener );
+
+        // create a global audio source
+        var sound = new THREE.Audio( listener );
+
+        var audioLoader = new THREE.AudioLoader();
+
+        //Load a sound and set it as the Audio object's buffer
+        audioLoader.load( 'music.mp3', function( buffer ) {
+            sound.setBuffer( buffer );
+            sound.setLoop(true);
+            sound.setVolume(0.5);
+        },
+        );
+
   		render();
         
     </script>
