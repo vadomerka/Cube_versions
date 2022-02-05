@@ -33,9 +33,6 @@
         }
 
       </style>
-
-      
-
   </head>
   <body>
 
@@ -139,20 +136,11 @@
                                 "down right": [Math.round(width / 2) + half_cube_size, Math.round(height / 2) + half_cube_size]};
         }
 
-        function changeSides(img_ang){
+        function changeSides(side, img_ang){
             // alert(img_ang)
-            if (img_ang == 0){
-                up_img = "images/up.png";
-            }
-            if (img_ang == 90){
-                up_img = "images/up_90.png";
-            }
-            if (img_ang == 180){
-                up_img = "images/up_180.png";
-            }
-            if (img_ang == 270){
-                up_img = "images/up_270.png";
-            }
+            var filepath = "images/";
+            if (side == "up") {up_img = filepath + side + "_" + img_ang + ".png";}
+            if (side == "down") {down_img = filepath + side + "_" + img_ang + ".png";}
         }
 
         function buf_check(side, x, y, bufer_size){
@@ -229,31 +217,42 @@
 
                 if (buf_check("up", mousex, mousey, bufer_coef)){
                     if (angle_of_rotation_y == 0){
-                        angle_of_rotation_y = Math.PI * 0.5;
-                        current_side_y = (current_side_y + 1) % 4;
-                        if (cube_sides_y[current_side_y] == "up"){
-                            changeSides(90 * current_side_x)
+                        if (cube_sides_y[current_side_y] != "up"){
+                            angle_of_rotation_y = Math.PI * 0.5;
+                            current_side_y = (current_side_y + 1) % 4;
+                            if (cube_sides_y[current_side_y] == "up"){
+                                changeSides("up", 90 * current_side_x);
+                            }
                         }
                     }
                 }
                 else if (buf_check("down", mousex, mousey, bufer_coef)){
                     if (angle_of_rotation_y == 0){
-                        angle_of_rotation_y = -Math.PI * 0.5;
-                        current_side_y -= 1;
-                        if (current_side_y == -1){current_side_y = 3};
+                        if (cube_sides_y[current_side_y] != "down"){
+                            angle_of_rotation_y = -Math.PI * 0.5;
+                            current_side_y -= 1;
+                            if (current_side_y == -1){current_side_y = 3};
+                            if (cube_sides_y[current_side_y] == "down"){
+                                changeSides("down", 90 * current_side_x);
+                            }
+                        }
                     }
                 }
                 else if (buf_check("right", mousex, mousey, bufer_coef)){
                     if (angle_of_rotation_x == 0){
-                        angle_of_rotation_x = -Math.PI * 0.5;
-                        current_side_x = (current_side_x + 1) % 4;
+                        if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
+                            angle_of_rotation_x = -Math.PI * 0.5;
+                            current_side_x = (current_side_x + 1) % 4;
+                        }
                     }
                 }
                 else if (buf_check("left", mousex, mousey, bufer_coef)){
                     if (angle_of_rotation_x == 0){
-                        angle_of_rotation_x = Math.PI * 0.5;
-                        current_side_x -= 1;
-                        if (current_side_x == -1){current_side_x = 3};
+                        if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
+                            angle_of_rotation_x = Math.PI * 0.5;
+                            current_side_x -= 1;
+                            if (current_side_x == -1){current_side_x = 3};
+                        }
                     }
                 } // else {
                     // alert(cube_sides_x[current_side_x]);
@@ -351,8 +350,8 @@
         var back_img = 'images/back.png'
         var left_img = 'images/left.png'
         var right_img = 'images/right.png'
-        var up_img = 'images/up.png'
-        var down_img = 'images/down.png'
+        var up_img = 'images/up_0.png'
+        var down_img = 'images/down_0.png'
         materials = [
             new THREE.MeshBasicMaterial({map: loader.load(right_img)}), // right
             new THREE.MeshBasicMaterial({map: loader.load(left_img)}),  // left
