@@ -11,15 +11,27 @@
           margin: 0;
         }
 
-        .ui {
-          position: absolute;
-          left:50%;
-          top:50%   ;
+
+        .c-button {
+            position: absolute;
+            left:50%;
+            top:50%   ;
+            min-width: 50px;
+            min-height: 50px;
+            appearance: none;
+            border: 0;
+            border-radius: 5px;
+            background: #4676d7;
+            color: #fff;
+          
+            cursor: pointer;
+            border-radius: 50%;
         }
 
-        button{
-          margin: 20px;
+        .c-button:hover {
+          background: #1d49aa;
         }
+
       </style>
 
       
@@ -30,23 +42,14 @@
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
-    <button style="" id="play" class="ui">play</button>
+    <button style="" id="play" class="c-button">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+            <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;" />
+        </svg>
+    </button>
 
     <script src="js/three.js"></script>
     <script>
-
-        var buttons = document.getElementsByTagName("button");
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].addEventListener("click", onButtonClick, false);
-        };
-
-        function onButtonClick(event) {
-            if (playing){
-                playing = false;
-            } else {
-                playing = true;
-            }
-        }
 
     	var speed_of_rotation_x = speed_of_rotation_y = 0.1;
         var angle_of_rotation_x = 0;
@@ -57,6 +60,7 @@
         var size_coef = 0.336487907;
         var width = window.innerWidth;
         var height = window.innerHeight;
+        var play_button_size = 50;
         var start_of_scene_z = 0.1;
         var end_of_scene_z = 5;
         var half_cube_size = Math.round((height * size_coef) / 2);
@@ -70,10 +74,29 @@
         var current_side_y = 0;
         let screenLog = document.querySelector('#screene');
 
+        var buttons = document.getElementsByTagName("button");
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener("click", onButtonClick, false);
+            buttons[i].style.left = Math.round(width / 2) - play_button_size / 2 + "px";
+            buttons[i].style.top = Math.round(height / 2) - half_cube_size - play_button_size * 2 + "px";
+        };
+
+        function onButtonClick(event) {
+            playing = !playing;
+        }
+
         function screenUpdateCheck(){
             width = window.innerWidth;
             height = window.innerHeight;
-            camera = new THREE.PerspectiveCamera( size_of_scene, width / height, 0.1, 5);  // camera perspective
+
+            var buttons = document.getElementsByTagName("button");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].addEventListener("click", onButtonClick, false);
+                buttons[i].style.left = Math.round(width / 2) - play_button_size / 2 + "px";
+                buttons[i].style.top = Math.round(height / 2) - half_cube_size - play_button_size * 2 + "px";
+            };
+
+            camera = new THREE.PerspectiveCamera( size_of_scene, width / height, start_of_scene_z, end_of_scene_z);  // camera perspective
             camera.position.z = 2;
             renderer.setSize( width, height);  // cube lesson size on the screene
             renderer.setClearColor("#01131E");
@@ -348,8 +371,6 @@
         var sound = new THREE.Audio( listener );
 
         var audioLoader = new THREE.AudioLoader();
-
-        //Load a sound and set it as the Audio object's buffer
         audioLoader.load( 'music.mp3', function( buffer ) {
             sound.setBuffer( buffer );
             sound.setLoop(true);
