@@ -35,7 +35,7 @@
       </style>
   </head>
   <body>
-
+    <a href="./main_page.html">Link text here</a>
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
@@ -105,16 +105,23 @@
 
             buttonsScreenUpdate();
 
+            // without updating of the camara the cube proportions break
+            camera = new THREE.PerspectiveCamera( size_of_scene, width / height, 0.1, 5 );  // camera perspective
+            camera.position.z = 2;
+            // without updating of the renderer the three.js window breaks
             renderer.setSize( width, height);  // cube lesson size on the screene
             renderer.setClearColor("#01131E");
             document.body.appendChild( renderer.domElement);
-            // renderer.setClearColor("#01131E");
             renderer.render( scene, camera );
-            //if (playing){
-            //    main_sound.play(0);
-            //} else {
-            //    main_sound.stop();
-            //}
+
+            scene.add( cube );
+
+            // limit dots
+            half_cube_size = Math.round((height * size_coef) / 2);
+            cube_screen_cords = {"up left": [Math.round(width / 2) - half_cube_size, Math.round(height / 2) - half_cube_size],
+                                "up right": [Math.round(width / 2) + half_cube_size, Math.round(height / 2) - half_cube_size],
+                                "down left": [Math.round(width / 2) - half_cube_size, Math.round(height / 2) + half_cube_size],
+                                "down right": [Math.round(width / 2) + half_cube_size, Math.round(height / 2) + half_cube_size]};
         }
 
         function changeSides(side, img_ang){
@@ -241,8 +248,8 @@
                             current_side_y = (current_side_y + 1) % 4;
                             if (cube_sides_y[current_side_y] == "up"){
                                 changeSides("up", 90 * current_side_x);
+                                changeAudio("up");
                             }
-                            changeAudio("up");
                         }
                     }
                 }
@@ -254,8 +261,8 @@
                             if (current_side_y == -1){current_side_y = 3};
                             if (cube_sides_y[current_side_y] == "down"){
                                 changeSides("down", 90 * current_side_x);
+                                changeAudio("down");
                             }
-                            changeAudio("down");
                         }
                     }
                 }
@@ -265,7 +272,9 @@
                             if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
                                 angle_of_rotation_x = -Math.PI * 0.5;
                                 current_side_x = (current_side_x + 1) % 4;
-                                changeAudio("right");
+                                if (cube_sides_y[current_side_y] == "right"){
+                                    changeAudio("right");
+                                }
                             }
                         }
                     }
@@ -277,7 +286,9 @@
                                 angle_of_rotation_x = Math.PI * 0.5;
                                 current_side_x -= 1;
                                 if (current_side_x == -1){current_side_x = 3};
-                                changeAudio("left");
+                                if (cube_sides_y[current_side_y] == "left"){
+                                    changeAudio("left");
+                                }
                             }
                         }
                     }
@@ -377,8 +388,6 @@
         var listener = new THREE.AudioListener();
         camera.add( listener );
 
-        // create a global audio source
-        // main_sound = new THREE.Audio( listener );
         var sound_sides = new THREE.Audio( listener );
         var sound_up = new THREE.Audio( listener );
 
@@ -389,16 +398,13 @@
                 sound_sides.setVolume(0.5);
             },
         );
-        audioLoader.load( 'audio/up.mp3', function( buffer ) {            
+        audioLoader.load( 'audio/up.mp3', function( buffer ) {
                 sound_up.setBuffer( buffer );
                 sound_up.setLoop(false);
                 sound_up.setVolume(0.5);
             },
         );
-        //alert(main_sound.constructor);
-        // function String() { [native code] }
         main_sound = sound_sides;
-
   		render();
         
     </script>
