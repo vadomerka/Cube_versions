@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for item in courses %}
+    <a href="/courses/{{ item.id }}" class="btn btn-primary">{{ item.name }}</a>
+    {% if current_user.teacher %}
+    <div>
+        <a href="/courses/{{ item.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+        <a href="/courses_delete/{{ item.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+    {% endif %}
+{% endfor %}
+<a href="/courses/{{ new_id }}" class="btn btn-primary">Добавить курс</a>
+{% endblock %}

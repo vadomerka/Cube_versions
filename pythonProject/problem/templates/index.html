@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Записи в блоге</h1>
+{% if current_user.teacher %}
+    <a href="news" class="btn btn-secondary">Добавить новость</a>
+{% endif %}
+{% for item in courses%}
+<div class="col-md6 border rounded">
+    <h2>{{item.name}}</h2>
+    <div>
+        {{item.about}}
+    </div>
+    {% if current_user.teacher %}
+    <div>
+        <a href="/news/{{ item.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+        <a href="/news_delete/{{ item.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+{% endif %}
+</div>
+{% endfor %}
+{% endblock %}
