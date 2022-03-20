@@ -14,11 +14,10 @@ def abort_if_news_not_found(course_id):
 
 
 class CourseResource(Resource):
-    def get(self, course_id):
+    def get(self, user_id, course_id):
         abort_if_news_not_found(course_id)
         session = db_session.create_session()
         course = session.query(Courses).get(course_id)
-        print(course)
         return jsonify({'course': course.to_dict(
             only=('id', 'name', 'about'))})
 
@@ -32,20 +31,21 @@ class CourseResource(Resource):
 
 
 class CourseListResource(Resource):
-    def get(self):
+    def get(self, user_id):
         session = db_session.create_session()
-        courses = session.query(Courses).all()
-        print(courses[0])
+        cur_user = session.query(User).filter(User.id == user_id).first()
+        print(cur_user)
         return jsonify({'courses': [item.to_dict(
-            only=('id', 'name', 'about')) for item in courses]})
+            only=('id', 'name', 'about')) for item in cur_user.courses]})
 
     def post(self):
-        args = parser.parse_args()
+        args = parserAdd.parse_args()
         session = db_session.create_session()
         course = Courses(
             id=args['id'],
             name=args['name'],
-            about=args['about']
+            about=args['about'],
+            author=args["author"]
         )
         session.add(course)
         session.commit()

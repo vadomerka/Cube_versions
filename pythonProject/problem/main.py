@@ -8,15 +8,16 @@ from data.users import User
 from forms.user import RegisterForm, LoginForm
 from forms.course import CoursesForm
 import datetime as dt
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from resourses.resourses import CourseListResource, CourseResource
 from flask_restful import Api
+from requests import get, post, delete, put
 
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-api.add_resource(CourseListResource, '/courses')
-api.add_resource(CourseResource, '/courses/<int:course_id>')
+api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
+api.add_resource(CourseResource, '/rest_courses/<int:user_id>/<int:course_id>')
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -72,18 +73,37 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
 
-# @app.route('/courses', methods=['GET', 'POST'])
-# def courses():
-#     db_sess = db_session.create_session()
-#     user = db_sess.query(User).filter(User.id == current_user.id).first()
-#     # print(user_courses.courses)
-#     return render_template('courses.html', title='Ваши курсы', courses=user.courses, new_id=len(user.courses))
+@app.route('/courses', methods=['GET', 'POST'])
+@login_required
+def courses():
+    user_courses = get('http://localhost:5000/rest_courses/' + str(current_user.id)).json()[
+        "courses"]
+    # print(user_courses)
+    return render_template('courses.html', courses=user_courses, new_id=len(user_courses) + 1)
+
+
+@app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
+@login_required
+def course_view(course_id):
+    # print('http://localhost:5000/rest_courses/' + str(current_user.id) + "/" + str(course_id))
+    course = get('http://localhost:5000/rest_courses/' + str(current_user.id) + "/" + str(course_id)
+                 ).json()["course"]
+    # print(course)
+    return render_template('course_change.html', course_data=course)
+
 
 def main():
     db_session.global_init("db/users.db")
