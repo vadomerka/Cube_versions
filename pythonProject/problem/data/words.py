@@ -5,23 +5,25 @@ from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
-users_to_course = sqlalchemy.Table(
-    'users_to_course',
+words_to_lesson = sqlalchemy.Table(
+    'words_to_lessons',
     SqlAlchemyBase.metadata,
-    sqlalchemy.Column('users', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('users.id')),
-    sqlalchemy.Column('courses', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('courses.id'))
+    sqlalchemy.Column('words', sqlalchemy.Integer,
+                      sqlalchemy.ForeignKey('words.id')),
+    sqlalchemy.Column('lessons', sqlalchemy.Integer,
+                      sqlalchemy.ForeignKey('lessons.id'))
 )
 
 
-class Courses(SqlAlchemyBase, SerializerMixin):
-    __tablename__ = 'courses'
+class Words(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'words'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    # users = orm.relation("Users",
-    #                        secondary="users_to_course",
-    #                        backref="courses")
+    hieroglyph = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    tranlation = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    front_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    left_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    right_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    up_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    down_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)

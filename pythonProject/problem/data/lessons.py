@@ -5,23 +5,23 @@ from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
-users_to_course = sqlalchemy.Table(
-    'users_to_course',
+lessons_to_course = sqlalchemy.Table(
+    'lessons_to_course',
     SqlAlchemyBase.metadata,
-    sqlalchemy.Column('users', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('users.id')),
+    sqlalchemy.Column('lessons', sqlalchemy.Integer,
+                      sqlalchemy.ForeignKey('lessons.id')),
     sqlalchemy.Column('courses', sqlalchemy.Integer,
                       sqlalchemy.ForeignKey('courses.id'))
 )
 
 
-class Courses(SqlAlchemyBase, SerializerMixin):
-    __tablename__ = 'courses'
+class Lessons(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'lessons'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    lessons = orm.relation("Lessons",
-                           secondary="lessons_to_course",
-                           backref="courses")
+    # about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    words = orm.relation("Words",
+                         secondary="words_to_lessons",
+                         backref="lessons")

@@ -4,8 +4,9 @@ from wtforms.fields import EmailField, PasswordField, BooleanField
 from wtforms.validators import DataRequired
 
 
-class CoursesForm(FlaskForm):
-    name = StringField('Название курса', validators=[DataRequired()])
-    about = TextAreaField("Описание")
+class LessonsForm(FlaskForm):
+    name = StringField('Название урока', validators=[DataRequired()])
+
+    # about = TextAreaField("Описание")
     submit = SubmitField('Применить')
 

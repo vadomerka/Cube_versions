@@ -3,4 +3,11 @@
 {% block content %}
 <a href="/courses" class="btn btn-primary">Все курсы</a>
 <a>{{ course_data }}</a>
+<h1>{{ course_data.name }}</h1>
+<p>{{ course_data.about }}</p>
+<h2>Lessons</h2>
+{% for less in course_data.lessons %}
+    <a class="btn btn-primary" href="/lesson/{{ less.id }}">{{ less.name }}</a>
+{% endfor %}
+<a href="/make_lesson/{{ course_data.id }}" class="btn btn-primary">Добавить урок</a>
 {% endblock %}

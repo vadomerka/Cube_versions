@@ -12,14 +12,20 @@
 <body>
 <!-- Begin page content -->
 <nav>
-        {% if current_user.is_authenticated %}
-            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-        {% else %}
-            <p>
-                <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-                <a class="btn btn-success" href="/login">Войти</a>
-            </p>
-        {% endif %}
+    {% if current_user.is_authenticated %}
+    <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+    {% else %}
+    <p>
+        <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
+        <a class="btn btn-success" href="/login">Войти</a>
+    </p>
+    {% endif %}
+    {% if current_user.is_authenticated %}
+    <div id="up buttons">
+        <a class="btn btn-primary " href="/courses">Мои Курсы</a>
+        <a class="btn btn-primary " href="/dictionary">Словарь</a>
+    </div>
+    {% endif %}
 </nav>
 <main role="main" class="container">
     {% block content %}{% endblock %}
