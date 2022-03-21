@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ol>
+    {% for word in all_words %}
+    <li>{{ word.hieroglyph }} {{ word.translation }}</li>
+    {% endfor %}
+</ol>
+<a href="/add_word" class="btn btn-primary">Добавить слово</a>
+{% endblock %}

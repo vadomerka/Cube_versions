@@ -10,17 +10,21 @@ from data.users import User
 from forms.user import RegisterForm, LoginForm
 from forms.course import CoursesForm
 from forms.lesson import LessonsForm
+from forms.word import WordsForm
 import datetime as dt
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from resourses.resourses import CourseListResource, CourseResource
+from resourses.course_resourses import CourseListResource, CourseResource
+from resourses.dict_resourses import DictResourse
 from flask_restful import Api
 from requests import get, post, delete, put
+import os
 
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_courses/<int:user_id>/<int:course_id>')
+api.add_resource(DictResourse, "/rest_dict")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -145,6 +149,54 @@ def course_view(course_id):
     return render_template('course_change.html', course_data=course)
 
 
+@app.route('/dictionary', methods=['GET', 'POST'])
+@login_required
+def dict_view():
+    all_words = get("http://localhost:5000/rest_dict").json()["words"]
+    return render_template("dictionary.html", all_words=all_words, current_user=current_user)
+
+
+@app.route('/add_word', methods=['GET', 'POST'])
+@login_required
+def add_word():
+    form = WordsForm()
+    db_sess = db_session.create_session()
+    all_words = db_sess.query(Words).all()
+    if form.validate_on_submit():
+        new_word = Words()
+        new_word.author = current_user.id
+        new_word.hieroglyph = form.hieroglyph.data
+        new_word.translation = form.translation.data
+        front = request.files['front']
+        left = request.files['left']
+        right = request.files['right']
+        up = request.files['up']
+        down = request.files['down']
+        path_to_file = os.path.dirname(__file__)
+        full_path = os.path.join(path_to_file)
+        filepath = os.path.join(full_path, "db", "dictionary", new_word.translation)
+        if front:
+            front.save(filepath + "_front.png")
+            new_word.front_side = filepath + "_front.png"
+        if left:
+            left.save(filepath + "_left.png")
+            new_word.left_side = filepath + "_left.png"
+        if right:
+            right.save(filepath + "_right.png")
+            new_word.right_side = filepath + "_right.png"
+        if up:
+            up.save(filepath + "_up.png")
+            new_word.up_side = filepath + "_up.png"
+        if down:
+            down.save(filepath + "_down.png")
+            new_word.down_side = filepath + "_down.png"
+        current_user.words.append(new_word)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/dictionary')
+    return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
+
+
 def main():
     db_session.global_init("db/users.db")
     app.run()
@@ -152,3 +204,54 @@ def main():
 
 if __name__ == '__main__':
     main()
+"""
+from flask import Flask
+from flask import request, url_for, redirect
+import os
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'gJ9c96Tz6sI5wzeb420x1zIdu7ZCx5BYmLZfBDHn'
+
+
+@app.route('/sample_file_upload', methods=['POST', 'GET'])
+def sample_file_upload():
+    if request.method == 'GET':
+        return f'''<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+     <link rel="stylesheet"
+     href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+     integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+     crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+    <title>Пример загрузки файла</title>
+  </head>
+  <body>
+    <h1>Загрузить файл</h1>
+
+    <form method="post" enctype="multipart/form-data">
+       <div class="form-group">
+            <label for="photo">Выберите файл</label>
+            <input type="file" class="form-control-file" id="photo" name="file">
+            <img src="{url_for('static', filename='imgs/temp')}"
+                    width="300" height="300">
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+
+  </body>
+</html>'''
+    elif request.method == 'POST':
+        file = request.files['file']
+        if file:
+            path_to_file = os.path.dirname(__file__)
+            full_path = os.path.join(path_to_file, "static", "imgs")
+            file.save(os.path.join(full_path, "temp"))
+            return redirect("/sample_file_upload")
+
+
+if __name__ == '__main__':
+    app.run(port=5000, host='127.0.0.1')
+"""

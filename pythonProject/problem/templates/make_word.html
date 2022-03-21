@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.hieroglyph.label }}<br>
+        {{ form.hieroglyph(class="form-control") }}<br>
+        {% for error in form.hieroglyph.errors %}
+        <p content="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.translation.label }}<br>
+        {{ form.translation(class="form-control") }}<br>
+        {% for error in form.translation.errors %}
+        <p content="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
+    </p>
+    <div class="form-group">
+        <label for="front">Выберите переднюю сторону</label>
+        <input type="file" class="form-control-file" id="front" name="front" value='file'>
+        <img src="{url_for('static', filename={{ filename }})}"
+             width="300" height="300">
+        <label for="left">Выберите левую сторону</label>
+        <input type="file" class="form-control-file" id="left" name="left" value='file'>
+
+        <label for="right">Выберите правую сторону</label>
+        <input type="file" class="form-control-file" id="right" name="right" value='file'>
+
+        <label for="up">Выберите верхнюю сторону</label>
+        <input type="file" class="form-control-file" id="up" name="up" value='file'>
+
+        <label for="down">Выберите нижнюю сторону</label>
+        <input type="file" class="form-control-file" id="down" name="down" value='file'>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>
+{% endblock %}

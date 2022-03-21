@@ -20,8 +20,10 @@ class Words(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
+    author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False)
+    user = orm.relation('User')
     hieroglyph = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    tranlation = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    translation = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     front_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     left_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     right_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
