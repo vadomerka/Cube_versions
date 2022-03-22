@@ -38,3 +38,29 @@ class DictResourse(Resource):
         session.add(word)
         session.commit()
         return jsonify({'success': 'OK'})
+
+
+class WordResourse(Resource):
+    def get(self, word_id):
+        session = db_session.create_session()
+        word = session.query(Words).get(word_id)
+
+        ret = {'word': word.to_dict(
+            only=("id",
+                  "author",
+                  "hieroglyph",
+                  "translation",
+                  "front_side",
+                  "left_side",
+                  "right_side",
+                  "up_side",
+                  "down_side"))}
+        return jsonify(ret)
+
+    def delete(self, course_id):
+        abort_if_news_not_found(course_id)
+        session = db_session.create_session()
+        course = session.query(Courses).get(course_id)
+        session.delete(course)
+        session.commit()
+        return jsonify({'success': 'OK'})

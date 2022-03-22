@@ -3,7 +3,17 @@
 {% block content %}
 <ol>
     {% for word in all_words %}
-    <li>{{ word.hieroglyph }} {{ word.translation }}</li>
+    <a href="/word/{{ word.id }}" class="btn btn-primary">{{ word.hieroglyph }} {{ word.translation }}</a>
+    {% if current_user.id == word.author %}
+    <div>
+        <a href="/change_word/{{ word.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+        <a href="/delete_word/{{ word.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+    {% endif %}
     {% endfor %}
 </ol>
 <a href="/add_word" class="btn btn-primary">Добавить слово</a>

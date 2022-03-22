@@ -15,9 +15,11 @@ import datetime as dt
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse
+from resourses.dict_resourses import WordResourse
 from flask_restful import Api
 from requests import get, post, delete, put
 import os
+from PIL import Image
 
 app = Flask(__name__)
 api = Api(app)
@@ -25,6 +27,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_courses/<int:user_id>/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
+api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -197,6 +200,29 @@ def add_word():
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
 
 
+@app.route('/word/<int:word_id>', methods=['GET', 'POST'])
+@login_required
+def word_view(word_id):
+    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
+    # print(word)
+    # /db/dictionary/перевод 2_down.png
+    return render_template('dict_word.html',
+                           front_img=word["front_side"],
+                           left_img=word["left_side"],
+                           right_img=word["right_side"],
+                           up_img=word["up_side"],
+                           down_img=word["down_side"])
+
+
+@app.route('/get_image/<int:word_id>/<string:side>', methods=['GET'])
+@login_required
+def get_image(word_id, side):
+    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
+    img = Image.open(word[side])
+    print(img)
+    return img
+
+
 def main():
     db_session.global_init("db/users.db")
     app.run()
@@ -255,3 +281,4 @@ def sample_file_upload():
 if __name__ == '__main__':
     app.run(port=5000, host='127.0.0.1')
 """
+# "GET /word/images/down_0.png HTTP/1.1"
