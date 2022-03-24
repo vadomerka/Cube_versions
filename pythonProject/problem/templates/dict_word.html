@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset=utf-8>
     <title>My first Three.js app</title>
     <style>
@@ -33,19 +33,19 @@
         }
 
       </style>
-  </head>
-  <body>
-    <script src="https://threejs.org/build/three.min.js"></script>
-    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+<script src="https://threejs.org/build/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
-    <button style="" id="play" class="c-button">
-        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-            <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;" />
-        </svg>
-    </button>
+<button style="" id="play" class="c-button">
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;" />
+    </svg>
+</button>
 
-    <script src="js/three.js"></script>
-    <script>
+<script src="js/three.js"></script>
+<script>
 
     	var speed_of_rotation_x = speed_of_rotation_y = 0.1;
         var angle_of_rotation_x = 0;
@@ -128,11 +128,16 @@
 
             var filepath = "images/";
             if (side == "up") {
-                up_img = filepath + side + "_" + img_ang + ".png";
+                up_img = start_up_img.split("."); // /static/%D1%82%D1%8B_up,png
+                up_img[up_img.length - 2] = up_img[up_img.length - 2] + "_" + img_ang;
+                up_img = (up_img).join(".");
                 materials[2] = new THREE.MeshBasicMaterial({map: loader.load(up_img)});
             }
             if (side == "down") {
-                down_img = filepath + side + "_" + img_ang + ".png";
+                down_img = start_down_img.split("."); // /static/%D1%82%D1%8B_up,png
+                down_img[down_img.length - 2] = down_img[down_img.length - 2] + "_" + img_ang;
+                down_img = (down_img).join(".");
+                // down_img = filepath + side + "_" + img_ang + ".png";
                 materials[3] = new THREE.MeshBasicMaterial({map: loader.load(down_img)});
             }
             old_rot_x = cube.rotation.x
@@ -156,7 +161,7 @@
         }
 
         function changeAudio(side){
-            var filepath = "audio/";
+            // var filepath = "audio/";
             // if (side == "up") {up_img = filepath + side + "_" + img_ang + ".png";}
             // if (side == "down") {down_img = filepath + side + "_" + img_ang + ".png";}
             main_sound.stop();
@@ -362,15 +367,17 @@
         var back_img = "{{ back_img }}";
         var left_img = "{{ left_img }}";
         var right_img = "{{ right_img }}";
+
         var up_img = "{{ up_img }}";
-        var up_img = up_img.split("."); // /static/%D1%82%D1%8B_up,png
-        // alert(up_img[up_img.length - 2]);
+        var start_up_img = "{{ up_img }}";
+        up_img = up_img.split(".");
         up_img[up_img.length - 2] = up_img[up_img.length - 2] + "_0";
-        // alert(up_img[up_img.length - 2]);  // /static/%D1%82%D1%8B_up,png
-        // up_img = (up_img).join(".");
-        up_img = "/static/новый перевод_up.png"
-        alert(up_img);  // /static/%D1%82%D1%8B_up.png
+        up_img = (up_img).join(".");
         var down_img = "{{ down_img }}";
+        var start_down_img = "{{ down_img }}";
+        down_img = down_img.split(".");
+        down_img[down_img.length - 2] = down_img[down_img.length - 2] + "_0";
+        down_img = (down_img).join(".");
         materials = [
             new THREE.MeshBasicMaterial({map: loader.load(right_img)}), // right
             new THREE.MeshBasicMaterial({map: loader.load(left_img)}),  // left
@@ -397,13 +404,13 @@
         var sound_up = new THREE.Audio( listener );
 
         var audioLoader = new THREE.AudioLoader();
-        audioLoader.load( 'audio/front.mp3', function( buffer ) {
+        audioLoader.load( '{{ right_audio }}', function( buffer ) {
                 sound_sides.setBuffer( buffer );
                 sound_sides.setLoop(false);
                 sound_sides.setVolume(0.5);
             },
         );
-        audioLoader.load( 'audio/up.mp3', function( buffer ) {
+        audioLoader.load( '{{ up_audio }}', function( buffer ) {
                 sound_up.setBuffer( buffer );
                 sound_up.setLoop(false);
                 sound_up.setVolume(0.5);
@@ -413,5 +420,5 @@
   		render();
         
     </script>
-  </body>
+</body>
 </html>

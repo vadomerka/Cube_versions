@@ -176,31 +176,51 @@ def add_word():
         right = request.files['right']
         up = request.files['up']
         down = request.files['down']
+        transcription_audio = request.files['transcription_audio']
+        phrase_audio = request.files['phrase_audio']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
-        filepath = os.path.join(full_path, "static", new_word.translation)
+        filepath = os.path.join(full_path, "static", str(new_word.author))
         if front:
             front.save(filepath + "_front.png")
-            new_word.front_side = new_word.translation + "_front.png"
+            new_word.front_side = str(new_word.author) + "_front.png"
         if left:
             left.save(filepath + "_left.png")
-            new_word.left_side = new_word.translation + "_left.png"
+            new_word.left_side = str(new_word.author) + "_left.png"
         if right:
             right.save(filepath + "_right.png")
-            new_word.right_side = new_word.translation + "_right.png"
+            new_word.right_side = str(new_word.author) + "_right.png"
         if up:
             up.save(filepath + "_up_0.png")
-            new_word.up_side = new_word.translation + "_up.png"
+            new_word.up_side = str(new_word.author) + "_up.png"
             im = Image.open(filepath + "_up_0.png")
-            im = im.transpose(Image.ROTATE_270)
+            im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_90.png")
-            im = im.transpose(Image.ROTATE_270)
+            im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_180.png")
-            im = im.transpose(Image.ROTATE_270)
+            im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_270.png")
         if down:
-            down.save(filepath + "_down.png")
-            new_word.down_side = new_word.translation + "_down.png"
+            down.save(filepath + "_down_0.png")
+            new_word.down_side = str(new_word.author) + "_down.png"
+            im = Image.open(filepath + "_down_0.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_down_90.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_down_180.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_down_270.png")
+        if transcription_audio:
+            transcription_audio.save(filepath + "_trans_audio.mp3")
+            new_word.right_side_audio = str(new_word.author) + "_trans_audio.mp3"
+            # print(new_word.right_side_audio)
+        else:
+            print(None)
+        if phrase_audio:
+            phrase_audio.save(filepath + "_phrase_audio.mp3")
+            new_word.up_side_audio = str(new_word.author) + "_phrase_audio.mp3"
+        else:
+            print(None)
         current_user.words.append(new_word)
         db_sess.close()
         db_sess = db_session.create_session()
@@ -215,7 +235,7 @@ def add_word():
 @login_required
 def delete_word(word_id):
     ret = delete("http://localhost:5000/rest_word/" + str(word_id)).json()
-    print(ret)
+    # print(ret)
     if ret == {'success': 'OK'}:
         return redirect("/dictionary")
     else:
@@ -226,33 +246,16 @@ def delete_word(word_id):
 @login_required
 def word_view(word_id):
     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
-    # up = word["up_side"].split(".")
-    # up_0 = ".".join(up[:-2] + [up[-2] + "_0"] + [up[-1]])
-    # up_90 = ".".join(up[:-2] + [up[-2] + "_90"] + [up[-1]])
-    # up_180 = ".".join(up[:-2] + [up[-2] + "_180"] + [up[-1]])
-    # up_270 = ".".join(up[:-2] + [up[-2] + "_270"] + [up[-1]])
-    # down = word["up_side"].split(".")
-    # down_0 = ".".join(down[:-2] + [down[-2] + "_0"] + [down[-1]])
-    # down_90 = ".".join(down[:-2] + [down[-2] + "_90"] + [down[-1]])
-    # down_180 = ".".join(down[:-2] + [down[-2] + "_180"] + [down[-1]])
-    # down_270 = ".".join(down[:-2] + [down[-2] + "_270"] + [down[-1]])
-    # print(up_0)
+    # print(word)
+
     return render_template('dict_word.html',
-                           variable=url_for("static", filename="перевод 3_right.png"),
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
                            right_img=url_for("static", filename=word["right_side"]),
                            up_img=url_for("static", filename=word["up_side"]),
-                           down_img=url_for("static", filename=word["down_side"]))
-
-
-# @app.route('/get_image/<int:word_id>/<string:side>', methods=['GET'])
-# @login_required
-# def get_image(word_id, side):
-#     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
-#     img = Image.open(word[side])
-#     print(img)
-#     return img
+                           down_img=url_for("static", filename=word["down_side"]),  # front_audio=url_for("static", filename=word["front_side_audio"]),
+                           right_audio=url_for("static", filename=word["right_side_audio"]),
+                           up_audio=url_for("static", filename=word["up_side_audio"]))
 
 
 def main():

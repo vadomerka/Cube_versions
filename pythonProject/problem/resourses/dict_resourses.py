@@ -26,8 +26,10 @@ class DictResourse(Resource):
                   "left_side",
                   "right_side",
                   "up_side",
-                  "down_side"
-                  )) for item in dictionary]}
+                  "down_side",
+                  "front_side_audio",
+                  "right_side_audio",
+                  "up_side_audio")) for item in dictionary]}
         return jsonify(ret)
 
     def post(self):
@@ -40,7 +42,10 @@ class DictResourse(Resource):
                      left_side=args["left_side"],
                      right_side=args["right_side"],
                      up_side=args["up_side"],
-                     down_side=args["down_side"]
+                     down_side=args["down_side"],
+                     front_side_audio=args["front_side_audio"],
+                     right_side_audio=args["right_side_audio"],
+                     up_side_audio=args["up_side_audio"]
                      )
         session.add(word)
         session.commit()
@@ -62,7 +67,10 @@ class WordResourse(Resource):
                   "left_side",
                   "right_side",
                   "up_side",
-                  "down_side"))}
+                  "down_side",
+                  "front_side_audio",
+                  "right_side_audio",
+                  "up_side_audio"))}
         return jsonify(ret)
 
     def delete(self, word_id):
