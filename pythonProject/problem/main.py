@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, url_for
 from flask import request, make_response, session, abort
 
 from data import db_session
@@ -164,6 +164,7 @@ def dict_view():
 def add_word():
     form = WordsForm()
     db_sess = db_session.create_session()
+    # db_sess.expire_on_commit = False
     all_words = db_sess.query(Words).all()
     if form.validate_on_submit():
         new_word = Words()
@@ -177,50 +178,81 @@ def add_word():
         down = request.files['down']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
-        filepath = os.path.join(full_path, "db", "dictionary", new_word.translation)
+        filepath = os.path.join(full_path, "static", new_word.translation)
         if front:
             front.save(filepath + "_front.png")
-            new_word.front_side = filepath + "_front.png"
+            new_word.front_side = new_word.translation + "_front.png"
         if left:
             left.save(filepath + "_left.png")
-            new_word.left_side = filepath + "_left.png"
+            new_word.left_side = new_word.translation + "_left.png"
         if right:
             right.save(filepath + "_right.png")
-            new_word.right_side = filepath + "_right.png"
+            new_word.right_side = new_word.translation + "_right.png"
         if up:
-            up.save(filepath + "_up.png")
-            new_word.up_side = filepath + "_up.png"
+            up.save(filepath + "_up_0.png")
+            new_word.up_side = new_word.translation + "_up.png"
+            im = Image.open(filepath + "_up_0.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_up_90.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_up_180.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_up_270.png")
         if down:
             down.save(filepath + "_down.png")
-            new_word.down_side = filepath + "_down.png"
+            new_word.down_side = new_word.translation + "_down.png"
         current_user.words.append(new_word)
+        db_sess.close()
+        db_sess = db_session.create_session()
         db_sess.merge(current_user)
         db_sess.commit()
+        db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
+
+
+@app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
+@login_required
+def delete_word(word_id):
+    ret = delete("http://localhost:5000/rest_word/" + str(word_id)).json()
+    print(ret)
+    if ret == {'success': 'OK'}:
+        return redirect("/dictionary")
+    else:
+        return "что-то пошло не так"
 
 
 @app.route('/word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
 def word_view(word_id):
     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
-    # print(word)
-    # /db/dictionary/перевод 2_down.png
+    # up = word["up_side"].split(".")
+    # up_0 = ".".join(up[:-2] + [up[-2] + "_0"] + [up[-1]])
+    # up_90 = ".".join(up[:-2] + [up[-2] + "_90"] + [up[-1]])
+    # up_180 = ".".join(up[:-2] + [up[-2] + "_180"] + [up[-1]])
+    # up_270 = ".".join(up[:-2] + [up[-2] + "_270"] + [up[-1]])
+    # down = word["up_side"].split(".")
+    # down_0 = ".".join(down[:-2] + [down[-2] + "_0"] + [down[-1]])
+    # down_90 = ".".join(down[:-2] + [down[-2] + "_90"] + [down[-1]])
+    # down_180 = ".".join(down[:-2] + [down[-2] + "_180"] + [down[-1]])
+    # down_270 = ".".join(down[:-2] + [down[-2] + "_270"] + [down[-1]])
+    # print(up_0)
     return render_template('dict_word.html',
-                           front_img=word["front_side"],
-                           left_img=word["left_side"],
-                           right_img=word["right_side"],
-                           up_img=word["up_side"],
-                           down_img=word["down_side"])
+                           variable=url_for("static", filename="перевод 3_right.png"),
+                           front_img=url_for("static", filename=word["front_side"]),
+                           left_img=url_for("static", filename=word["left_side"]),
+                           right_img=url_for("static", filename=word["right_side"]),
+                           up_img=url_for("static", filename=word["up_side"]),
+                           down_img=url_for("static", filename=word["down_side"]))
 
 
-@app.route('/get_image/<int:word_id>/<string:side>', methods=['GET'])
-@login_required
-def get_image(word_id, side):
-    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
-    img = Image.open(word[side])
-    print(img)
-    return img
+# @app.route('/get_image/<int:word_id>/<string:side>', methods=['GET'])
+# @login_required
+# def get_image(word_id, side):
+#     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
+#     img = Image.open(word[side])
+#     print(img)
+#     return img
 
 
 def main():
@@ -230,55 +262,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-"""
-from flask import Flask
-from flask import request, url_for, redirect
-import os
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'gJ9c96Tz6sI5wzeb420x1zIdu7ZCx5BYmLZfBDHn'
-
-
-@app.route('/sample_file_upload', methods=['POST', 'GET'])
-def sample_file_upload():
-    if request.method == 'GET':
-        return f'''<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-     <link rel="stylesheet"
-     href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-     integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-     crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
-    <title>Пример загрузки файла</title>
-  </head>
-  <body>
-    <h1>Загрузить файл</h1>
-
-    <form method="post" enctype="multipart/form-data">
-       <div class="form-group">
-            <label for="photo">Выберите файл</label>
-            <input type="file" class="form-control-file" id="photo" name="file">
-            <img src="{url_for('static', filename='imgs/temp')}"
-                    width="300" height="300">
-        </div>
-        <button type="submit" class="btn btn-primary">Отправить</button>
-    </form>
-
-  </body>
-</html>'''
-    elif request.method == 'POST':
-        file = request.files['file']
-        if file:
-            path_to_file = os.path.dirname(__file__)
-            full_path = os.path.join(path_to_file, "static", "imgs")
-            file.save(os.path.join(full_path, "temp"))
-            return redirect("/sample_file_upload")
-
-
-if __name__ == '__main__':
-    app.run(port=5000, host='127.0.0.1')
-"""
 # "GET /word/images/down_0.png HTTP/1.1"

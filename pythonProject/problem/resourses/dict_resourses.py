@@ -5,6 +5,13 @@ from data.words import Words
 from resourses.parser import parserAdd
 
 
+def abort_if_word_not_found(word_id):
+    session = db_session.create_session()
+    word = session.query(Words).get(word_id)
+    if not word:
+        abort(404, message=f"Word {word_id} not found")
+
+
 class DictResourse(Resource):
     def get(self):
         session = db_session.create_session()
@@ -42,6 +49,7 @@ class DictResourse(Resource):
 
 class WordResourse(Resource):
     def get(self, word_id):
+        abort_if_word_not_found(word_id)
         session = db_session.create_session()
         word = session.query(Words).get(word_id)
 
@@ -57,10 +65,10 @@ class WordResourse(Resource):
                   "down_side"))}
         return jsonify(ret)
 
-    def delete(self, course_id):
-        abort_if_news_not_found(course_id)
+    def delete(self, word_id):
+        abort_if_word_not_found(word_id)
         session = db_session.create_session()
-        course = session.query(Courses).get(course_id)
-        session.delete(course)
+        word = session.query(Words).get(word_id)
+        session.delete(word)
         session.commit()
         return jsonify({'success': 'OK'})

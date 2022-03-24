@@ -358,12 +358,19 @@
 
 		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 		const loader = new THREE.TextureLoader();
-        var front_img = "/get_image/5/front_side";
-        var back_img = "/db/dictionary/перевод 4_right.png";
-        var left_img = "/home/rad/PycharmProjects/pythonProject/problem/db/dictionary/перевод 4_right.png";
-        var right_img = "/home/rad/PycharmProjects/pythonProject/problem/db/dictionary/перевод 4_right.png";
-        var up_img = "/home/rad/PycharmProjects/pythonProject/problem/db/dictionary/перевод 4_right.png";
-        var down_img = "/home/rad/PycharmProjects/pythonProject/problem/db/dictionary/перевод 4_right.png";
+        var front_img = "{{ front_img }}";
+        var back_img = "{{ back_img }}";
+        var left_img = "{{ left_img }}";
+        var right_img = "{{ right_img }}";
+        var up_img = "{{ up_img }}";
+        var up_img = up_img.split("."); // /static/%D1%82%D1%8B_up,png
+        // alert(up_img[up_img.length - 2]);
+        up_img[up_img.length - 2] = up_img[up_img.length - 2] + "_0";
+        // alert(up_img[up_img.length - 2]);  // /static/%D1%82%D1%8B_up,png
+        // up_img = (up_img).join(".");
+        up_img = "/static/новый перевод_up.png"
+        alert(up_img);  // /static/%D1%82%D1%8B_up.png
+        var down_img = "{{ down_img }}";
         materials = [
             new THREE.MeshBasicMaterial({map: loader.load(right_img)}), // right
             new THREE.MeshBasicMaterial({map: loader.load(left_img)}),  // left
