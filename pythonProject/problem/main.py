@@ -221,10 +221,8 @@ def add_word():
             new_word.up_side_audio = str(new_word.author) + "_phrase_audio.mp3"
         else:
             print(None)
-        current_user.words.append(new_word)
-        db_sess.close()
-        db_sess = db_session.create_session()
-        db_sess.merge(current_user)
+        cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
+        cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
