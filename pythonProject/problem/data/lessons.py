@@ -21,7 +21,6 @@ class Lessons(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    # about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     words = orm.relation("Words",
                          secondary="words_to_lessons",
                          backref="lessons")

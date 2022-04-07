@@ -1,13 +1,8 @@
-import datetime
 import sqlalchemy
 from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.fields import EmailField, PasswordField, BooleanField
-from wtforms.validators import DataRequired
 from sqlalchemy_serializer import SerializerMixin
 
 
@@ -33,10 +28,3 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
-
-
-# class LoginForm(FlaskForm):
-#     email = EmailField('Почта', validators=[DataRequired()])
-#     password = PasswordField('Пароль', validators=[DataRequired()])
-#     remember_me = BooleanField('Запомнить меня')
-#     submit = SubmitField('Войти')

@@ -132,11 +132,8 @@ def make_lesson(course_id):
     current_course = db_sess.query(Courses).get(course_id)
     all_words = db_sess.query(Words).all()
     if form.validate_on_submit():
-        # print(form)  <forms.lesson.LessonsForm object at 0x7fd4defc9940>
-        # print(form.words)
         new_lesson = Lessons()
         new_lesson.name = form.name.data
-        # print(request.form.getlist('checks'))
         current_course.lessons.append(new_lesson)
         db_sess.merge(current_course)
         db_sess.commit()
@@ -150,6 +147,14 @@ def course_view(course_id):
     course = get('http://localhost:5000/rest_courses/' + str(current_user.id) + "/" + str(course_id)
                  ).json()["course"]
     return render_template('course_change.html', course_data=course)
+
+
+@app.route('/lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def lesson_view(lesson_id):
+    # course = get('http://localhost:5000/rest_courses/' + str(current_user.id) + "/" + str(course_id)
+    #              ).json()["course"]
+    return render_template('lesson_view.html', lesson_data=lesson_id)
 
 
 @app.route('/dictionary', methods=['GET', 'POST'])
