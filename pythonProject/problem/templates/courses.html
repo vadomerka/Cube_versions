@@ -6,22 +6,19 @@
 </div>
 
 {% for item in courses %}
-    <div class="card" style="width: 18rem;">
+    <div class="card" style="width: 18rem; margin-bottom: 10px">
       <div class="card-body">
         <h5 class="card-title">{{ item.name }}</h5>
         <p class="card-text">{{ item.about }}</p>
         <a href="/courses/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
-      </div>
-    </div>
-    {% if current_user.teacher %}
-    <div>
-        <a href="/courses/{{ item.id }}" class="btn btn-warning">
-            Изменить
-        </a>
+      {% if current_user.teacher %}
         <a href="/courses_delete/{{ item.id }}" class="btn btn-danger">
             Удалить
         </a>
+      {% endif %}
+      </div>
     </div>
-    {% endif %}
+
+
 {% endfor %}
 {% endblock %}

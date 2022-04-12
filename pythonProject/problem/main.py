@@ -57,13 +57,14 @@ def register():
         user = User(
             name=form.name.data,
             email=form.email.data,
-            about=form.about.data
+            about=form.about.data,
+            teacher=form.teacher.data
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
-        return redirect('/courses')
+        return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -121,7 +122,7 @@ def make_course():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/courses')
-    return render_template('make_course.html', form=form)
+    return render_template('make_course.html', form=form, function="Добавить курс")
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
@@ -152,9 +153,9 @@ def course_view(course_id):
 @app.route('/lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def lesson_view(lesson_id):
-    # course = get('http://localhost:5000/rest_courses/' + str(current_user.id) + "/" + str(course_id)
-    #              ).json()["course"]
-    return render_template('lesson_view.html', lesson_data=lesson_id)
+    lesson = get('http://localhost:5000/rest_lessons/' + str(current_user.id) + "/" + str(lesson_id)
+                 ).json()["lesson"]
+    return render_template('lesson_view.html', lesson_data=lesson)
 
 
 @app.route('/dictionary', methods=['GET', 'POST'])
@@ -256,7 +257,8 @@ def word_view(word_id):
                            left_img=url_for("static", filename=word["left_side"]),
                            right_img=url_for("static", filename=word["right_side"]),
                            up_img=url_for("static", filename=word["up_side"]),
-                           down_img=url_for("static", filename=word["down_side"]),  # front_audio=url_for("static", filename=word["front_side_audio"]),
+                           down_img=url_for("static", filename=word["down_side"]),
+                           # front_audio=url_for("static", filename=word["front_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]))
 
