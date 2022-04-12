@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div style="margin-bottom: 50px">
+    <a href="/make_course" class="btn btn-success">Добавить курс</a>
+</div>
+
 {% for item in courses %}
-    <a href="/courses/{{ item.id }}" class="btn btn-primary">{{ item.name }}</a>
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">{{ item.name }}</h5>
+        <p class="card-text">{{ item.about }}</p>
+        <a href="/courses/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
+      </div>
+    </div>
     {% if current_user.teacher %}
     <div>
         <a href="/courses/{{ item.id }}" class="btn btn-warning">
@@ -14,5 +24,4 @@
     </div>
     {% endif %}
 {% endfor %}
-<a href="/make_course" class="btn btn-primary">Добавить курс</a>
 {% endblock %}
