@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="margin-bottom: 50px">
-    <a href="/make_course" class="btn btn-success">Добавить курс</a>
-</div>
+<a  class="btn btn-success" href="/make_course">Добавить курс</a>
 
 {% for item in courses %}
-    <div class="card" style="width: 18rem; margin-bottom: 10px">
+    <div class="card" style="width: 18rem; margin-bottom: 10px; left: 100px;">
       <div class="card-body">
         <h5 class="card-title">{{ item.name }}</h5>
         <p class="card-text">{{ item.about }}</p>
