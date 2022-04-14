@@ -4,7 +4,7 @@ body {
     font-size: 15px;
     color: #33;
     background:
-    url('../static/background1.jpg');
+    url('background1.jpg');
     -webkit-background-size: cover;
     background-size: cover;
 }
@@ -36,6 +36,23 @@ body {
     color: #082567;
 }
 .btn-success {
+    margin-left: 100px;
     margin: 0 10px;
     color: #fce38a;
+}
+.btn-add {
+    color: #fce38a;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    width: 200px;
+    height: 154px;
+}
+.course-card {
+    width: 300px;
+    margin: 10px 10px 10px 10px;
+    display: inline-block;
+}
+.card-body{
+    background-color: white;
 }
