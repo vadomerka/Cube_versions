@@ -16,6 +16,8 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse
 from resourses.dict_resourses import WordResourse
+from resourses.lesson_resourses import LessonResource
+
 from flask_restful import Api
 from requests import get, post, delete, put
 import os
@@ -28,6 +30,7 @@ api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_courses/<int:user_id>/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
+api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -153,7 +156,7 @@ def course_view(course_id):
 @app.route('/lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def lesson_view(lesson_id):
-    lesson = get('http://localhost:5000/rest_lessons/' + str(current_user.id) + "/" + str(lesson_id)
+    lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
     return render_template('lesson_view.html', lesson_data=lesson)
 
