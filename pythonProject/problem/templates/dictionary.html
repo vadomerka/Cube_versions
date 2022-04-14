@@ -1,20 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!--<link rel="stylesheet" href="static/style_two.css">-->
+<a href="/add_word" class="btn btn-success">Добавить слово</a>
+
 <ol>
+
     {% for word in all_words %}
-    <a href="/word/{{ word.id }}" class="btn btn-primary">{{ word.hieroglyph }} {{ word.translation }}</a>
-    {% if current_user.id == word.author %}
-    <div>
+    <div style="display: flex; direction: row; flex-wrap: wrap;">
+        <a href="/word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
+            {{ word.hieroglyph }} {{ word.translation }}
+            <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
+        </a>
+        {% if current_user.id == word.author %}
+
         <a href="/change_word/{{ word.id }}" class="btn btn-warning">
             Изменить
         </a>
         <a href="/delete_word/{{ word.id }}" class="btn btn-danger">
             Удалить
         </a>
+
+        {% endif %}
     </div>
-    {% endif %}
     {% endfor %}
 </ol>
-<a href="/add_word" class="btn btn-primary">Добавить слово</a>
+
 {% endblock %}
