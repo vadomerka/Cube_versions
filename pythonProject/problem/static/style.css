@@ -1,0 +1,41 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+
+    font-size: 15px;
+    color: #33;
+    background:
+    url('../static/background1.jpg');
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+.header {
+    width: 100%;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+.navbar-brand {
+    color: #fff;
+    position: relative;
+}
+
+.navbar-brand:hover {
+    color: #082567;
+}
+
+.btn-primary {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 10px;
+    margin-bottom: 0 10px;
+    color: #fce38a;
+}
+.btn-primary:hover {
+    color: #082567;
+}
+.btn-success {
+    margin: 0 10px;
+    color: #fce38a;
+}
