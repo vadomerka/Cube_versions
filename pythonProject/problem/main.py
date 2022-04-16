@@ -17,7 +17,6 @@ from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse
 from resourses.dict_resourses import WordResourse
 from resourses.lesson_resourses import LessonResource
-
 from flask_restful import Api
 from requests import get, post, delete, put
 import os
@@ -138,6 +137,10 @@ def make_lesson(course_id):
     if form.validate_on_submit():
         new_lesson = Lessons()
         new_lesson.name = form.name.data
+        words = request.form.getlist('lesson_word')
+        for word_id in list(words):
+            sql_word = db_sess.query(Words).get(int(word_id))
+            new_lesson.words.append(sql_word)
         current_course.lessons.append(new_lesson)
         db_sess.merge(current_course)
         db_sess.commit()
@@ -157,7 +160,8 @@ def course_view(course_id):
 @login_required
 def lesson_view(lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
-                 ).json()["lesson"]
+                 ).json()
+    # print(lesson)
     return render_template('lesson_view.html', lesson_data=lesson)
 
 

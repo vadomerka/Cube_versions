@@ -15,7 +15,7 @@
     </p>
     {% for word in dictionary %}
     <label class="container"> {{ word.hieroglyph }}
-        <input type="checkbox" value='checks'>
+        <input type="checkbox" name="lesson_word" value='{{ word.id }}'>
         <span class="checkmark"></span>
     </label>
     {% endfor %}

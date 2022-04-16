@@ -14,13 +14,15 @@ def abort_if_news_not_found(lesson_id):
 
 
 class LessonResource(Resource):
-    def get(self, course_id, lesson_id):
+    def get(self, lesson_id):
         abort_if_news_not_found(lesson_id)
         session = db_session.create_session()
         lesson = session.query(Lessons).get(lesson_id)
         # print([item.to_dict(only=('id', 'name')) for item in list(course.lessons)])  # .to_dict(only=('id', 'name'))
-        ret = {'lesson_id': lesson.to_dict(only=('id', 'name', 'about'))}
-        ret["course"]["lessons"] = [item.to_dict(only=('id', 'name')) for item in list(course.lessons)]
+        ret = {'lesson': lesson.to_dict(only=('id', 'name'))}
+        ret["lesson"]["words"] = \
+            [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+        print(lesson.words)
         return jsonify(ret)
 
     def delete(self, course_id):
