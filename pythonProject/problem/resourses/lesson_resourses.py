@@ -22,7 +22,7 @@ class LessonResource(Resource):
         ret = {'lesson': lesson.to_dict(only=('id', 'name'))}
         ret["lesson"]["words"] = \
             [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
-        print(lesson.words)
+        # print(lesson.words)
         return jsonify(ret)
 
     def delete(self, course_id):

@@ -160,9 +160,51 @@ def course_view(course_id):
 @login_required
 def lesson_view(lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
-                 ).json()
+                 ).json()["lesson"]
     # print(lesson)
     return render_template('lesson_view.html', lesson_data=lesson)
+
+
+@app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def change_lesson(lesson_id):
+    form = LessonsForm()
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    current_course = 0
+    for c in db_sess.query(User).get(current_user.id).courses:
+        if lesson in c.lessons:
+            current_course = c
+    all_words = db_sess.query(Words).all()
+    if request.method == "GET":
+        form.name.data = lesson.name
+    if form.validate_on_submit():
+        lesson.name = form.name.data
+        words = request.form.getlist('lesson_word')
+        for word_id in list(words):
+            sql_word = db_sess.query(Words).get(int(word_id))
+            lesson.words.append(sql_word)
+        current_course.lessons.append(lesson)
+        db_sess.merge(current_course)
+        db_sess.commit()
+        return redirect('/lesson/' + str(lesson_id))
+    return render_template('make_lesson.html', form=form, dictionary=all_words)
+    # return render_template('lesson_view.html', lesson_data=lesson)
+
+
+@app.route("/delete_word_from_lesson/<int:lesson_id>/<int:word_id>", methods=['GET'])
+@login_required
+def delete_word_from_lesson(lesson_id, word_id):
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    # words = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+    word = db_sess.query(Words).get(word_id)
+    if word in lesson.words:
+        lesson.words.remove(word)
+        db_sess.merge(lesson)
+        db_sess.commit()
+        return redirect("/lesson/" + str(lesson_id))
+    return 404
 
 
 @app.route('/dictionary', methods=['GET', 'POST'])
