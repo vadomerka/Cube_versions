@@ -19,6 +19,7 @@ from resourses.dict_resourses import WordResourse
 from resourses.lesson_resourses import LessonResource
 from flask_restful import Api
 from requests import get, post, delete, put
+import requests
 import os
 from PIL import Image
 
