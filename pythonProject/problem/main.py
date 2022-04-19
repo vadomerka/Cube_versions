@@ -99,6 +99,18 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.route('/adress')
+def adress():
+    coords = get_coords_of_address('Москва, пр-т Вернадского, 86с2')
+    address_ll = ",".join(coords)
+    map_file = "static/map.png"
+    map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&z=16&l=sat"
+    response=requests.get(map_request)
+    with open(map_file, "wb") as file:
+        file.write(response.content)
+        return render_template('adress.html')
+
+
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
 def courses():
@@ -401,6 +413,28 @@ def change_word(word_id):
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
+
+
+def get_coords_of_address(address):
+    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": address,
+        "format": "json"
+    }
+
+    response = requests.get(geocoder_api_server, params=geocoder_params)
+
+    if not response:
+        return None
+
+    json_response = response.json()
+    toponym = json_response["response"]["GeoObjectCollection"][
+        "featureMember"][0]["GeoObject"]
+    toponym_coodrinates = toponym["Point"]["pos"]
+    toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
+    return toponym_longitude, toponym_lattitude
 
 
 def main():
