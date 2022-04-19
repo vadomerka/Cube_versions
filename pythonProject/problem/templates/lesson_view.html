@@ -2,4 +2,22 @@
 
 {% block content %}
 <a>{{ lesson_data }}</a>
+<h1>Материалы урока</h1>
+<div>
+    {% for word in lesson_data.words %}
+    <a>{{ word.id }}</a>
+    <div style="display: flex; direction: row; flex-wrap: wrap;">
+        <a href="/word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
+            {{ word.hieroglyph }} {{ word.translation }}
+            <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
+        </a>
+        <a href="/delete_word_from_lesson/{{ lesson_data.id }}/{{ word.id }}" class="btn btn-danger">
+            Удалить из урока
+        </a>
+    </div>
+    {% endfor %}
+    <div class="course-card">
+        <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить слова</a>
+    </div>
+</div>
 {% endblock %}

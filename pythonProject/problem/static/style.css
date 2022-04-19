@@ -24,7 +24,10 @@ body {
 .navbar-brand:hover {
     color: #082567;
 }
-
+.btn {
+    margin: 0 10px;
+    margin-bottom: 10px;
+}
 .btn-primary {
     display: inline-block;
     vertical-align: top;
@@ -36,8 +39,6 @@ body {
     color: #082567;
 }
 .btn-success {
-    margin-left: 100px;
-    margin: 0 10px;
     color: #fce38a;
 }
 .btn-add {
@@ -45,8 +46,6 @@ body {
     background-color: #4CAF50;
     border: none;
     color: white;
-    width: 200px;
-    height: 154px;
 }
 .course-card {
     width: 300px;

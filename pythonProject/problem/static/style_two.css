@@ -1,0 +1,9 @@
+.btn-warning {
+    z-index: 1;
+    position: relative;
+
+}
+.btn-danger {
+    position: relative;
+    z-index: 1;
+}

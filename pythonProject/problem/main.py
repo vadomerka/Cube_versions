@@ -16,6 +16,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse
 from resourses.dict_resourses import WordResourse
+from resourses.lesson_resourses import LessonResource
 from flask_restful import Api
 from requests import get, post, delete, put
 import os
@@ -28,6 +29,7 @@ api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_courses/<int:user_id>/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
+api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -135,6 +137,10 @@ def make_lesson(course_id):
     if form.validate_on_submit():
         new_lesson = Lessons()
         new_lesson.name = form.name.data
+        words = request.form.getlist('lesson_word')
+        for word_id in list(words):
+            sql_word = db_sess.query(Words).get(int(word_id))
+            new_lesson.words.append(sql_word)
         current_course.lessons.append(new_lesson)
         db_sess.merge(current_course)
         db_sess.commit()
@@ -153,9 +159,52 @@ def course_view(course_id):
 @app.route('/lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def lesson_view(lesson_id):
-    lesson = get('http://localhost:5000/rest_lessons/' + str(current_user.id) + "/" + str(lesson_id)
+    lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
+    # print(lesson)
     return render_template('lesson_view.html', lesson_data=lesson)
+
+
+@app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def change_lesson(lesson_id):
+    form = LessonsForm()
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    current_course = 0
+    for c in db_sess.query(User).get(current_user.id).courses:
+        if lesson in c.lessons:
+            current_course = c
+    all_words = db_sess.query(Words).all()
+    if request.method == "GET":
+        form.name.data = lesson.name
+    if form.validate_on_submit():
+        lesson.name = form.name.data
+        words = request.form.getlist('lesson_word')
+        for word_id in list(words):
+            sql_word = db_sess.query(Words).get(int(word_id))
+            lesson.words.append(sql_word)
+        current_course.lessons.append(lesson)
+        db_sess.merge(current_course)
+        db_sess.commit()
+        return redirect('/lesson/' + str(lesson_id))
+    return render_template('make_lesson.html', form=form, dictionary=all_words)
+    # return render_template('lesson_view.html', lesson_data=lesson)
+
+
+@app.route("/delete_word_from_lesson/<int:lesson_id>/<int:word_id>", methods=['GET'])
+@login_required
+def delete_word_from_lesson(lesson_id, word_id):
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    # words = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+    word = db_sess.query(Words).get(word_id)
+    if word in lesson.words:
+        lesson.words.remove(word)
+        db_sess.merge(lesson)
+        db_sess.commit()
+        return redirect("/lesson/" + str(lesson_id))
+    return 404
 
 
 @app.route('/dictionary', methods=['GET', 'POST'])
