@@ -156,13 +156,13 @@ def course_view(course_id):
     return render_template('course_change.html', course_data=course)
 
 
-@app.route('/lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
-def lesson_view(lesson_id):
+def lesson_view(course_id, lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
     # print(lesson)
-    return render_template('lesson_view.html', lesson_data=lesson)
+    return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id)
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -187,7 +187,7 @@ def change_lesson(lesson_id):
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()
-        return redirect('/lesson/' + str(lesson_id))
+        return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
     return render_template('make_lesson.html', form=form, dictionary=all_words)
     # return render_template('lesson_view.html', lesson_data=lesson)
 
@@ -203,7 +203,11 @@ def delete_word_from_lesson(lesson_id, word_id):
         lesson.words.remove(word)
         db_sess.merge(lesson)
         db_sess.commit()
-        return redirect("/lesson/" + str(lesson_id))
+        current_course = 0
+        for c in db_sess.query(User).get(current_user.id).courses:
+            if lesson in c.lessons:
+                current_course = c
+        return redirect('/courses/' + str(current_course.id) + "/lesson/" + str(lesson_id))
     return 404
 
 
@@ -309,7 +313,94 @@ def word_view(word_id):
                            down_img=url_for("static", filename=word["down_side"]),
                            # front_audio=url_for("static", filename=word["front_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
-                           up_audio=url_for("static", filename=word["up_side_audio"]))
+                           up_audio=url_for("static", filename=word["up_side_audio"]),
+                           back_url="/dictionary",
+                           dict="")
+
+
+# /change_word/1
+@app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
+@login_required
+def change_word(word_id):
+    form = WordsForm()
+    db_sess = db_session.create_session()
+    all_words = db_sess.query(Words).all()
+    new_word = db_sess.query(Words).get(word_id)
+    path_to_file = os.path.dirname(__file__)
+    full_path = os.path.join(path_to_file)
+    filepath = os.path.join(full_path, "static", str(current_user.id))
+
+    # form.hieroglyph.data = new_word.hieroglyph
+    # form.translation.data = new_word.translation
+    # request.files['front'] = Image.open(filepath + "_front.png")
+    # request.files['left'] = Image.open(filepath + "_left.png")
+    # request.files['right'] = Image.open(filepath + "_right.png")
+    # request.files['up'] = Image.open(filepath + "_up.png")
+    # request.files['down'] = Image.open(filepath + "_down.png")
+    # request.files['transcription_audio'] = Image.open(filepath + "_trans_audio.mp3")
+    # request.files['phrase_audio'] = Image.open(filepath + "_phrase_audio.mp3")
+    if form.validate_on_submit():
+        new_word = Words()
+        new_word.author = current_user.id
+        new_word.hieroglyph = form.hieroglyph.data
+        new_word.translation = form.translation.data
+        front = request.files['front']
+        # print(request.files['front'])
+        left = request.files['left']
+        right = request.files['right']
+        up = request.files['up']
+        down = request.files['down']
+        transcription_audio = request.files['transcription_audio']
+        phrase_audio = request.files['phrase_audio']
+        path_to_file = os.path.dirname(__file__)
+        full_path = os.path.join(path_to_file)
+        filepath = os.path.join(full_path, "static", str(new_word.author))
+        if front:
+            front.save(filepath + "_front.png")
+            new_word.front_side = str(new_word.author) + "_front.png"
+        if left:
+            left.save(filepath + "_left.png")
+            new_word.left_side = str(new_word.author) + "_left.png"
+        if right:
+            right.save(filepath + "_right.png")
+            new_word.right_side = str(new_word.author) + "_right.png"
+        if up:
+            up.save(filepath + "_up_0.png")
+            new_word.up_side = str(new_word.author) + "_up.png"
+            im = Image.open(filepath + "_up_0.png")
+            im = im.transpose(Image.ROTATE_90)
+            im.save(filepath + "_up_90.png")
+            im = im.transpose(Image.ROTATE_90)
+            im.save(filepath + "_up_180.png")
+            im = im.transpose(Image.ROTATE_90)
+            im.save(filepath + "_up_270.png")
+        if down:
+            down.save(filepath + "_down_0.png")
+            new_word.down_side = str(new_word.author) + "_down.png"
+            im = Image.open(filepath + "_down_0.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_down_90.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_down_180.png")
+            im = im.transpose(Image.ROTATE_270)
+            im.save(filepath + "_down_270.png")
+        if transcription_audio:
+            transcription_audio.save(filepath + "_trans_audio.mp3")
+            new_word.right_side_audio = str(new_word.author) + "_trans_audio.mp3"
+            # print(new_word.right_side_audio)
+        else:
+            print(None)
+        if phrase_audio:
+            phrase_audio.save(filepath + "_phrase_audio.mp3")
+            new_word.up_side_audio = str(new_word.author) + "_phrase_audio.mp3"
+        else:
+            print(None)
+        cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
+        cur_user.words.append(new_word)
+        db_sess.commit()
+        db_sess.close()
+        return redirect('/dictionary')
+    return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
 
 
 def main():

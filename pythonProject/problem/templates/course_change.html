@@ -5,7 +5,9 @@
 <p>{{ course_data.about }}</p>
 <h2>Lessons</h2>
 {% for less in course_data.lessons %}
-    <a class="btn btn-primary" href="/lesson/{{ less.id }}">{{ less.name }}</a>
+    <a class="btn btn-primary" href="/courses/{{ course_data.id }}/lesson/{{ less.id }}">{{ less.name }}</a>
 {% endfor %}
-<a href="/make_lesson/{{ course_data.id }}" class="btn btn-primary">Добавить урок</a>
+{% if current_user.teacher %}
+    <a href="/make_lesson/{{ course_data.id }}" class="btn btn-primary">Добавить урок</a>
+{% endif %}
 {% endblock %}

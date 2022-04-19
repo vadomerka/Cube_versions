@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<a>{{ lesson_data }}</a>
+<a href="/courses/{{ course_id }}" class="btn btn-primary"> Назад </a>
 <h1>Материалы урока</h1>
 <div>
     {% for word in lesson_data.words %}
