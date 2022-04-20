@@ -35,7 +35,7 @@ schedule==1.1.0
 six==1.16.0
 SQLAlchemy==1.4.31
 SQLAlchemy-serializer==1.4.1
-tomli==2.0.1
+tomli==1.2.3
 tornado==6.1
 tzdata==2022.1
 tzlocal==4.2
