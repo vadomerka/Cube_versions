@@ -1,4 +1,4 @@
-﻿aniso8601==9.0.1
+aniso8601==9.0.1
 APScheduler==3.6.3
 atomicwrites==1.4.0
 attrs==21.4.0
@@ -35,11 +35,12 @@ schedule==1.1.0
 six==1.16.0
 SQLAlchemy==1.4.31
 SQLAlchemy-serializer==1.4.1
-tomli==1.2.3
+tomli==2.0.1
 tornado==6.1
 tzdata==2022.1
 tzlocal==4.2
 urllib3==1.26.8
+waitress==2.1.1
 Werkzeug==2.0.3
-WTForms==3.0.0
+WTForms==3.0.1
 yarg==0.1.9
