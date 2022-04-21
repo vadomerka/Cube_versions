@@ -11,7 +11,7 @@ def abort_if_news_not_found(course_id):
     session = db_session.create_session()
     course = session.query(Courses).get(course_id)
     if not course:
-        abort(404, message=f"News {course_id} not found")
+        abort(404, message=f"Course {course_id} not found")
 
 
 class CourseResource(Resource):

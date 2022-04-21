@@ -27,7 +27,7 @@ app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
-api.add_resource(CourseResource, '/rest_courses/<int:course_id>')
+api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
@@ -106,7 +106,7 @@ def adress():
     address_ll = ",".join(coords)
     map_file = "static/map.png"
     map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&z=16&l=sat"
-    response=requests.get(map_request)
+    response = requests.get(map_request)
     with open(map_file, "wb") as file:
         file.write(response.content)
         return render_template('adress.html')
@@ -164,7 +164,7 @@ def make_lesson(course_id):
 @app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 def course_view(course_id):
-    course = get('http://localhost:5000/rest_courses/' + str(course_id)
+    course = get('http://localhost:5000/rest_course/' + str(course_id)
                  ).json()["course"]
     return render_template('course_change.html', course_data=course)
 
@@ -312,9 +312,9 @@ def delete_word(word_id):
         return "что-то пошло не так"
 
 
-@app.route('/word/<int:word_id>', methods=['GET', 'POST'])
+@app.route('/dict_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
-def word_view(word_id):
+def dict_word_view(word_id):
     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
     # print(word)
 
@@ -328,6 +328,27 @@ def word_view(word_id):
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]),
                            back_url="/dictionary",
+                           dict="")
+
+
+@app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/word/<int:word_id>',
+           methods=['GET', 'POST'])
+@login_required
+def lesson_word_view(course_id, lesson_id, word_id):
+    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
+    lesson_words = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
+                       ).json()["lesson"]["words"]
+
+    return render_template('dict_word.html',
+                           front_img=url_for("static", filename=word["front_side"]),
+                           left_img=url_for("static", filename=word["left_side"]),
+                           right_img=url_for("static", filename=word["right_side"]),
+                           up_img=url_for("static", filename=word["up_side"]),
+                           down_img=url_for("static", filename=word["down_side"]),
+                           # front_audio=url_for("static", filename=word["front_side_audio"]),
+                           right_audio=url_for("static", filename=word["right_side_audio"]),
+                           up_audio=url_for("static", filename=word["up_side_audio"]),
+                           back_url="/courses/" + str(course_id) + "/lesson/" + str(lesson_id),
                            dict="")
 
 
@@ -435,25 +456,6 @@ def get_coords_of_address(address):
     toponym_coodrinates = toponym["Point"]["pos"]
     toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
     return toponym_longitude, toponym_lattitude
-
-
-@app.route('/lesson/<int:lesson_id>/word/<int:word_id>', methods=['GET', 'POST'])
-@login_required
-def lesson_word_view(lesson_id, word_id):
-    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
-    lesson_words = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
-                       ).json()["lesson"]["words"]
-    print(lesson_words)
-
-    return render_template('dict_word.html',
-                           front_img=url_for("static", filename=word["front_side"]),
-                           left_img=url_for("static", filename=word["left_side"]),
-                           right_img=url_for("static", filename=word["right_side"]),
-                           up_img=url_for("static", filename=word["up_side"]),
-                           down_img=url_for("static", filename=word["down_side"]),
-                           # front_audio=url_for("static", filename=word["front_side_audio"]),
-                           right_audio=url_for("static", filename=word["right_side_audio"]),
-                           up_audio=url_for("static", filename=word["up_side_audio"]))
 
 
 def main():

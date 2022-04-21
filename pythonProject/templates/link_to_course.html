@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Введите ссылку на курс</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.link_field.label }}<br>
+        {{ form.link_field(class="form-control") }}<br>
+        {% for error in form.link_field.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <a href=linked>
+        {{ form.submit(type="submit", class="btn btn-primary") }}
+    </a>
+    {{link}}
+</form>
+{% endblock %}

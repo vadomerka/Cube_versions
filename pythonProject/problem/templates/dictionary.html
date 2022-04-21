@@ -8,7 +8,7 @@
 
     {% for word in all_words %}
     <div style="display: flex; direction: row; flex-wrap: wrap;">
-        <a href="/word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
+        <a href="/dict_word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
             {{ word.hieroglyph }} {{ word.translation }}
             <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
         </a>
