@@ -27,7 +27,7 @@ app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
-api.add_resource(CourseResource, '/rest_courses/<int:user_id>/<int:course_id>')
+api.add_resource(CourseResource, '/rest_courses/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
@@ -164,7 +164,7 @@ def make_lesson(course_id):
 @app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 def course_view(course_id):
-    course = get('http://localhost:5000/rest_courses/' + str(current_user.id) + "/" + str(course_id)
+    course = get('http://localhost:5000/rest_courses/' + str(course_id)
                  ).json()["course"]
     return render_template('course_change.html', course_data=course)
 
@@ -331,7 +331,6 @@ def word_view(word_id):
                            dict="")
 
 
-# /change_word/1
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
 def change_word(word_id):
@@ -436,6 +435,25 @@ def get_coords_of_address(address):
     toponym_coodrinates = toponym["Point"]["pos"]
     toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
     return toponym_longitude, toponym_lattitude
+
+
+@app.route('/lesson/<int:lesson_id>/word/<int:word_id>', methods=['GET', 'POST'])
+@login_required
+def lesson_word_view(lesson_id, word_id):
+    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
+    lesson_words = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
+                       ).json()["lesson"]["words"]
+    print(lesson_words)
+
+    return render_template('dict_word.html',
+                           front_img=url_for("static", filename=word["front_side"]),
+                           left_img=url_for("static", filename=word["left_side"]),
+                           right_img=url_for("static", filename=word["right_side"]),
+                           up_img=url_for("static", filename=word["up_side"]),
+                           down_img=url_for("static", filename=word["down_side"]),
+                           # front_audio=url_for("static", filename=word["front_side_audio"]),
+                           right_audio=url_for("static", filename=word["right_side_audio"]),
+                           up_audio=url_for("static", filename=word["up_side_audio"]))
 
 
 def main():

@@ -1,0 +1,7 @@
+{
+  "tests.py": true, 
+  "tests.py::TestIndex": true, 
+  "tests.py::TestIndex::()::test_bad_post_course": true, 
+  "tests.py::TestIndex::()::test_empty_post_course": true, 
+  "tests.py::TestIndex::()::test_post_course": true
+}
