@@ -2,7 +2,11 @@ from flask_restful import reqparse, abort, Api, Resource
 from flask import jsonify
 from data import db_session
 from data.words import Words
+from resourses.parser import parserAddWord
+from data.courses import Courses, users_to_course
+from data.users import User
 from resourses.parser import parserAdd
+from flask import request
 
 
 def abort_if_word_not_found(word_id):
@@ -33,8 +37,25 @@ class DictResourse(Resource):
         return jsonify(ret)
 
     def post(self):
-        args = parserAdd.parse_args()
+        if not request.json:
+            return jsonify({'error': 'Empty request'})
+        elif not all(key in request.json for key in
+                     ["id",
+                      "hieroglyph",
+                      "tranlation",
+                      "front_side",
+                      "left_side",
+                      "right_side",
+                      "up_side",
+                      "down_side",
+                      "front_side_audio",
+                      "right_side_audio",
+                      "up_side_audio"
+                      ]):
+            return jsonify({'error': 'Bad request'})
+        args = parserAddWord.parse_args()
         session = db_session.create_session()
+
         word = Words(id=args["id"],
                      hieroglyph=args["hieroglyph"],
                      tranlation=args["tranlation"],
