@@ -7,25 +7,34 @@ from resourses.parser import parserAdd
 from flask import request
 
 
-def abort_if_not_found(course_id):
+def abort_if_not_found(id):
     session = db_session.create_session()
-    course = session.query(Courses).get(course_id)
-    if not course:
-        abort(404, message=f"Course {course_id} not found")
+    user = session.query(User).get(id)
+    if not user:
+        abort(404, message=f"User {id} not found")
 
 
-class CourseResource(Resource):
-    def get(self, course_id):
-        abort_if_not_found(course_id)
+class UserResource(Resource):
+    def get(self, id):
+        abort_if_not_found(id)
         session = db_session.create_session()
-        course = session.query(Courses).get(course_id)
-        ret = {'course': course.to_dict(only=('id', 'name', 'about'))}
-        ret["course"]["lessons"] = [item.to_dict(only=('id', 'name')) for item in
-                                    list(course.lessons)]
+        user = session.query(User).get(id)
+        ret = {'user': user.to_dict(only=('id',
+                                          'name',
+                                          'email',
+                                          "about",
+                                          "hashed_password",
+                                          "teacher"))}
+        ret["user"]["courses"] = [item.to_dict(only=('id', 'name', "about")) for item in
+                                  list(user.courses)]
+        ret["user"]["words"] = [item.to_dict(only=('id',
+                                                   'hieroglyph',
+                                                   "translation")) for item in
+                                list(user.words)]
         return jsonify(ret)
 
     def delete(self, course_id):
-        abort_if_not_found(course_id)
+        abort_if_news_not_found(course_id)
         session = db_session.create_session()
         course = session.query(Courses).get(course_id)
         session.delete(course)
@@ -33,7 +42,7 @@ class CourseResource(Resource):
         return jsonify({'success': 'OK'})
 
 
-class CourseListResource(Resource):
+class UserListResource(Resource):
     def get(self, user_id):
         session = db_session.create_session()
         cur_user = session.query(User).filter(User.id == user_id).first()

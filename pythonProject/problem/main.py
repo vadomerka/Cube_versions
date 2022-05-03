@@ -1,26 +1,32 @@
+# flask
 from flask import Flask, render_template, redirect, url_for
 from flask import request, make_response, session, abort
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_restful import Api
 
+# tables
 from data import db_session
 from data.words import Words, words_to_lesson
 from data.lessons import Lessons, lessons_to_course
 from data.courses import Courses, users_to_course
 from data.users import User
 
+# forms
 from forms.user import RegisterForm, LoginForm
 from forms.course import CoursesForm
 from forms.lesson import LessonsForm
 from forms.word import WordsForm
-import datetime as dt
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+
+# resourses
 from resourses.course_resourses import CourseListResource, CourseResource
-from resourses.dict_resourses import DictResourse
-from resourses.dict_resourses import WordResourse
+from resourses.dict_resourses import DictResourse, WordResourse
 from resourses.lesson_resourses import LessonResource
-from flask_restful import Api
+from resourses.user_resourses import UserResource
 from requests import get, post, delete, put
 import requests
+
 import os
+import datetime as dt
 from PIL import Image
 
 app = Flask(__name__)
@@ -31,6 +37,7 @@ api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
+api.add_resource(UserResource, "/rest_user/<int:id>")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -67,7 +74,12 @@ def register():
         db_sess.add(user)
         db_sess.commit()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
-        return redirect('/login')
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect("/")
+        return render_template('register.html',
+                               message="Что-то пошло не так",
+                               form=form)
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -100,18 +112,6 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-@app.route('/adress')
-def adress():
-    coords = get_coords_of_address('Москва, пр-т Вернадского, 86с2')
-    address_ll = ",".join(coords)
-    map_file = "static/map.png"
-    map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&z=16&l=sat"
-    response = requests.get(map_request)
-    with open(map_file, "wb") as file:
-        file.write(response.content)
-        return render_template('adress.html')
-
-
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
 def courses():
@@ -138,6 +138,16 @@ def make_course():
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, function="Добавить курс")
+
+
+@app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
+@login_required
+def delete_course(course_id):
+    ret = delete("http://localhost:5000/rest_course/" + str(course_id)).json()
+    if ret == {'success': 'OK'}:
+        return redirect("/courses")
+    else:
+        return abort(404, message=f"Course {course_id} not found")
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
@@ -434,28 +444,6 @@ def change_word(word_id):
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
-
-
-def get_coords_of_address(address):
-    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
-
-    geocoder_params = {
-        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
-        "geocode": address,
-        "format": "json"
-    }
-
-    response = requests.get(geocoder_api_server, params=geocoder_params)
-
-    if not response:
-        return None
-
-    json_response = response.json()
-    toponym = json_response["response"]["GeoObjectCollection"][
-        "featureMember"][0]["GeoObject"]
-    toponym_coodrinates = toponym["Point"]["pos"]
-    toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
-    return toponym_longitude, toponym_lattitude
 
 
 def main():

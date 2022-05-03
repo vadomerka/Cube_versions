@@ -21,9 +21,7 @@ class Words(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False)
-    # lessons = orm.relation("Lessons",
-    #                        secondary="words_to_lesson",
-    #                        backref="words")
+
     user = orm.relation('User')
     hieroglyph = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     translation = sqlalchemy.Column(sqlalchemy.String, nullable=True)

@@ -5,11 +5,10 @@ from data.words import Words
 from resourses.parser import parserAddWord
 from data.courses import Courses, users_to_course
 from data.users import User
-from resourses.parser import parserAdd
 from flask import request
 
 
-def abort_if_word_not_found(word_id):
+def abort_if_not_found(word_id):
     session = db_session.create_session()
     word = session.query(Words).get(word_id)
     if not word:
@@ -75,7 +74,7 @@ class DictResourse(Resource):
 
 class WordResourse(Resource):
     def get(self, word_id):
-        abort_if_word_not_found(word_id)
+        abort_if_not_found(word_id)
         session = db_session.create_session()
         word = session.query(Words).get(word_id)
 
@@ -95,7 +94,7 @@ class WordResourse(Resource):
         return jsonify(ret)
 
     def delete(self, word_id):
-        abort_if_word_not_found(word_id)
+        abort_if_not_found(word_id)
         session = db_session.create_session()
         word = session.query(Words).get(word_id)
         session.delete(word)

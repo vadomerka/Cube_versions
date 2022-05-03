@@ -6,7 +6,7 @@ from data.courses import Courses
 from resourses.parser import parserAdd
 
 
-def abort_if_news_not_found(lesson_id):
+def abort_if_not_found(lesson_id):
     session = db_session.create_session()
     lesson = session.query(Lessons).get(lesson_id)
     if not lesson:
@@ -15,7 +15,7 @@ def abort_if_news_not_found(lesson_id):
 
 class LessonResource(Resource):
     def get(self, lesson_id):
-        abort_if_news_not_found(lesson_id)
+        abort_if_not_found(lesson_id)
         session = db_session.create_session()
         lesson = session.query(Lessons).get(lesson_id)
         # print([item.to_dict(only=('id', 'name')) for item in list(course.lessons)])  # .to_dict(only=('id', 'name'))
@@ -26,7 +26,7 @@ class LessonResource(Resource):
         return jsonify(ret)
 
     def delete(self, course_id):
-        abort_if_news_not_found(course_id)
+        abort_if_not_found(course_id)
         session = db_session.create_session()
         course = session.query(Courses).get(course_id)
         session.delete(course)
@@ -34,7 +34,8 @@ class LessonResource(Resource):
         return jsonify({'success': 'OK'})
 
 
-class CourseListResource(Resource):
+# not working
+class CourseLessonsResource(Resource):
     def get(self, user_id):
         session = db_session.create_session()
         cur_user = session.query(User).filter(User.id == user_id).first()

@@ -55,4 +55,17 @@ body {
 .card-body{
     background-color: white;
 }
+.card-title{
+    width: 260px;
+    height: 24px;
+    overflow:hidden;
+}
+.card-text{
+    width: 260px;
+    height: 22.5px;
+    overflow:hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+}
+
 © 2022 GitHub, Inc.

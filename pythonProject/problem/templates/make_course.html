@@ -16,7 +16,7 @@
     <p>
         {{ form.about.label }}<br>
         {{ form.about(class="form-control") }}<br>
-        {% for error in form.name.errors %}
+        {% for error in form.about.errors %}
             <p content="alert alert-danger" role="alert">
                 {{ error }}
             </p>
