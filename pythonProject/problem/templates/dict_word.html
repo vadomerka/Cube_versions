@@ -51,6 +51,12 @@
     </svg>
 </button>
 
+<div id="prev_url" style="visibility: {{ prev_button_visibility }};">
+<a  href="{{ prev_word_url }}" class="btn btn-primary my-btn" style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
+</div>
+<div id="next_url" style="visibility: {{ next_button_visibility }};">
+<a href="{{ next_word_url }}" class="btn btn-primary my-btn" style="top: 50px; right: 0px"> Следующее слово </a>
+</div>
 <script src="js/three.js"></script>
 <script>
 

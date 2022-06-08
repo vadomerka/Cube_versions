@@ -199,6 +199,12 @@ def change_lesson(lesson_id):
         if lesson in c.lessons:
             current_course = c
     all_words = db_sess.query(Words).all()
+    lesson_words = lesson.words
+    print(lesson_words)
+    unused_words = []
+    for word in all_words:
+        if word not in lesson_words:
+            unused_words.append(word)
     if request.method == "GET":
         form.name.data = lesson.name
     if form.validate_on_submit():
@@ -211,7 +217,7 @@ def change_lesson(lesson_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('make_lesson.html', form=form, dictionary=all_words)
+    return render_template('make_lesson.html', form=form, dictionary=unused_words)
     # return render_template('lesson_view.html', lesson_data=lesson)
 
 
@@ -259,16 +265,10 @@ def add_word():
     # db_sess.expire_on_commit = False
     # all_words = db_sess.query(Words).all()
     # 你
-
-    # front = request.files['front']
-    # left = request.files['left']
-    # right = request.files['right']
-    # up = request.files['up']
-    # down = request.files['down']
-    # print(front, left, right, up, down)
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
+        new_word.hieroglyph = form.hieroglyph.data
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
         front = request.files['front']
@@ -368,7 +368,25 @@ def lesson_word_view(course_id, lesson_id, word_id):
     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
     lesson_words = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                        ).json()["lesson"]["words"]
+    # print(lesson_words)
+    prev_id = 1
+    next_id = 1
+    prev_button_visibility = "visible"
+    next_button_visibility = "visible"
+    button_hidden = None
+    for i in range(len(lesson_words)):
+        if lesson_words[i]["id"] == word["id"]:
+            if i - 1 <= -1:
+                prev_button_visibility = "hidden"
+            else:
+                prev_id = lesson_words[i - 1]["id"]
 
+            if i + 1 >= len(lesson_words):
+                next_button_visibility = "hidden"
+            else:
+                next_id = lesson_words[i + 1]["id"]
+            break
+    print(i)
     return render_template('dict_word.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
@@ -379,7 +397,15 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]),
                            back_url="/courses/" + str(course_id) + "/lesson/" + str(lesson_id),
-                           dict="")
+                           dict=lesson_words,
+                           prev_button_visibility=prev_button_visibility,
+                           next_button_visibility=next_button_visibility,
+                           prev_word_url="http://127.0.0.1:5000/" + "courses/" + str(
+                               course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
+                               prev_id),
+                           next_word_url="http://127.0.0.1:5000/" + "courses/" + str(
+                               course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
+                               next_id))
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
