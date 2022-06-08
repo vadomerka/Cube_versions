@@ -7,44 +7,86 @@
         {{ form.hieroglyph.label }}<br>
         {{ form.hieroglyph(class="form-control") }}<br>
         {% for error in form.hieroglyph.errors %}
-        <p content="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-        {% endfor %}
+    <p content="alert alert-danger" role="alert">
+        {{ error }}
     </p>
+    {% endfor %}
     <p>
         {{ form.translation.label }}<br>
         {{ form.translation(class="form-control") }}<br>
         {% for error in form.translation.errors %}
-        <p content="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-        {% endfor %}
+    <p content="alert alert-danger" role="alert">
+        {{ error }}
     </p>
+    {% endfor %}
     <div class="form-group">
-        <label for="front">Выберите переднюю сторону</label>
-        <input type="file" class="form-control-file" id="front" name="front" value='file'>
-        <img src="{url_for('static', filename={{ filename }})}"
-             width="300" height="300">
-        <label for="left">Выберите левую сторону</label>
-        <input type="file" class="form-control-file" id="left" name="left" value='file'>
 
-        <label for="right">Выберите правую сторону</label>
-        <input type="file" class="form-control-file" id="right" name="right" value='file'>
+        <input type="file" accept="image/*" onchange="fileLoaders[0](event)"
+               class="form-control-file"
+               id="front" name="front" value='file' hidden>
+        <label class="btn-primary" for="front">
+            <img id="front_output" width="300" height="300" src="">
+        </label>
 
-        <label for="up">Выберите верхнюю сторону</label>
-        <input type="file" class="form-control-file" id="up" name="up" value='file'>
+        <input type="file" accept="image/*" onchange="fileLoaders[1](event)"
+               class="form-control-file" id="left" name="left" value='file' hidden>
+        <label class="btn-primary" for="left">
+            <img id="left_output" width="300" height="300" src="">
+        </label>
 
-        <label for="down">Выберите нижнюю сторону</label>
-        <input type="file" class="form-control-file" id="down" name="down" value='file'>
+        <input type="file" accept="image/*" onchange="fileLoaders[2](event)"
+               class="form-control-file" id="right" name="right" value='file' hidden>
+        <label class="btn-primary" for="right">
+            <img id="right_output" width="300" height="300" src="">
+        </label>
 
-        <label for="down">Выберите аудио файл для транскрипции</label>
-        <input type="file" class="form-control-file" id="transcription_audio" name="transcription_audio" value='file'>
+        <input type="file" accept="image/*" onchange="fileLoaders[3](event)"
+               class="form-control-file" id="up" name="up" value='file' hidden>
+        <label class="btn-primary" for="up">
+            <img id="up_output" width="300" height="300" src="">
+        </label>
 
-        <label for="down">Выберите аудио файл для фразы</label>
-        <input type="file" class="form-control-file" id="phrase_audio" name="phrase_audio" value='file'>
+        <input type="file" accept="image/*" onchange="fileLoaders[4](event)"
+               class="form-control-file" id="down" name="down" value='file' hidden>
+        <label class="btn-primary" for="down">
+            <img id="down_output" width="300" height="300" src="">
+        </label>
+
+        <input type="file" accept="image/*" onchange="fileLoaders[5](event)"
+               class="form-control-file" id="transcription_audio"
+               name="transcription_audio" value='file' hidden>
+        <label class="btn-primary" for="transcription_audio">
+            <img id="transcription_audio_output" width="300" height="300" src="">
+        </label>
+
+        <input type="file" accept="image/*" onchange="fileLoaders[6](event)"
+               class="form-control-file" id="phrase_audio" name="phrase_audio"
+               value='file' hidden>
+        <label class="btn-primary" for="phrase_audio">
+            <img id="phrase_audio_output" width="300" height="300" src="">
+        </label>
     </div>
 
     <button type="submit" class="btn btn-primary">Отправить</button>
 </form>
+<script>
+    fileLoaders = [0, 0, 0, 0, 0, 0, 0]
+    id_list = ['front_output', "left_output", "right_output", "up_output", "down_output",
+        "transcription_audio_output", "phrase_audio_output"]
+    for (let i = 0; i < 7; i += 1){
+        var tmp_loader = function(event) {
+            var output = document.getElementById(id_list[i]);
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function() {
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        };
+        fileLoaders[i] = tmp_loader;
+    }
+    var loader1 = fileLoaders[0];
+
+
+
+
+</script>
 {% endblock %}

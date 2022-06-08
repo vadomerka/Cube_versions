@@ -257,7 +257,15 @@ def add_word():
     form = WordsForm()
     db_sess = db_session.create_session()
     # db_sess.expire_on_commit = False
-    all_words = db_sess.query(Words).all()
+    # all_words = db_sess.query(Words).all()
+    # 你
+
+    # front = request.files['front']
+    # left = request.files['left']
+    # right = request.files['right']
+    # up = request.files['up']
+    # down = request.files['down']
+    # print(front, left, right, up, down)
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
@@ -320,7 +328,7 @@ def add_word():
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
-    return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
+    return render_template('make_word.html', form=form, filename="tmp")
 
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])

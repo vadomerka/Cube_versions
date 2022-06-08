@@ -106,24 +106,27 @@ class WordResourse(Resource):
                      word.right_side_audio,
                      word.up_side_audio):
             filename = path + str(name)
-            print(filename)
+            # print(filename)
             if os.path.exists(filename):
                 os.remove(filename)
             else:
                 print(f"The file {filename} does not exist")
         for name in (word.up_side, word.down_side):
-            name = name.split(".")
-            name_0 = ".".join([name[0] + "_0", name[1]])
-            name_90 = ".".join([name[0] + "_90", name[1]])
-            name_180 = ".".join([name[0] + "_180", name[1]])
-            name_270 = ".".join([name[0] + "_270", name[1]])
-            for name_ in (name_0, name_90, name_180, name_270):
-                filename = path + name_
-                print(filename)
-                if os.path.exists(filename):
-                    os.remove(filename)
-                else:
-                    print(f"The file {filename} does not exist")
+            if name is not None:
+                name = name.split(".")
+                name_0 = ".".join([name[0] + "_0", name[1]])
+                name_90 = ".".join([name[0] + "_90", name[1]])
+                name_180 = ".".join([name[0] + "_180", name[1]])
+                name_270 = ".".join([name[0] + "_270", name[1]])
+                for name_ in (name_0, name_90, name_180, name_270):
+                    filename = path + name_
+                    # print(filename)
+                    if os.path.exists(filename):
+                        os.remove(filename)
+                    else:
+                        print(f"The file {filename} does not exist")
+            else:
+                print(f"The filename is None")
         session.delete(word)
         session.commit()
         return jsonify({'success': 'OK'})
