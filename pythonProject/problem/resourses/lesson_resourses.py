@@ -25,11 +25,11 @@ class LessonResource(Resource):
         # print(lesson.words)
         return jsonify(ret)
 
-    def delete(self, course_id):
-        abort_if_not_found(course_id)
+    def delete(self, lesson_id):
+        abort_if_not_found(lesson_id)
         session = db_session.create_session()
-        course = session.query(Courses).get(course_id)
-        session.delete(course)
+        lesson = session.query(Lessons).get(lesson_id)
+        session.delete(lesson)
         session.commit()
         return jsonify({'success': 'OK'})
 

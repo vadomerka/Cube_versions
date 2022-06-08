@@ -8,9 +8,9 @@ class RegisterForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
-    name = StringField('Имя пользователя', validators=[DataRequired(), Length(min=5, max=20)])
+    name = StringField('Имя пользователя', validators=[DataRequired(), Length(min=1, max=20)])
     teacher = BooleanField('Вы учитель?')
-    about = StringField('О себе', validators=[DataRequired(), Length(min=5, max=60)])
+    about = StringField('О себе', validators=[DataRequired(), Length(min=0, max=60)])
 
     submit = SubmitField('Войти')
 

@@ -150,6 +150,23 @@ def delete_course(course_id):
         return abort(404, message=f"Course {course_id} not found")
 
 
+@app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
+@login_required
+def course_view(course_id):
+    course = get('http://localhost:5000/rest_course/' + str(course_id)
+                 ).json()["course"]
+    return render_template('course_change.html', course_data=course)
+
+
+@app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def lesson_view(course_id, lesson_id):
+    lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
+                 ).json()["lesson"]
+    # print(lesson)
+    return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id)
+
+
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 def make_lesson(course_id):
@@ -169,23 +186,6 @@ def make_lesson(course_id):
         db_sess.commit()
         return redirect('/courses/' + str(course_id))
     return render_template('make_lesson.html', form=form, dictionary=all_words)
-
-
-@app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
-@login_required
-def course_view(course_id):
-    course = get('http://localhost:5000/rest_course/' + str(course_id)
-                 ).json()["course"]
-    return render_template('course_change.html', course_data=course)
-
-
-@app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
-@login_required
-def lesson_view(course_id, lesson_id):
-    lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
-                 ).json()["lesson"]
-    # print(lesson)
-    return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id)
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -213,6 +213,16 @@ def change_lesson(lesson_id):
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
     return render_template('make_lesson.html', form=form, dictionary=all_words)
     # return render_template('lesson_view.html', lesson_data=lesson)
+
+
+@app.route('/courses/<int:course_id>/lesson_delete/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def delete_lesson(course_id, lesson_id):
+    ret = delete("http://localhost:5000/rest_lessons/" + str(lesson_id)).json()
+    if ret == {'success': 'OK'}:
+        return redirect("/courses/" + str(course_id))
+    else:
+        return abort(404, message=f"Lesson {lesson_id} not found")
 
 
 @app.route("/delete_word_from_lesson/<int:lesson_id>/<int:word_id>", methods=['GET'])
@@ -262,19 +272,21 @@ def add_word():
         phrase_audio = request.files['phrase_audio']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
-        filepath = os.path.join(full_path, "static", str(new_word.author))
+        save_name = str(hash(
+            str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
+        filepath = os.path.join(full_path, "static", save_name)
         if front:
             front.save(filepath + "_front.png")
-            new_word.front_side = str(new_word.author) + "_front.png"
+            new_word.front_side = save_name + "_front.png"
         if left:
             left.save(filepath + "_left.png")
-            new_word.left_side = str(new_word.author) + "_left.png"
+            new_word.left_side = save_name + "_left.png"
         if right:
             right.save(filepath + "_right.png")
-            new_word.right_side = str(new_word.author) + "_right.png"
+            new_word.right_side = save_name + "_right.png"
         if up:
             up.save(filepath + "_up_0.png")
-            new_word.up_side = str(new_word.author) + "_up.png"
+            new_word.up_side = save_name + "_up.png"
             im = Image.open(filepath + "_up_0.png")
             im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_90.png")
@@ -284,7 +296,7 @@ def add_word():
             im.save(filepath + "_up_270.png")
         if down:
             down.save(filepath + "_down_0.png")
-            new_word.down_side = str(new_word.author) + "_down.png"
+            new_word.down_side = save_name + "_down.png"
             im = Image.open(filepath + "_down_0.png")
             im = im.transpose(Image.ROTATE_270)
             im.save(filepath + "_down_90.png")
@@ -294,13 +306,13 @@ def add_word():
             im.save(filepath + "_down_270.png")
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
-            new_word.right_side_audio = str(new_word.author) + "_trans_audio.mp3"
+            new_word.right_side_audio = save_name + "_trans_audio.mp3"
             # print(new_word.right_side_audio)
         else:
             print(None)
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
-            new_word.up_side_audio = str(new_word.author) + "_phrase_audio.mp3"
+            new_word.up_side_audio = save_name + "_phrase_audio.mp3"
         else:
             print(None)
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
@@ -319,7 +331,7 @@ def delete_word(word_id):
     if ret == {'success': 'OK'}:
         return redirect("/dictionary")
     else:
-        return "что-то пошло не так"
+        return ret
 
 
 @app.route('/dict_word/<int:word_id>', methods=['GET', 'POST'])
