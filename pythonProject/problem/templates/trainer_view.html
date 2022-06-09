@@ -45,14 +45,12 @@
                   ["front5", "left5", "right5", "down_05", "up_05"],
                   ["front6", "left6", "right6", "down_06", "up_06"]
                   ];
-    // lesson = {{ lesson_words }};
-    var js_strings = JSON.parse("{{ test1 }}");
-    for (let i = 0; i < 3; i += 1){
-        alert(js_strings[i]);
+    lesson = "{{ lesson_words }}";
+    lesson = lesson.split(";;;");
+    for (let i = 0; i < lesson.length; i += 1){
+        lesson[i] = lesson[i].split(";");
     }
-    // alert({{ test1 }});
-    // alert({{ test2 }});
-    alert(lesson);
+    // alert(lesson);
     var results = [];
     var unlearned = [];
     for (let i = 0; i < lesson.length; i++) {
@@ -87,7 +85,7 @@
         val = event.target.value;
         index = unlearned.indexOf(current_word);
         if (index > -1) {
-            unlearned.splice(index, 1); // 2nd parameter means remove one item only
+            unlearned.slice(index, 1); // 2nd parameter means remove one item only
         }
         // alert(unlearned)
         shuffle(unlearned);
@@ -117,7 +115,7 @@
 
     // alert(ans_buttons[0]);
     function buttonsInit(){
-        document.getElementsByClassName("task-image")[0].src = "images/" + lesson[current_word][check_ind] + ".png";
+        document.getElementsByClassName("task-image")[0].src = "static/" + lesson[current_word][check_ind];
         training = [];
         for (let i = 0; i < lesson.length; i++) {
             training.push(lesson[i][ans_ind]);
@@ -128,7 +126,7 @@
         for (let i = 0; i < ans_buttons.length; i++) {
             ans_buttons[i].addEventListener("click", ansButtonClick, false);
             but_img = ans_buttons[i].getElementsByTagName("img")[0];
-            but_img.src = "images/" + training[i] + ".png";
+            but_img.src = "static/" + training[i];
             ans_buttons[i].value = training[i];
             but_img.value = training[i];
             but_img.style.width = (img_size).toString() + "px";
