@@ -10,13 +10,23 @@
             {{ word.hieroglyph }} {{ word.translation }}
             <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
         </a>
+        {% if current_user.teacher %}
         <a href="/delete_word_from_lesson/{{ lesson_data.id }}/{{ word.id }}" class="btn btn-danger">
             Удалить из урока
         </a>
+        {% endif %}
     </div>
     {% endfor %}
+    {% if current_user.teacher %}
     <div class="course-card">
         <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить слова</a>
     </div>
+    {% endif %}
+
+    {% if current_user.teacher %}
+    <div class="course-card">
+        <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить тренажеры</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

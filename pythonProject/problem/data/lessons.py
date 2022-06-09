@@ -24,3 +24,6 @@ class Lessons(SqlAlchemyBase, SerializerMixin):
     words = orm.relation("Words",
                          secondary="words_to_lessons",
                          backref="lessons")
+    trainers = orm.relation("Trainers",
+                            secondary="trainers_to_lessons",
+                            backref="lessons")

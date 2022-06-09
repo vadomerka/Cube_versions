@@ -174,6 +174,7 @@ def make_lesson(course_id):
     db_sess = db_session.create_session()
     current_course = db_sess.query(Courses).get(course_id)
     all_words = db_sess.query(Words).all()
+    trainings = ["1 training", "2 training", "3 training"]
     if form.validate_on_submit():
         new_lesson = Lessons()
         new_lesson.name = form.name.data
@@ -185,7 +186,7 @@ def make_lesson(course_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(course_id))
-    return render_template('make_lesson.html', form=form, dictionary=all_words)
+    return render_template('make_lesson.html', form=form, dictionary=all_words, trainings=trainings)
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -198,9 +199,10 @@ def change_lesson(lesson_id):
     for c in db_sess.query(User).get(current_user.id).courses:
         if lesson in c.lessons:
             current_course = c
+    trainings = ["1 training", "2 training", "3 training"]
     all_words = db_sess.query(Words).all()
     lesson_words = lesson.words
-    print(lesson_words)
+    # print(lesson_words)
     unused_words = []
     for word in all_words:
         if word not in lesson_words:
@@ -213,6 +215,7 @@ def change_lesson(lesson_id):
         for word_id in list(words):
             sql_word = db_sess.query(Words).get(int(word_id))
             lesson.words.append(sql_word)
+        tranings = request.form.getlist('lesson_trainer')  # idhfoajsdkmaslkcsdklcmlsdmclsmdclmsdlcmsldkmclksdmclkmsdlcmsdklcmlsdmclksmdclkmsdlcmsdlmk
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()

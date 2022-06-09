@@ -13,9 +13,17 @@
         </p>
         {% endfor %}
     </p>
+    <h1>Слова урока</h1>
     {% for word in dictionary %}
     <label class="container"> {{ word.hieroglyph }}
         <input type="checkbox" name="lesson_word" value='{{ word.id }}'>
+        <span class="checkmark"></span>
+    </label>
+    {% endfor %}
+    <h1>Тренажеры урока</h1>
+    {% for trainer in trainings %}
+    <label class="container"> {{ trainer }}
+        <input type="checkbox" name="lesson_trainer" value='{{ trainer }}'>
         <span class="checkmark"></span>
     </label>
     {% endfor %}
