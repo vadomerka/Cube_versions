@@ -206,7 +206,8 @@ def change_lesson(lesson_id):
     all_trainers = db_sess.query(Trainers).all()
     lesson_words = lesson.words
     unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
-    unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))), key=lambda x: x.id)
+    unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))),
+                             key=lambda x: x.id)
     if request.method == "GET":
         form.name.data = lesson.name
 
@@ -225,7 +226,8 @@ def change_lesson(lesson_id):
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
 
-    return render_template('make_lesson.html', form=form, dictionary=unused_words, trainings=unused_trainers)
+    return render_template('make_lesson.html', form=form, dictionary=unused_words,
+                           trainings=unused_trainers)
     # return render_template('lesson_view.html', lesson_data=lesson)
 
 
@@ -373,7 +375,23 @@ def delete_word(word_id):
 def dict_word_view(word_id):
     word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
     # print(word)
+    all_words = get("http://localhost:5000/rest_dict").json()["words"]
+    prev_id = 1
+    next_id = 1
+    prev_button_visibility = "visible"
+    next_button_visibility = "visible"
+    for i in range(len(all_words)):
+        if all_words[i]["id"] == word["id"]:
+            if i - 1 <= -1:
+                prev_button_visibility = "hidden"
+            else:
+                prev_id = all_words[i - 1]["id"]
 
+            if i + 1 >= len(all_words):
+                next_button_visibility = "hidden"
+            else:
+                next_id = all_words[i + 1]["id"]
+            break
     return render_template('dict_word.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
@@ -384,7 +402,11 @@ def dict_word_view(word_id):
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]),
                            back_url="/dictionary",
-                           dict="")
+                           dict=all_words,
+                           prev_button_visibility=prev_button_visibility,
+                           next_button_visibility=next_button_visibility,
+                           prev_word_url="http://127.0.0.1:5000/" + "dict_word/" + str(prev_id),
+                           next_word_url="http://127.0.0.1:5000/" + "dict_word/" + str(next_id))
 
 
 @app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/word/<int:word_id>',
@@ -399,7 +421,6 @@ def lesson_word_view(course_id, lesson_id, word_id):
     next_id = 1
     prev_button_visibility = "visible"
     next_button_visibility = "visible"
-    button_hidden = None
     for i in range(len(lesson_words)):
         if lesson_words[i]["id"] == word["id"]:
             if i - 1 <= -1:
@@ -441,7 +462,8 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     course = db_sess.query(Courses).get(course_id)
     lesson = db_sess.query(Lessons).get(lesson_id)
     trainer = db_sess.query(Trainers).get(trainer_id)
-    return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer)
+    return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
+                           url=url_for("static"))  # f
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
