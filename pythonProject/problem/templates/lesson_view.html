@@ -22,7 +22,18 @@
         <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить слова</a>
     </div>
     {% endif %}
-
+    {% for trainer in lesson_data.trainers %}
+    <div style="display: flex; direction: row; flex-wrap: wrap;">
+        <a href="/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/trainer/{{ trainer.id }}" class="btn btn-primary" style="min-width: 250px">
+            {{ trainer.name }}
+        </a>
+        {% if current_user.teacher %}
+        <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}" class="btn btn-danger">
+            Удалить из урока
+        </a>
+        {% endif %}
+    </div>
+    {% endfor %}
     {% if current_user.teacher %}
     <div class="course-card">
         <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить тренажеры</a>

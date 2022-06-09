@@ -10,6 +10,7 @@ from data.words import Words, words_to_lesson
 from data.lessons import Lessons, lessons_to_course
 from data.courses import Courses, users_to_course
 from data.users import User
+from data.trainers import Trainers
 
 # forms
 from forms.user import RegisterForm, LoginForm
@@ -199,28 +200,32 @@ def change_lesson(lesson_id):
     for c in db_sess.query(User).get(current_user.id).courses:
         if lesson in c.lessons:
             current_course = c
-    trainings = ["1 training", "2 training", "3 training"]
+    # trainings = ["1 training", "2 training", "3 training"]
+    # print(trainings)
     all_words = db_sess.query(Words).all()
+    all_trainers = db_sess.query(Trainers).all()
     lesson_words = lesson.words
-    # print(lesson_words)
-    unused_words = []
-    for word in all_words:
-        if word not in lesson_words:
-            unused_words.append(word)
+    unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
+    unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))), key=lambda x: x.id)
     if request.method == "GET":
         form.name.data = lesson.name
+
     if form.validate_on_submit():
         lesson.name = form.name.data
         words = request.form.getlist('lesson_word')
         for word_id in list(words):
             sql_word = db_sess.query(Words).get(int(word_id))
             lesson.words.append(sql_word)
-        tranings = request.form.getlist('lesson_trainer')  # idhfoajsdkmaslkcsdklcmlsdmclsmdclmsdlcmsldkmclksdmclkmsdlcmsdklcmlsdmclksmdclkmsdlcmsdlmk
+        trainers = request.form.getlist('lesson_trainer')
+        for trainers_id in list(trainers):
+            sql_trainers = db_sess.query(Trainers).get(int(trainers_id))
+            lesson.trainers.append(sql_trainers)
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('make_lesson.html', form=form, dictionary=unused_words)
+
+    return render_template('make_lesson.html', form=form, dictionary=unused_words, trainings=unused_trainers)
     # return render_template('lesson_view.html', lesson_data=lesson)
 
 
@@ -250,7 +255,25 @@ def delete_word_from_lesson(lesson_id, word_id):
             if lesson in c.lessons:
                 current_course = c
         return redirect('/courses/' + str(current_course.id) + "/lesson/" + str(lesson_id))
-    return 404
+    return abort(404, message=f"Word {word_id} not found")
+
+
+@app.route("/delete_trainer_from_lesson/<int:lesson_id>/<int:trainer_id>", methods=['GET'])
+@login_required
+def delete_trainer_from_lesson(lesson_id, trainer_id):
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    trainer = db_sess.query(Trainers).get(trainer_id)
+    if trainer in lesson.trainers:
+        lesson.trainers.remove(trainer)
+        db_sess.merge(lesson)
+        db_sess.commit()
+        current_course = 0
+        for c in db_sess.query(User).get(current_user.id).courses:
+            if lesson in c.lessons:
+                current_course = c
+        return redirect('/courses/' + str(current_course.id) + "/lesson/" + str(lesson_id))
+    return abort(404, message=f"Trainer {trainer_id} not found")
 
 
 @app.route('/dictionary', methods=['GET', 'POST'])
@@ -389,7 +412,6 @@ def lesson_word_view(course_id, lesson_id, word_id):
             else:
                 next_id = lesson_words[i + 1]["id"]
             break
-    print(i)
     return render_template('dict_word.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
@@ -409,6 +431,17 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            next_word_url="http://127.0.0.1:5000/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
                                next_id))
+
+
+@app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/trainer/<int:trainer_id>',
+           methods=['GET', 'POST'])
+@login_required
+def lesson_trainer_view(course_id, lesson_id, trainer_id):
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    trainer = db_sess.query(Trainers).get(trainer_id)
+    return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer)
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
