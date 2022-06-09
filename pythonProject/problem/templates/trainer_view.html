@@ -6,8 +6,140 @@
 <h1> name: {{ trainer.name }} </h1>
 <div class="trainer">
     <div class="task-box">
-        <img src="">
+        <img src="" class="task-image">
+    </div>
+    <div class="answer-box">
+        <button class="ans-button" name="ans1" value="myimage">
+            <img src="images/front1.png"/>  <!--value="myimage"-->
+        </button>
+        <button class="ans-button" name="ans1" value="myimage">
+            <img src="images/front1.png"/>
+        </button>
+        <button class="ans-button" name="ans1" value="myimage">
+            <img src="images/front1.png"/>
+        </button>
+        <button class="ans-button" name="ans1" value="myimage">
+            <img src="images/front1.png"/>
+        </button>
+        <button class="ans-button" name="ans1" value="myimage">
+            <img src="images/front1.png"/>
+        </button>
+        <button class="ans-button" name="ans1" value="myimage">
+            <img src="images/front1.png"/>
+        </button>
     </div>
 </div>
+<script>
+    var width = window.innerWidth
+    var height = window.innerHeight
+    var extra_size_ansbut = 50;
+    var img_size = 100;
+    // csv
+    // hieroglyph;translation;transcription;image;word combination
 
+    var lesson = [
+                  ["front1", "left1", "right1", "down_01", "up_01"],
+                  ["front2", "left2", "right2", "down_02", "up_02"],
+                  ["front3", "left3", "right3", "down_03", "up_03"],
+                  ["front4", "left4", "right4", "down_04", "up_04"],
+                  ["front5", "left5", "right5", "down_05", "up_05"],
+                  ["front6", "left6", "right6", "down_06", "up_06"]
+                  ];
+    // lesson = {{ lesson_words }};
+    var js_strings = JSON.parse("{{ test1 }}");
+    for (let i = 0; i < 3; i += 1){
+        alert(js_strings[i]);
+    }
+    // alert({{ test1 }});
+    // alert({{ test2 }});
+    alert(lesson);
+    var results = [];
+    var unlearned = [];
+    for (let i = 0; i < lesson.length; i++) {
+        results.push(false);
+        unlearned.push(i);
+    }
+    var current_word = 0;
+    var check_ind = 1;
+    var ans_ind = 0;
+
+    function shuffle(array) {
+      let currentIndex = array.length,  randomIndex;
+      while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    function resultsCheck(array){
+        is_true = true;
+        for (let i = 0; i < array.length; i++){
+            if (!array[i]){
+                is_true = false;
+            }
+        }
+        return is_true;
+    }
+
+    function ansButtonClick(event){
+        val = event.target.value;
+        index = unlearned.indexOf(current_word);
+        if (index > -1) {
+            unlearned.splice(index, 1); // 2nd parameter means remove one item only
+        }
+        // alert(unlearned)
+        shuffle(unlearned);
+        // alert(unlearned);
+        new_current_word = unlearned[0];
+        // alert(val);
+        // alert(lesson[current_word][ans_ind]);
+        if (val == lesson[current_word][ans_ind]){
+            results[current_word] = true;
+            alert("correct")
+        } else {
+            alert("incorrect")
+            results[current_word] = false;
+            index = unlearned.indexOf(current_word);
+            if (index == -1) {
+                unlearned.push(current_word);
+            }
+        }
+        // alert(unlearned);
+        current_word = new_current_word;
+        if (resultsCheck(results)){
+            alert("finished");
+        }
+        buttonsInit();
+        // alert(current_word);
+    }
+
+    // alert(ans_buttons[0]);
+    function buttonsInit(){
+        document.getElementsByClassName("task-image")[0].src = "images/" + lesson[current_word][check_ind] + ".png";
+        training = [];
+        for (let i = 0; i < lesson.length; i++) {
+            training.push(lesson[i][ans_ind]);
+        }
+        shuffle(training);
+
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i++) {
+            ans_buttons[i].addEventListener("click", ansButtonClick, false);
+            but_img = ans_buttons[i].getElementsByTagName("img")[0];
+            but_img.src = "images/" + training[i] + ".png";
+            ans_buttons[i].value = training[i];
+            but_img.value = training[i];
+            but_img.style.width = (img_size).toString() + "px";
+            but_img.style.height = (img_size).toString() + "px";
+            ans_buttons[i].style.minWidth = (Number(but_img.style.width.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            ans_buttons[i].style.minHeight = (Number(but_img.style.height.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            // ans_buttons[i].style.left = Math.round(width / 2) - play_button_size / 2 + "px";
+            // ans_buttons[i].style.top = Math.round(height / 2) - half_cube_size - play_button_size * 2 + "px";
+        };
+    }
+    // while()
+    buttonsInit();
+</script>
 {% endblock %}

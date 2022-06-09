@@ -462,8 +462,22 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     course = db_sess.query(Courses).get(course_id)
     lesson = db_sess.query(Lessons).get(lesson_id)
     trainer = db_sess.query(Trainers).get(trainer_id)
+    lesson_words = []
+    # print(lesson_words)
+    # print(lesson_words[0])
+    # print(lesson_words[0].up_side)
+    # for i in range(len(lesson.words)):
+    #     word = lesson.words[i]
+    #     lesson_words.append([word.front_side,
+    #                          word.left_side,
+    #                          word.right_side,
+    #                          word.down_side,
+    #                          word.up_side])
+
+    # print(lesson_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
-                           url=url_for("static"))  # f
+                           lesson_words=lesson.words, test1=["a", "b"], test2=['b', 'a'],
+                           back_url=f"/courses/{course_id}/lesson/{lesson_id}")
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
