@@ -474,10 +474,15 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
                                       word.down_side,
                                       word.up_side]))
     # lesson_words = {"lesson_words": lesson_words}
+    # print(url_for("static", filename=lesson_words[0][0]))
+    if len(lesson_words) >= 6:
+        answer_button_number = 6
+    else:
+        answer_button_number = len(lesson_words)
     lesson_words = ";;;".join(lesson_words)
     print(lesson_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
-                           lesson_words=lesson_words, test1=["a", "b"], test2=['b', 'a'],
+                           lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}")
 
 

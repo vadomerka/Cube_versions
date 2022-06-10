@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+<a href="{{ back_url }}" class="btn btn-primary my-btn"> Назад </a>
 <h1> id: {{ trainer.id }} </h1>
 <h1> name: {{ trainer.name }} </h1>
 <div class="trainer">
@@ -9,24 +9,11 @@
         <img src="" class="task-image">
     </div>
     <div class="answer-box">
+        {% for i in range(answer_button_number) %}
         <button class="ans-button" name="ans1" value="myimage">
             <img src="images/front1.png"/>  <!--value="myimage"-->
         </button>
-        <button class="ans-button" name="ans1" value="myimage">
-            <img src="images/front1.png"/>
-        </button>
-        <button class="ans-button" name="ans1" value="myimage">
-            <img src="images/front1.png"/>
-        </button>
-        <button class="ans-button" name="ans1" value="myimage">
-            <img src="images/front1.png"/>
-        </button>
-        <button class="ans-button" name="ans1" value="myimage">
-            <img src="images/front1.png"/>
-        </button>
-        <button class="ans-button" name="ans1" value="myimage">
-            <img src="images/front1.png"/>
-        </button>
+        {% endfor %}
     </div>
 </div>
 <script>
@@ -115,7 +102,7 @@
 
     // alert(ans_buttons[0]);
     function buttonsInit(){
-        document.getElementsByClassName("task-image")[0].src = "static/" + lesson[current_word][check_ind];
+        document.getElementsByClassName("task-image")[0].src = "/static/" + lesson[current_word][check_ind];
         training = [];
         for (let i = 0; i < lesson.length; i++) {
             training.push(lesson[i][ans_ind]);
@@ -126,7 +113,7 @@
         for (let i = 0; i < ans_buttons.length; i++) {
             ans_buttons[i].addEventListener("click", ansButtonClick, false);
             but_img = ans_buttons[i].getElementsByTagName("img")[0];
-            but_img.src = "static/" + training[i];
+            but_img.src = "/static/" + training[i];
             ans_buttons[i].value = training[i];
             but_img.value = training[i];
             but_img.style.width = (img_size).toString() + "px";
