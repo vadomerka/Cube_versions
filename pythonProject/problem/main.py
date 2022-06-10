@@ -345,12 +345,13 @@ def add_word():
             new_word.right_side_audio = save_name + "_trans_audio.mp3"
             # print(new_word.right_side_audio)
         else:
-            print(None)
+            # print(None)
+            new_word.right_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
         else:
-            print(None)
+            new_word.right_side_audio = "undefined_phrase_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()
@@ -480,7 +481,7 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     else:
         answer_button_number = len(lesson_words)
     lesson_words = ";;;".join(lesson_words)
-    print(lesson_words)
+    # print(lesson_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}")

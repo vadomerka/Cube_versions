@@ -10,34 +10,24 @@
     </div>
     <div class="answer-box">
         {% for i in range(answer_button_number) %}
-        <button class="ans-button" name="ans1" value="myimage">
-            <img src="images/front1.png"/>  <!--value="myimage"-->
+        <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+            <img name="{{ i }}" src=""/>  <!--value="myimage"-->
         </button>
         {% endfor %}
     </div>
+    <p id="result">result</p>
 </div>
 <script>
     var width = window.innerWidth
     var height = window.innerHeight
     var extra_size_ansbut = 50;
     var img_size = 100;
-    // csv
-    // hieroglyph;translation;transcription;image;word combination
 
-    var lesson = [
-                  ["front1", "left1", "right1", "down_01", "up_01"],
-                  ["front2", "left2", "right2", "down_02", "up_02"],
-                  ["front3", "left3", "right3", "down_03", "up_03"],
-                  ["front4", "left4", "right4", "down_04", "up_04"],
-                  ["front5", "left5", "right5", "down_05", "up_05"],
-                  ["front6", "left6", "right6", "down_06", "up_06"]
-                  ];
-    lesson = "{{ lesson_words }}";
+    var lesson = "{{ lesson_words }}";
     lesson = lesson.split(";;;");
     for (let i = 0; i < lesson.length; i += 1){
         lesson[i] = lesson[i].split(";");
     }
-    // alert(lesson);
     var results = [];
     var unlearned = [];
     for (let i = 0; i < lesson.length; i++) {
@@ -45,8 +35,8 @@
         unlearned.push(i);
     }
     var current_word = 0;
-    var check_ind = 1;
-    var ans_ind = 0;
+    var check_side = 1;
+    var ans_side = 0;
 
     function shuffle(array) {
       let currentIndex = array.length,  randomIndex;
@@ -70,61 +60,79 @@
 
     function ansButtonClick(event){
         val = event.target.value;
-        index = unlearned.indexOf(current_word);
-        if (index > -1) {
-            unlearned.slice(index, 1); // 2nd parameter means remove one item only
+        // index = unlearned.indexOf(current_word);
+        unlearned = unlearned.slice(1, unlearned.length);  // удаляем первый элемент
+
+        // alert(event.target.type);
+        if (event.target.type == undefined){
+            butId = parseInt(event.target.name);
+            // alert(butId);
+            ev_but = document.getElementById(butId);
+            ev_but.style.backgroundColor = 'salmon';
+            ev_but.style.color = 'blue';
+        } else {
+            event.target.style.backgroundColor = 'salmon';
+            event.target.style.color = 'blue';
         }
-        // alert(unlearned)
-        shuffle(unlearned);
-        // alert(unlearned);
-        new_current_word = unlearned[0];
-        // alert(val);
-        // alert(lesson[current_word][ans_ind]);
-        if (val == lesson[current_word][ans_ind]){
+
+        if (val == lesson[current_word][ans_side]){
             results[current_word] = true;
             alert("correct")
+            // если ответ верный ничего не делаем
         } else {
             alert("incorrect")
             results[current_word] = false;
-            index = unlearned.indexOf(current_word);
-            if (index == -1) {
-                unlearned.push(current_word);
-            }
+            // если ответ неверный, добавляем элемент в конец unlearned
+            unlearned.push(current_word);
         }
         // alert(unlearned);
-        current_word = new_current_word;
+        current_word = unlearned[0];
+        // берем следующий элемент unlearned
         if (resultsCheck(results)){
             alert("finished");
         }
-        buttonsInit();
-        // alert(current_word);
+        // buttonsInit();
     }
 
     // alert(ans_buttons[0]);
     function buttonsInit(){
-        document.getElementsByClassName("task-image")[0].src = "/static/" + lesson[current_word][check_ind];
-        training = [];
+        // задаем задание
+        document.getElementsByClassName("task-image")[0].src = "/static/" + lesson[current_word][check_side];
+        wrong_variants = [];
         for (let i = 0; i < lesson.length; i++) {
-            training.push(lesson[i][ans_ind]);
+            if (i != current_word){
+                wrong_variants.push(lesson[i][ans_side]);
+            }
         }
-        shuffle(training);
+        // alert(wrong_variants.length);
+        // for (let i = 0; i < wrong_variants.length; i += 1){
+//             alert(wrong_variants[i]);
+//         }
+        shuffle(wrong_variants);
+        var ans_variants = [lesson[current_word][ans_side]];
+        for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
+            ans_variants.push(wrong_variants[i]);
+        }
+        // alert(ans_variants.length);
+
+        shuffle(ans_variants);
+        // alert(ans_variants);
 
         ans_buttons = document.getElementsByClassName("ans-button");
         for (let i = 0; i < ans_buttons.length; i++) {
             ans_buttons[i].addEventListener("click", ansButtonClick, false);
             but_img = ans_buttons[i].getElementsByTagName("img")[0];
-            but_img.src = "/static/" + training[i];
-            ans_buttons[i].value = training[i];
-            but_img.value = training[i];
+            but_img.src = "/static/" + ans_variants[i];
+            // alert(but_img.src);
+            ans_buttons[i].value = ans_variants[i];
+            but_img.value = ans_variants[i];
             but_img.style.width = (img_size).toString() + "px";
             but_img.style.height = (img_size).toString() + "px";
             ans_buttons[i].style.minWidth = (Number(but_img.style.width.slice(0, -2)) + extra_size_ansbut).toString() + "px";
             ans_buttons[i].style.minHeight = (Number(but_img.style.height.slice(0, -2)) + extra_size_ansbut).toString() + "px";
-            // ans_buttons[i].style.left = Math.round(width / 2) - play_button_size / 2 + "px";
-            // ans_buttons[i].style.top = Math.round(height / 2) - half_cube_size - play_button_size * 2 + "px";
         };
     }
-    // while()
     buttonsInit();
+
 </script>
 {% endblock %}
