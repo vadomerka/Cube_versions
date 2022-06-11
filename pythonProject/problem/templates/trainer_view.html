@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<a href="{{ back_url }}" class="btn btn-primary my-btn"> Назад </a>
-<h1> id: {{ trainer.id }} </h1>
-<h1> name: {{ trainer.name }} </h1>
+<a href="{{ back_url }}" class="btn btn-primary my-btn" style="color: white;"> Назад </a>
+<h1 style="color: white;"> id: {{ trainer.id }} </h1>
+<h1 style="color: white;"> name: {{ trainer.name }} </h1>
 <div class="trainer">
     <div class="task-box">
-        <img src="" class="task-image">
+        <img src="" class="task-image" >
     </div>
     <div class="answer-box">
         {% for i in range(answer_button_number) %}
@@ -15,7 +15,7 @@
         </button>
         {% endfor %}
     </div>
-    <p id="result">result</p>
+    <a id="continue" class="btn btn-primary my-btn" style="color: white;">Продолжить</a>
 </div>
 <script>
     var width = window.innerWidth
@@ -60,44 +60,86 @@
 
     function ansButtonClick(event){
         val = event.target.value;
-        // index = unlearned.indexOf(current_word);
         unlearned = unlearned.slice(1, unlearned.length);  // удаляем первый элемент
-
-        // alert(event.target.type);
-        if (event.target.type == undefined){
-            butId = parseInt(event.target.name);
-            // alert(butId);
-            ev_but = document.getElementById(butId);
-            ev_but.style.backgroundColor = 'salmon';
-            ev_but.style.color = 'blue';
-        } else {
-            event.target.style.backgroundColor = 'salmon';
-            event.target.style.color = 'blue';
-        }
 
         if (val == lesson[current_word][ans_side]){
             results[current_word] = true;
-            alert("correct")
+            // alert("correct")
             // если ответ верный ничего не делаем
+            if (event.target.type == undefined){
+                butId = parseInt(event.target.name);
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'green';
+                // ev_but.style.color = 'blue';
+            } else {
+                event.target.style.backgroundColor = 'green';
+                // event.target.style.color = 'blue';
+            }
         } else {
-            alert("incorrect")
+            //alert("incorrect")
+            ans_buttons = document.getElementsByClassName("ans-button");
+            for (let i = 0; i < ans_buttons.length; i += 1){
+                if (ans_buttons[i].value == lesson[current_word][ans_side]){
+                    right_answer_id = i;
+                    // alert(right_answer_id);
+                    break;
+                }
+                // alert("for");
+            }
+            // alert("incorrect")
+            // правильный ответ становится зеленым
+            if (event.target.type == undefined){  // если человек нажал на картинку
+                butId = right_answer_id;
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'green';
+                // ev_but.style.color = 'blue';
+            }
+            // нажатая кнопка становится красной
+            if (event.target.type == undefined){  // если человек нажал на картинку
+                butId = parseInt(event.target.name);
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'salmon';
+                // ev_but.style.color = 'blue';
+            } else {  // если человек нажал на саму кнопку
+                event.target.style.backgroundColor = 'salmon';
+                // event.target.style.color = 'blue';
+            }
             results[current_word] = false;
             // если ответ неверный, добавляем элемент в конец unlearned
             unlearned.push(current_word);
         }
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i += 1){
+            ans_buttons[i].disabled = true;
+        }
         // alert(unlearned);
-        current_word = unlearned[0];
         // берем следующий элемент unlearned
         if (resultsCheck(results)){
             alert("finished");
+            continue_button = document.getElementById("continue");
+            continue_button.innerText = "Вернуться к уроку";
+            continue_button.href = "{{ back_url }}";
+            // alert(continue_button.href);  // f
+            continue_button.removeEventListener("click", continueButtonClick, false);
+        } else {
+            current_word = unlearned[0];
         }
         // buttonsInit();
+    }
+
+    function continueButtonClick(event){
+        buttonsInit();
     }
 
     // alert(ans_buttons[0]);
     function buttonsInit(){
         // задаем задание
-        document.getElementsByClassName("task-image")[0].src = "/static/" + lesson[current_word][check_side];
+        task_but = document.getElementsByClassName("task-image")[0];
+        task_but.src = "/static/" + lesson[current_word][check_side];
+        task_but.style = "height: 150px; width: 150px";
         wrong_variants = [];
         for (let i = 0; i < lesson.length; i++) {
             if (i != current_word){
@@ -130,8 +172,13 @@
             but_img.style.height = (img_size).toString() + "px";
             ans_buttons[i].style.minWidth = (Number(but_img.style.width.slice(0, -2)) + extra_size_ansbut).toString() + "px";
             ans_buttons[i].style.minHeight = (Number(but_img.style.height.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            ans_buttons[i].style.backgroundColor = 'white';
+            ans_buttons[i].disabled = false;
         };
     }
+
+    continue_button = document.getElementById("continue");
+    continue_button.addEventListener("click", continueButtonClick, false);
     buttonsInit();
 
 </script>

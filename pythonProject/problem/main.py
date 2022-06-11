@@ -464,9 +464,6 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     lesson = db_sess.query(Lessons).get(lesson_id)
     trainer = db_sess.query(Trainers).get(trainer_id)
     lesson_words = []
-    # print(lesson_words)
-    # print(lesson_words[0])
-    # print(lesson_words[0].up_side)
     for i in range(len(lesson.words)):
         word = lesson.words[i]
         lesson_words.append(";".join([word.front_side,
@@ -474,17 +471,15 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
                                       word.right_side,
                                       word.down_side,
                                       word.up_side]))
-    # lesson_words = {"lesson_words": lesson_words}
-    # print(url_for("static", filename=lesson_words[0][0]))
     if len(lesson_words) >= 6:
         answer_button_number = 6
     else:
         answer_button_number = len(lesson_words)
     lesson_words = ";;;".join(lesson_words)
-    # print(lesson_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
-                           back_url=f"/courses/{course_id}/lesson/{lesson_id}")
+                           back_url=f"/courses/{course_id}/lesson/{lesson_id}",
+                           check_side=check_side, ans_side=ans_side)
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
