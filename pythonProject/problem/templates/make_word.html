@@ -20,48 +20,47 @@
     </p>
     {% endfor %}
     <div class="form-group">
-
         <input type="file" accept="image/*" onchange="fileLoaders[0](event)"
                class="form-control-file"
-               id="front" name="front" value='file' hidden>
+               id="front" name="front" value="{{ front_file }}" hidden>
         <label class="btn-primary" for="front">
-            <img id="front_output" width="300" height="300" src="/static/tutorial_front.png">
+            <img id="front_output" width="300" height="300" src="{{ front_start_preview }}">
         </label>
 
         <input type="file" accept="image/*" onchange="fileLoaders[1](event)"
-               class="form-control-file" id="left" name="left" value='file' hidden>
+               class="form-control-file" id="left" name="left" value="{{ left_file }}" hidden>
         <label class="btn-primary" for="left">
-            <img id="left_output" width="300" height="300" src="/static/tutorial_left.png">
+            <img id="left_output" width="300" height="300" src="{{ left_start_preview }}">
         </label>
 
         <input type="file" accept="image/*" onchange="fileLoaders[2](event)"
-               class="form-control-file" id="right" name="right" value='file' hidden>
+               class="form-control-file" id="right" name="right" value="{{ right_file }}" hidden>
         <label class="btn-primary" for="right">
-            <img id="right_output" width="300" height="300" src="/static/tutorial_right.png">
+            <img id="right_output" width="300" height="300" src="{{ right_start_preview }}">
         </label>
 
         <input type="file" accept="image/*" onchange="fileLoaders[3](event)"
-               class="form-control-file" id="up" name="up" value='file' hidden>
+               class="form-control-file" id="up" name="up" value="{{ up_file }}" hidden>
         <label class="btn-primary" for="up">
-            <img id="up_output" width="300" height="300" src="/static/tutorial_up.png">
+            <img id="up_output" width="300" height="300" src="{{ up_start_preview }}">
         </label>
 
         <input type="file" accept="image/*" onchange="fileLoaders[4](event)"
-               class="form-control-file" id="down" name="down" value='file' hidden>
+               class="form-control-file" id="down" name="down" value="{{ down_file }}" hidden>
         <label class="btn-primary" for="down">
-            <img id="down_output" width="300" height="300" src="/static/tutorial_down.png">
+            <img id="down_output" width="300" height="300" src="{{ down_start_preview }}">
         </label>
 
         <input type="file" accept="image/*" onchange="fileLoaders[5](event)"
                class="form-control-file" id="transcription_audio"
-               name="transcription_audio" value='file' hidden>
+               name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
         <label class="btn-primary" for="transcription_audio">
             <img id="transcription_audio_output" width="300" height="300" src="">
         </label>
 
-        <input type="file" accept="image/*" onchange="fileLoaders[6](event)"
+        <input type="file" accept="/*" onchange="fileLoaders[6](event)"
                class="form-control-file" id="phrase_audio" name="phrase_audio"
-               value='file' hidden>
+               value='{{ phrase_audio_file }}' hidden>
         <label class="btn-primary" for="phrase_audio">
             <img id="phrase_audio_output" width="300" height="300" src="">
         </label>
@@ -72,7 +71,8 @@
 <script>
     fileLoaders = [0, 0, 0, 0, 0, 0, 0]
     id_list = ['front_output', "left_output", "right_output", "up_output", "down_output",
-        "transcription_audio_output", "phrase_audio_output"]
+               "transcription_audio_output", "phrase_audio_output"]
+    start_values = []
     for (let i = 0; i < 7; i += 1){
         var tmp_loader = function(event) {
             var output = document.getElementById(id_list[i]);
@@ -82,11 +82,8 @@
             }
         };
         fileLoaders[i] = tmp_loader;
+
     }
-    var loader1 = fileLoaders[0];
-
-
-
 
 </script>
 {% endblock %}

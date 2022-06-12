@@ -35,8 +35,8 @@
         unlearned.push(i);
     }
     var current_word = 0;
-    var check_side = 1;
-    var ans_side = 0;
+    var check_side = {{ trainer.check_side }};
+    var ans_side = {{ trainer.ans_side }};
 
     function shuffle(array) {
       let currentIndex = array.length,  randomIndex;
@@ -88,14 +88,13 @@
                 // alert("for");
             }
             // alert("incorrect")
+
             // правильный ответ становится зеленым
-            if (event.target.type == undefined){  // если человек нажал на картинку
-                butId = right_answer_id;
-                // alert(butId);
-                ev_but = document.getElementById(butId);
-                ev_but.style.backgroundColor = 'green';
-                // ev_but.style.color = 'blue';
-            }
+            butId = right_answer_id;
+            // alert(butId);
+            ev_but = document.getElementById(butId);
+            ev_but.style.backgroundColor = 'green';
+
             // нажатая кнопка становится красной
             if (event.target.type == undefined){  // если человек нажал на картинку
                 butId = parseInt(event.target.name);
@@ -118,11 +117,10 @@
         // alert(unlearned);
         // берем следующий элемент unlearned
         if (resultsCheck(results)){
-            alert("finished");
+            // alert("finished");
             continue_button = document.getElementById("continue");
             continue_button.innerText = "Вернуться к уроку";
             continue_button.href = "{{ back_url }}";
-            // alert(continue_button.href);  // f
             continue_button.removeEventListener("click", continueButtonClick, false);
         } else {
             current_word = unlearned[0];

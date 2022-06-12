@@ -293,6 +293,12 @@ def add_word():
     # db_sess.expire_on_commit = False
     # all_words = db_sess.query(Words).all()
     # 你
+    # /static/tutorial_left.png
+    front_start_preview = "/static/tutorial_front.png"
+    left_start_preview = "/static/tutorial_front.png"
+    right_start_preview = "/static/tutorial_front.png"
+    up_start_preview = "/static/tutorial_front.png"
+    down_start_preview = "/static/tutorial_front.png"
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
@@ -321,8 +327,10 @@ def add_word():
             right.save(filepath + "_right.png")
             new_word.right_side = save_name + "_right.png"
         if up:
-            up.save(filepath + "_up_0.png")
+            up.save(filepath + "_up.png")
             new_word.up_side = save_name + "_up.png"
+            im = Image.open(filepath + "_up.png")
+            im.save(filepath + "_up_0.png")
             im = Image.open(filepath + "_up_0.png")
             im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_90.png")
@@ -331,8 +339,10 @@ def add_word():
             im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_270.png")
         if down:
-            down.save(filepath + "_down_0.png")
+            down.save(filepath + "_down.png")
             new_word.down_side = save_name + "_down.png"
+            im = Image.open(filepath + "_down.png")
+            im.save(filepath + "_down_0.png")
             im = Image.open(filepath + "_down_0.png")
             im = im.transpose(Image.ROTATE_270)
             im.save(filepath + "_down_90.png")
@@ -351,13 +361,18 @@ def add_word():
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
         else:
-            new_word.right_side_audio = "undefined_phrase_audio.mp3"
+            new_word.up_side_audio = "undefined_phrase_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
-    return render_template('make_word.html', form=form, filename="tmp")
+    return render_template('make_word.html', form=form, filename="tmp",
+                           front_start_preview=front_start_preview,
+                           left_start_preview=left_start_preview,
+                           right_start_preview=right_start_preview,
+                           up_start_preview=up_start_preview,
+                           down_start_preview=down_start_preview)
 
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
@@ -466,11 +481,11 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     lesson_words = []
     for i in range(len(lesson.words)):
         word = lesson.words[i]
-        lesson_words.append(";".join([word.front_side,
-                                      word.left_side,
-                                      word.right_side,
-                                      word.down_side,
-                                      word.up_side]))
+        lesson_words.append(";".join([word.front_side,  # иероглиф
+                                      word.left_side,  # перевод
+                                      word.right_side,  # транскрипция
+                                      word.down_side,  # картинка
+                                      word.up_side]))  # свосочетание
     if len(lesson_words) >= 6:
         answer_button_number = 6
     else:
@@ -478,8 +493,7 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     lesson_words = ";;;".join(lesson_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
-                           back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                           check_side=check_side, ans_side=ans_side)
+                           back_url=f"/courses/{course_id}/lesson/{lesson_id}")
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
@@ -491,24 +505,29 @@ def change_word(word_id):
     new_word = db_sess.query(Words).get(word_id)
     path_to_file = os.path.dirname(__file__)
     full_path = os.path.join(path_to_file)
-    filepath = os.path.join(full_path, "static", str(current_user.id))
 
-    # form.hieroglyph.data = new_word.hieroglyph
-    # form.translation.data = new_word.translation
-    # request.files['front'] = Image.open(filepath + "_front.png")
-    # request.files['left'] = Image.open(filepath + "_left.png")
-    # request.files['right'] = Image.open(filepath + "_right.png")
-    # request.files['up'] = Image.open(filepath + "_up.png")
-    # request.files['down'] = Image.open(filepath + "_down.png")
-    # request.files['transcription_audio'] = Image.open(filepath + "_trans_audio.mp3")
-    # request.files['phrase_audio'] = Image.open(filepath + "_phrase_audio.mp3")
+    form.hieroglyph.data = new_word.hieroglyph
+    form.translation.data = new_word.translation
+
+    front_file = Image.open(os.path.join(full_path, "static", new_word.front_side))
+    left_file = Image.open(os.path.join(full_path, "static", new_word.left_side))
+    right_file = Image.open(os.path.join(full_path, "static", new_word.right_side))
+    up_file = Image.open(os.path.join(full_path, "static", new_word.up_side))
+    down_file = Image.open(os.path.join(full_path, "static", new_word.down_side))
+    # transcription_audio_file = Image.open(os.path.join(full_path, "static", new_word.transcription_audio))
+    # phrase_audio_file = Image.open(os.path.join(full_path, "static", new_word.phrase_audio))
+
+    front_start_preview = "/static/" + new_word.front_side
+    left_start_preview = "/static/" + new_word.left_side
+    right_start_preview = "/static/" + new_word.right_side
+    up_start_preview = "/static/" + new_word.up_side
+    down_start_preview = "/static/" + new_word.down_side
     if form.validate_on_submit():
-        new_word = Words()
         new_word.author = current_user.id
+        new_word.hieroglyph = form.hieroglyph.data
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
         front = request.files['front']
-        # print(request.files['front'])
         left = request.files['left']
         right = request.files['right']
         up = request.files['up']
@@ -517,19 +536,23 @@ def change_word(word_id):
         phrase_audio = request.files['phrase_audio']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
-        filepath = os.path.join(full_path, "static", str(new_word.author))
+        save_name = str(hash(
+            str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
+        filepath = os.path.join(full_path, "static", save_name)
         if front:
             front.save(filepath + "_front.png")
-            new_word.front_side = str(new_word.author) + "_front.png"
+            new_word.front_side = save_name + "_front.png"
         if left:
             left.save(filepath + "_left.png")
-            new_word.left_side = str(new_word.author) + "_left.png"
+            new_word.left_side = save_name + "_left.png"
         if right:
             right.save(filepath + "_right.png")
-            new_word.right_side = str(new_word.author) + "_right.png"
+            new_word.right_side = save_name + "_right.png"
         if up:
-            up.save(filepath + "_up_0.png")
-            new_word.up_side = str(new_word.author) + "_up.png"
+            up.save(filepath + "_up.png")
+            new_word.up_side = save_name + "_up.png"
+            im = Image.open(filepath + "_up.png")
+            im.save(filepath + "_up_0.png")
             im = Image.open(filepath + "_up_0.png")
             im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_90.png")
@@ -538,8 +561,10 @@ def change_word(word_id):
             im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_270.png")
         if down:
-            down.save(filepath + "_down_0.png")
-            new_word.down_side = str(new_word.author) + "_down.png"
+            down.save(filepath + "_down.png")
+            new_word.down_side = save_name + "_down.png"
+            im = Image.open(filepath + "_down.png")
+            im.save(filepath + "_down_0.png")
             im = Image.open(filepath + "_down_0.png")
             im = im.transpose(Image.ROTATE_270)
             im.save(filepath + "_down_90.png")
@@ -549,21 +574,31 @@ def change_word(word_id):
             im.save(filepath + "_down_270.png")
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
-            new_word.right_side_audio = str(new_word.author) + "_trans_audio.mp3"
+            new_word.right_side_audio = save_name + "_trans_audio.mp3"
             # print(new_word.right_side_audio)
         else:
-            print(None)
+            # print(None)
+            new_word.right_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
-            new_word.up_side_audio = str(new_word.author) + "_phrase_audio.mp3"
+            new_word.up_side_audio = save_name + "_phrase_audio.mp3"
         else:
-            print(None)
+            new_word.up_side_audio = "undefined_phrase_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
-    return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp")
+    return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp",
+                           front_file=front_file, left_file=left_file, right_file=right_file,
+                           up_file=up_file, down_file=down_file,
+                           # transcription_audio_file=transcription_audio_file,
+                           # phrase_audio_file=phrase_audio_file,
+                           front_start_preview=front_start_preview,
+                           left_start_preview=left_start_preview,
+                           right_start_preview=right_start_preview,
+                           up_start_preview=up_start_preview,
+                           down_start_preview=down_start_preview)
 
 
 def main():
