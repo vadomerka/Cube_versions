@@ -6,14 +6,24 @@
 <h1 style="color: white;"> name: {{ trainer.name }} </h1>
 <div class="trainer">
     <div class="task-box">
-        <img src="" class="task-image" >
+        {% if trainer.check_side < 5 %}
+        <img src="" class="task-field" name="task-field">
+        {% else %}
+        <button style="" id="audio_but" class="c-button" name="task-field" >
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;" />
+            </svg>
+        </button>
+        {% endif %}
     </div>
     <div class="answer-box">
-        {% for i in range(answer_button_number) %}
-        <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
-            <img name="{{ i }}" src=""/>  <!--value="myimage"-->
-        </button>
-        {% endfor %}
+        {% if trainer.ans_side < 5 %}
+            {% for i in range(answer_button_number) %}
+            <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+                <img name="{{ i }}" src=""/>  <!--value="myimage"-->
+            </button>
+            {% endfor %}
+        {% endif %}
     </div>
     <a id="continue" class="btn btn-primary my-btn" style="color: white;">Продолжить</a>
 </div>
@@ -28,6 +38,8 @@
     for (let i = 0; i < lesson.length; i += 1){
         lesson[i] = lesson[i].split(";");
     }
+    var task_audio;
+    var audio_playing = false;
     var results = [];
     var unlearned = [];
     for (let i = 0; i < lesson.length; i++) {
@@ -56,6 +68,14 @@
             }
         }
         return is_true;
+    }
+
+    function audioButtonClick(event){
+        if (audio_playing){task_audio.pause();}
+        else {task_audio.play();}
+        // alert(playing);
+        audio_playing = !audio_playing;
+        // alert(audio_playing);
     }
 
     function ansButtonClick(event){
@@ -135,8 +155,15 @@
     // alert(ans_buttons[0]);
     function buttonsInit(){
         // задаем задание
-        task_but = document.getElementsByClassName("task-image")[0];
+        task_but = document.getElementsByName("task-field")[0];
         task_but.src = "/static/" + lesson[current_word][check_side];
+        if ({{ trainer.check_side }} >= 5) {  // если задание - аудио файл - загружаем для него аудио
+            task_audio = new Audio(task_but.src);
+            // audioButtonClick
+            audio_but = document.getElementById("audio_but");
+            // alert(audio_but);
+            audio_but.addEventListener("click", audioButtonClick, false);
+        }
         task_but.style = "height: 150px; width: 150px";
         wrong_variants = [];
         for (let i = 0; i < lesson.length; i++) {
@@ -144,10 +171,6 @@
                 wrong_variants.push(lesson[i][ans_side]);
             }
         }
-        // alert(wrong_variants.length);
-        // for (let i = 0; i < wrong_variants.length; i += 1){
-//             alert(wrong_variants[i]);
-//         }
         shuffle(wrong_variants);
         var ans_variants = [lesson[current_word][ans_side]];
         for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){

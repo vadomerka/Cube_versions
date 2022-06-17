@@ -83,4 +83,27 @@ body {
     padding-bottom: 24px;
     padding-left: 24px;
 }
+
+.c-button {
+
+    min-width: 50px;
+    min-height: 50px;
+    appearance: none;
+    border: 0;
+    border-radius: 5px;
+    background: #4676d7;
+    color: #fff;
+
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.c-button:hover {
+  background: #1d49aa;
+}
+
+.my-btn {
+
+}
+
 © 2022 GitHub, Inc.

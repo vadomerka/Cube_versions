@@ -470,8 +470,10 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            up_img=url_for("static", filename=word["up_side"]),
                            down_img=url_for("static", filename=word["down_side"]),
                            front_audio=url_for("static", filename=word["front_side_audio"]),
+                           left_audio=url_for("static", filename=word["left_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]),
+                           down_audio=url_for("static", filename=word["down_side_audio"]),
                            back_url="/courses/" + str(course_id) + "/lesson/" + str(lesson_id),
                            dict=lesson_words,
                            prev_button_visibility=prev_button_visibility,
@@ -499,7 +501,10 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
                                       word.left_side,  # перевод
                                       word.right_side,  # транскрипция
                                       word.down_side,  # картинка
-                                      word.up_side]))  # свосочетание
+                                      word.up_side,
+                                      word.front_side_audio,
+                                      word.up_side_audio,
+                                      word.left_side_audio]))  # свосочетание
     if len(lesson_words) >= 6:
         answer_button_number = 6
     else:
@@ -611,7 +616,7 @@ def change_word(word_id):
             translation_audio.save(filepath + "_translation_audio.mp3")
             new_word.left_side_audio = save_name + "_translation_audio.mp3"
         # else:
-            # new_word.left_side_audio = "undefined_translation_audio.mp3"
+        # new_word.left_side_audio = "undefined_translation_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()
