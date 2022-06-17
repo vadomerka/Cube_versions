@@ -1,12 +1,8 @@
-from flask import Flask, url_for
+import vlc
+p = vlc.MediaPlayer("static/6612411961515044502_trans_audio.mp3")
+import time
 
-app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-    return url_for("static", filename="еуые.mp3")
-
-
-if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+p.play()
+time.sleep(5)
+# print(p)
+p.stop()

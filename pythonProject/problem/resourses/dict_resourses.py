@@ -90,8 +90,10 @@ class WordResourse(Resource):
                   "up_side",
                   "down_side",
                   "front_side_audio",
+                  "left_side_audio",
                   "right_side_audio",
-                  "up_side_audio"))}
+                  "up_side_audio",
+                  "down_side_audio",))}
         return jsonify(ret)
 
     def delete(self, word_id):
@@ -118,7 +120,8 @@ class WordResourse(Resource):
                 name_90 = ".".join([name[0] + "_90", name[1]])
                 name_180 = ".".join([name[0] + "_180", name[1]])
                 name_270 = ".".join([name[0] + "_270", name[1]])
-                for name_ in (name_0, name_90, name_180, name_270):
+                name = ".".join(name)
+                for name_ in (name_0, name_90, name_180, name_270, name):
                     filename = path + name_
                     # print(filename)
                     if os.path.exists(filename):

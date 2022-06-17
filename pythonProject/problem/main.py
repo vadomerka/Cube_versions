@@ -29,6 +29,7 @@ import requests
 import os
 import datetime as dt
 from PIL import Image
+import vlc
 
 app = Flask(__name__)
 api = Api(app)
@@ -295,10 +296,10 @@ def add_word():
     # 你
     # /static/tutorial_left.png
     front_start_preview = "/static/tutorial_front.png"
-    left_start_preview = "/static/tutorial_front.png"
-    right_start_preview = "/static/tutorial_front.png"
-    up_start_preview = "/static/tutorial_front.png"
-    down_start_preview = "/static/tutorial_front.png"
+    left_start_preview = "/static/tutorial_left.png"
+    right_start_preview = "/static/tutorial_right.png"
+    up_start_preview = "/static/tutorial_up.png"
+    down_start_preview = "/static/tutorial_down.png"
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
@@ -312,6 +313,7 @@ def add_word():
         down = request.files['down']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
+        translation_audio = request.files['translation_audio']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
         save_name = str(hash(
@@ -350,18 +352,28 @@ def add_word():
             im.save(filepath + "_down_180.png")
             im = im.transpose(Image.ROTATE_270)
             im.save(filepath + "_down_270.png")
+
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
+            new_word.front_side_audio = save_name + "_trans_audio.mp3"
             new_word.right_side_audio = save_name + "_trans_audio.mp3"
+            new_word.down_side_audio = save_name + "_trans_audio.mp3"
             # print(new_word.right_side_audio)
         else:
             # print(None)
+            new_word.front_side_audio = "undefined_trans_audio.mp3"
             new_word.right_side_audio = "undefined_trans_audio.mp3"
+            new_word.down_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
         else:
             new_word.up_side_audio = "undefined_phrase_audio.mp3"
+        if translation_audio:
+            translation_audio.save(filepath + "_translation_audio.mp3")
+            new_word.left_side_audio = save_name + "_translation_audio.mp3"
+        else:
+            new_word.left_side_audio = "undefined_translation_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()
@@ -414,9 +426,11 @@ def dict_word_view(word_id):
                            right_img=url_for("static", filename=word["right_side"]),
                            up_img=url_for("static", filename=word["up_side"]),
                            down_img=url_for("static", filename=word["down_side"]),
-                           # front_audio=url_for("static", filename=word["front_side_audio"]),
+                           front_audio=url_for("static", filename=word["front_side_audio"]),
+                           left_audio=url_for("static", filename=word["left_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]),
+                           down_audio=url_for("static", filename=word["down_side_audio"]),
                            back_url="/dictionary",
                            dict=all_words,
                            prev_button_visibility=prev_button_visibility,
@@ -455,7 +469,7 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            right_img=url_for("static", filename=word["right_side"]),
                            up_img=url_for("static", filename=word["up_side"]),
                            down_img=url_for("static", filename=word["down_side"]),
-                           # front_audio=url_for("static", filename=word["front_side_audio"]),
+                           front_audio=url_for("static", filename=word["front_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
                            up_audio=url_for("static", filename=word["up_side_audio"]),
                            back_url="/courses/" + str(course_id) + "/lesson/" + str(lesson_id),
@@ -514,8 +528,12 @@ def change_word(word_id):
     right_file = Image.open(os.path.join(full_path, "static", new_word.right_side))
     up_file = Image.open(os.path.join(full_path, "static", new_word.up_side))
     down_file = Image.open(os.path.join(full_path, "static", new_word.down_side))
-    # transcription_audio_file = Image.open(os.path.join(full_path, "static", new_word.transcription_audio))
-    # phrase_audio_file = Image.open(os.path.join(full_path, "static", new_word.phrase_audio))
+    transcription_audio_file = vlc.MediaPlayer(os.path.join(
+        full_path, "static", new_word.front_side_audio))
+    phrase_audio_file = vlc.MediaPlayer(os.path.join(full_path, "static", new_word.up_side_audio))
+    translation_audio_file = vlc.MediaPlayer(
+        os.path.join(full_path, "static", new_word.left_side_audio))
+    # print(transcription_audio_file)
 
     front_start_preview = "/static/" + new_word.front_side
     left_start_preview = "/static/" + new_word.left_side
@@ -534,6 +552,7 @@ def change_word(word_id):
         down = request.files['down']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
+        translation_audio = request.files['translation_audio']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
         save_name = str(hash(
@@ -574,16 +593,25 @@ def change_word(word_id):
             im.save(filepath + "_down_270.png")
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
+            new_word.front_side_audio = save_name + "_trans_audio.mp3"
             new_word.right_side_audio = save_name + "_trans_audio.mp3"
+            new_word.down_side_audio = save_name + "_trans_audio.mp3"
             # print(new_word.right_side_audio)
-        else:
-            # print(None)
-            new_word.right_side_audio = "undefined_trans_audio.mp3"
+        # else:
+        #     # print(None)
+        #     new_word.front_side_audio = "undefined_trans_audio.mp3"
+        #     new_word.right_side_audio = "undefined_trans_audio.mp3"
+        #     new_word.down_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
-        else:
-            new_word.up_side_audio = "undefined_phrase_audio.mp3"
+        # else:
+        #     new_word.up_side_audio = "undefined_phrase_audio.mp3"
+        if translation_audio:
+            translation_audio.save(filepath + "_translation_audio.mp3")
+            new_word.left_side_audio = save_name + "_translation_audio.mp3"
+        # else:
+            # new_word.left_side_audio = "undefined_translation_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()
@@ -592,8 +620,9 @@ def change_word(word_id):
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp",
                            front_file=front_file, left_file=left_file, right_file=right_file,
                            up_file=up_file, down_file=down_file,
-                           # transcription_audio_file=transcription_audio_file,
-                           # phrase_audio_file=phrase_audio_file,
+                           transcription_audio_file=transcription_audio_file,
+                           phrase_audio_file=phrase_audio_file,
+                           translation_audio_file=translation_audio_file,
                            front_start_preview=front_start_preview,
                            left_start_preview=left_start_preview,
                            right_start_preview=right_start_preview,

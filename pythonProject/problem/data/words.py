@@ -31,5 +31,7 @@ class Words(SqlAlchemyBase, SerializerMixin):
     up_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     down_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     front_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    left_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     right_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     up_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    down_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)

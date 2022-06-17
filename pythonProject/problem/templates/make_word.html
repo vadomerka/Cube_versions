@@ -51,29 +51,40 @@
             <img id="down_output" width="300" height="300" src="{{ down_start_preview }}">
         </label>
 
-        <input type="file" accept="image/*" onchange="fileLoaders[5](event)"
+
+
+        <input type="file" accept="/*" onchange="fileLoaders[5](event)"
                class="form-control-file" id="transcription_audio"
-               name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
+               name="transcription_audio" value='{{ transcription_audio_file }}' >
         <label class="btn-primary" for="transcription_audio">
-            <img id="transcription_audio_output" width="300" height="300" src="">
+<!--            <img id="transcription_audio_output" width="300" height="300" src="">-->
+<!--            <button class="btn btn-primary" type="">transcription audio file</button>-->
+
         </label>
 
         <input type="file" accept="/*" onchange="fileLoaders[6](event)"
                class="form-control-file" id="phrase_audio" name="phrase_audio"
-               value='{{ phrase_audio_file }}' hidden>
+               value='{{ phrase_audio_file }}' >
         <label class="btn-primary" for="phrase_audio">
-            <img id="phrase_audio_output" width="300" height="300" src="">
+<!--            <img id="phrase_audio_output" width="300" height="300" src="">-->
+        </label>
+
+        <input type="file" accept="/*" onchange="fileLoaders[7](event)"
+               class="form-control-file" id="translation_audio" name="translation_audio"
+               value='{{ translation_audio_file }}' >
+        <label class="btn-primary" for="translation_audio">
+<!--            <img id="phrase_audio_output" width="300" height="300" src="">-->
         </label>
     </div>
 
     <button type="submit" class="btn btn-primary">Отправить</button>
 </form>
 <script>
-    fileLoaders = [0, 0, 0, 0, 0, 0, 0]
+    fileLoaders = [0, 0, 0, 0, 0, 0, 0, 0]
     id_list = ['front_output', "left_output", "right_output", "up_output", "down_output",
                "transcription_audio_output", "phrase_audio_output"]
     start_values = []
-    for (let i = 0; i < 7; i += 1){
+    for (let i = 0; i < 5; i += 1){
         var tmp_loader = function(event) {
             var output = document.getElementById(id_list[i]);
             output.src = URL.createObjectURL(event.target.files[0]);
