@@ -59,12 +59,10 @@
 </div>
 <script src="js/three.js"></script>
 <script>
-
     	var speed_of_rotation_x = speed_of_rotation_y = 0.1;
-        var angle_of_rotation_x = 0;
-        var angle_of_rotation_y = 0;
+        var angle_of_rotation_x = 0;  // на сколько нужно повернуться по x
+        var angle_of_rotation_y = 0;  // на сколько нужно повернуться по y
         var main_sound = "none";
-        // var playing = false;
         var size_coef = 0.336487907;
         var width = window.innerWidth;
         var height = window.innerHeight;
@@ -90,14 +88,11 @@
         };
 
         function onButtonClick(event) {
-            // alert(main_sound != "none");
             if (main_sound != "none"){
-                // alert(main_sound.isPlaying());
                 if (main_sound.isPlaying){main_sound.stop();}
                 else {
                     main_sound.play();
                 }
-                // alert(main_sound.offset);
             }
         }
 
@@ -174,14 +169,17 @@
         }
 
         function changeAudio(side){
-            // var filepath = "audio/";
-            // if (side == "up") {up_img = filepath + side + "_" + img_ang + ".png";}
-            // if (side == "down") {down_img = filepath + side + "_" + img_ang + ".png";}
-            main_sound.stop();
-            if (side == "up") {
-                main_sound = sound_up;
-            } else {
-                main_sound = sound_sides;
+            if (main_sound != "none"){
+                main_sound.stop();
+                // alert("stopped");
+            }
+            if (side == "front") {main_sound = front_audio;}
+            else if (side == "left"){main_sound = left_audio;}
+            else if (side == "right"){main_sound = right_audio;}
+            else if (side == "up"){main_sound = up_audio;}
+            else if (side == "down"){main_sound = down_audio;}
+            else {
+                main_sound = "none";
             }
         }
 
@@ -257,14 +255,23 @@
                 // size of press zone %30
                 bufer_coef = 0.3
 
-                if (buf_check("up", mousex, mousey, bufer_coef)){
-                    if (angle_of_rotation_y == 0){
-                        if (cube_sides_y[current_side_y] != "up"){
-                            angle_of_rotation_y = Math.PI * 0.5;
-                            current_side_y = (current_side_y + 1) % 4;
-                            if (cube_sides_y[current_side_y] == "up"){
-                                changeSides("up", 90 * current_side_x);
-                                changeAudio("up");
+                if (buf_check("up", mousex, mousey, bufer_coef)){  // если пользователь нажал вверх
+                    if (angle_of_rotation_y == 0){  // и куб при этом стоял на месте
+                        if (cube_sides_y[current_side_y] != "up"){  // если это не сторона up
+                            angle_of_rotation_y = Math.PI * 0.5;  // крутимся
+                            current_side_y = (current_side_y + 1) % 4;  // измененяем сторону
+                            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "front"){
+                                changeAudio("front");
+                            }
+                            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "left"){
+                                changeAudio("left");
+                            }
+                            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "right"){
+                                changeAudio("right");
+                            }
+                            if (cube_sides_y[current_side_y] == "up"){  // если уже на стороне up
+                                changeSides("up", 90 * current_side_x);  // поворочиваем картинку на стороне up
+                                changeAudio("up");  // меняем аудио на сторону up
                             }
                         }
                     }
@@ -275,6 +282,15 @@
                             angle_of_rotation_y = -Math.PI * 0.5;
                             current_side_y -= 1;
                             if (current_side_y == -1){current_side_y = 3};
+                            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "front"){
+                                changeAudio("front");
+                            }
+                            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "left"){
+                                changeAudio("left");
+                            }
+                            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "right"){
+                                changeAudio("right");
+                            }
                             if (cube_sides_y[current_side_y] == "down"){
                                 changeSides("down", 90 * current_side_x);
                                 changeAudio("down");
@@ -288,8 +304,13 @@
                             if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
                                 angle_of_rotation_x = -Math.PI * 0.5;
                                 current_side_x = (current_side_x + 1) % 4;
-                                if (cube_sides_y[current_side_y] == "right"){
-                                    changeAudio("right");
+                                if (cube_sides_y[current_side_y] == "x side"){
+                                    if (cube_sides_x[current_side_x] == "front"){
+                                        changeAudio("front");
+                                    }
+                                    if (cube_sides_x[current_side_x] == "right"){
+                                        changeAudio("right");
+                                    }
                                 }
                             }
                         }
@@ -302,8 +323,13 @@
                                 angle_of_rotation_x = Math.PI * 0.5;
                                 current_side_x -= 1;
                                 if (current_side_x == -1){current_side_x = 3};
-                                if (cube_sides_y[current_side_y] == "left"){
-                                    changeAudio("left");
+                                if (cube_sides_y[current_side_y] == "x side"){
+                                    if (cube_sides_x[current_side_x] == "front"){
+                                        changeAudio("front");
+                                    }
+                                    if (cube_sides_x[current_side_x] == "left"){
+                                        changeAudio("left");
+                                    }
                                 }
                             }
                         }
@@ -413,23 +439,49 @@
         var listener = new THREE.AudioListener();
         camera.add( listener );
 
-        var sound_sides = new THREE.Audio( listener );
-        var sound_up = new THREE.Audio( listener );
+        var front_audio = new THREE.Audio( listener );
+        var left_audio = new THREE.Audio( listener );
+        var right_audio = new THREE.Audio( listener );
+        var up_audio = new THREE.Audio( listener );
+        var down_audio = new THREE.Audio( listener );
+
 
         var audioLoader = new THREE.AudioLoader();
+        audioLoader.load( '{{ front_audio }}', function( buffer ) {
+                front_audio.setBuffer( buffer );
+                front_audio.setLoop(false);
+                front_audio.setVolume(0.5);
+            },
+        );
+        var audioLoader = new THREE.AudioLoader();
+        audioLoader.load( '{{ left_audio }}', function( buffer ) {
+                left_audio.setBuffer( buffer );
+                left_audio.setLoop(false);
+                left_audio.setVolume(0.5);
+            },
+        );
+        var audioLoader = new THREE.AudioLoader();
         audioLoader.load( '{{ right_audio }}', function( buffer ) {
-                sound_sides.setBuffer( buffer );
-                sound_sides.setLoop(false);
-                sound_sides.setVolume(0.5);
+                right_audio.setBuffer( buffer );
+                right_audio.setLoop(false);
+                right_audio.setVolume(0.5);
             },
         );
+        var audioLoader = new THREE.AudioLoader();
         audioLoader.load( '{{ up_audio }}', function( buffer ) {
-                sound_up.setBuffer( buffer );
-                sound_up.setLoop(false);
-                sound_up.setVolume(0.5);
+                up_audio.setBuffer( buffer );
+                up_audio.setLoop(false);
+                up_audio.setVolume(0.5);
             },
         );
-        main_sound = sound_sides;
+        var audioLoader = new THREE.AudioLoader();
+        audioLoader.load( '{{ down_audio }}', function( buffer ) {
+                down_audio.setBuffer( buffer );
+                down_audio.setLoop(false);
+                down_audio.setVolume(0.5);
+            },
+        );
+        main_sound = front_audio;
   		render();
         
     </script>
