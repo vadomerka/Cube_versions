@@ -95,7 +95,7 @@ def register():
 # response = requests.get('https://pythonexamples.org/', params=params)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    form = LoginForm(meta={'locales': ['ru']})
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
@@ -128,7 +128,8 @@ def courses():
     user_courses = get('http://localhost:5000/rest_courses/' + str(current_user.id)).json()[
         "courses"]
     # print(user_courses)
-    return render_template('courses.html', courses=user_courses, new_id=len(user_courses) + 1)
+    return render_template('courses.html', courses=user_courses, new_id=len(user_courses) + 1,
+                           back_button_hidden='true')
 
 
 @app.route('/make_course', methods=['GET', 'POST'])
@@ -146,7 +147,8 @@ def make_course():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/courses')
-    return render_template('make_course.html', form=form, function="Добавить курс")
+    return render_template('make_course.html', form=form, function="Добавить курс",
+                           back_button_hidden='false', back_url="/courses")
 
 
 @app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
@@ -174,7 +176,8 @@ def add_users_to_course(course_id):
         # print("redirect")
         return redirect('/courses')
     # print("non validate")
-    return render_template('add_users_to_course.html', form=form, pupils=pupils)
+    return render_template('add_users_to_course.html', form=form, pupils=pupils,
+                           back_button_hidden='false', back_url="/courses")
 
 
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
@@ -192,7 +195,8 @@ def delete_course(course_id):
 def course_view(course_id):
     course = get('http://localhost:5000/rest_course/' + str(course_id)
                  ).json()["course"]
-    return render_template('course_change.html', course_data=course)
+    return render_template('course_change.html', course_data=course,
+                           back_button_hidden='false', back_url="/courses")
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -201,7 +205,8 @@ def lesson_view(course_id, lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
     # print(lesson)
-    return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id)
+    return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
+                           back_button_hidden='false', back_url=f"/courses/{course_id}")
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])

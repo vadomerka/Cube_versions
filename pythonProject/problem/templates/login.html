@@ -5,8 +5,9 @@
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.email.label }}<br>
-            {{ form.email(class="form-control", type="email") }}<br>
+            {{ form.email.label }}
+            <span class="vnumgf" style="color: #d93025;">*</span>
+            {{ form.email(class="form-control", type="email") }}
             {% for error in form.email.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -14,7 +15,7 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.password.label }}<br>
+            {{ form.password.label }} <span class="vnumgf" style="color: #d93025;">*</span>
             {{ form.password(class="form-control", type="password") }}<br>
             {% for error in form.password.errors %}
                 <div class="alert alert-danger" role="alert">

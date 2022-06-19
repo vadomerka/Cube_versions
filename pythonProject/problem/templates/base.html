@@ -20,7 +20,8 @@
         <div class="header_inner">
             <nav>
                 {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="/logout" style="color: white;">{{ current_user.name }}</a>
+                <a class="navbar-brand" href="/logout" style="color: white;">{{ current_user.name
+                    }}</a>
                 {% else %}
                 <p>
                     <!--                    <a class="btn btn-primary" href="/register" style="color: white;">Зарегистрироваться</a>-->
@@ -34,13 +35,26 @@
                     {% if current_user.teacher %}
                     <a class="btn btn-primary" href="/pupils" style="color: white;">Мои ученики</a>
                     {% endif %}
+                    <a class="btn btn-primary" id="back_button" style="color: white;"
+                       href="{{ back_url }}" hidden>Назад</a>
                 </div>
                 {% endif %}
+
             </nav>
         </div>
     </div>
 </header>
 <main role="main" class="container">
+    <script>
+        back_button = document.getElementById("back_button")
+        back_button.hidden = {{ back_button_hidden }};
+        document.addEventListener("keydown", function(event) {
+            if (event.key == "Backspace") {
+            location.href = '{{ back_url }}';
+            }
+        })
+
+    </script>
     {% block content %}{% endblock %}
 </main>
 </body>
