@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% for pupil in pupils %}
+        <label class="container"> {{ pupil.name }}
+            <input type="checkbox" name="lesson_pupil" value='{{ pupil.id }}'>
+            <span class="checkmark"></span>
+        </label>
+    {% endfor %}
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+    </form>
+{% endblock %}

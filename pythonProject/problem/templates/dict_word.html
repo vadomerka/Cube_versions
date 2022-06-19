@@ -38,24 +38,27 @@
             position: absolute;
         }
 
-      </style>
+
+    </style>
 </head>
 <body>
 <script src="https://threejs.org/build/three.min.js"></script>
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 <a href="{{ back_url }}" class="btn btn-primary my-btn"> Назад </a>
-<button style="" id="play" class="c-button">
+<button style="" id="playButton" class="c-button" disabled>
     <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;" />
+        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
     </svg>
 </button>
 
 <div id="prev_url" style="visibility: {{ prev_button_visibility }};">
-<a  href="{{ prev_word_url }}" class="btn btn-primary my-btn" style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
+    <a href="{{ prev_word_url }}" class="btn btn-primary my-btn"
+       style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
 </div>
 <div id="next_url" style="visibility: {{ next_button_visibility }};">
-<a href="{{ next_word_url }}" class="btn btn-primary my-btn" style="top: 50px; right: 0px"> Следующее слово </a>
+    <a href="{{ next_word_url }}" class="btn btn-primary my-btn" style="top: 50px; right: 0px">
+        Следующее слово </a>
 </div>
 <script src="js/three.js"></script>
 <script>
@@ -168,16 +171,36 @@
                                 "down right": [Math.round(width / 2) + half_cube_size, Math.round(height / 2) + half_cube_size]};
         }
 
+        function undefinedAudioCheck(side){
+            // alert(side.slice(8, 17));
+            if (side.slice(8, 17) == "undefined"){
+                // alert("undefined");
+                document.getElementById("playButton").disabled = true;
+            } else {
+                document.getElementById("playButton").disabled = false;
+            }
+        }
+
         function changeAudio(side){
             if (main_sound != "none"){
-                main_sound.stop();
-                // alert("stopped");
+                if (main_sound.isPlaying){main_sound.stop();}
             }
-            if (side == "front") {main_sound = front_audio;}
-            else if (side == "left"){main_sound = left_audio;}
-            else if (side == "right"){main_sound = right_audio;}
-            else if (side == "up"){main_sound = up_audio;}
-            else if (side == "down"){main_sound = down_audio;}
+            if (side == "front") {
+                undefinedAudioCheck("{{ front_audio }}");
+                main_sound = front_audio;
+            }
+            else if (side == "left"){
+            undefinedAudioCheck("{{ left_audio }}");
+            main_sound = left_audio;}
+            else if (side == "right"){
+            undefinedAudioCheck("{{ right_audio }}");
+            main_sound = right_audio;}
+            else if (side == "up"){
+            undefinedAudioCheck("{{ up_audio }}");
+            main_sound = up_audio;}
+            else if (side == "down"){
+            undefinedAudioCheck("{{ down_audio }}");
+            main_sound = down_audio;}
             else {
                 main_sound = "none";
             }
@@ -252,7 +275,7 @@
             if (e.which == 1){
                 mousex = e.clientX;
                 mousey = e.clientY;
-                // size of press zone %30
+                // size of press zone 30%
                 bufer_coef = 0.3
 
                 if (buf_check("up", mousex, mousey, bufer_coef)){  // если пользователь нажал вверх
@@ -482,8 +505,10 @@
             },
         );
         main_sound = front_audio;
+        changeAudio("front");
   		render();
         
-    </script>
+
+</script>
 </body>
 </html>

@@ -9,3 +9,7 @@ class CoursesForm(FlaskForm):
     about = TextAreaField("Описание", validators=[Length(min=1, max=60, message="Описание курса должно быть короче 60 символов")])
     submit = SubmitField('Применить')
 
+
+class AddUsersToCourseForm(FlaskForm):
+    # name = StringField('Название курса', validators=[DataRequired(), Length(min=1, max=20, message="Название курса должно быть короче 20 символов")])
+    submit = SubmitField('Применить')

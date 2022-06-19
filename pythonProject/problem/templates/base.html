@@ -23,7 +23,7 @@
                 <a class="navbar-brand" href="/logout" style="color: white;">{{ current_user.name }}</a>
                 {% else %}
                 <p>
-                    <a class="btn btn-primary" href="/register" style="color: white;">Зарегистрироваться</a>
+                    <!--                    <a class="btn btn-primary" href="/register" style="color: white;">Зарегистрироваться</a>-->
                     <a class="btn btn-success" href="/login" style="color: white;">Войти</a>
                 </p>
                 {% endif %}
@@ -31,6 +31,9 @@
                 <div class="nav" id="up buttons">
                     <a class="btn btn-primary" href="/courses" style="color: white;">Мои Курсы</a>
                     <a class="btn btn-primary" href="/dictionary" style="color: white;">Словарь</a>
+                    {% if current_user.teacher %}
+                    <a class="btn btn-primary" href="/pupils" style="color: white;">Мои ученики</a>
+                    {% endif %}
                 </div>
                 {% endif %}
             </nav>

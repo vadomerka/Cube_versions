@@ -6,14 +6,14 @@
 <h2>Lessons</h2>
 {% for less in course_data.lessons %}
 <div class="lesson-card">
-        <h5 class="card-title" style="position: absolute;">{{ less.name }}</h5>
-        <p class="card-text">{{ less.about }}</p>
-        <a href="/courses/{{ course_data.id }}/lesson/{{ less.id }}" class="btn btn-primary">Перейти
-            на урок</a>
-        {% if current_user.teacher %}
-        <a href="/courses/{{ course_data.id }}/lesson_delete/{{ less.id }}" class="btn btn-danger">Удалить
-            урок</a>
-        {% endif %}
+    <h5 class="card-title" style="position: absolute;">{{ less.name }}</h5>
+    <p class="card-text">{{ less.about }}</p>
+    <a href="/courses/{{ course_data.id }}/lesson/{{ less.id }}" class="btn btn-primary">Перейти
+        на урок</a>
+    {% if current_user.teacher %}
+    <a href="/courses/{{ course_data.id }}/lesson_delete/{{ less.id }}" class="btn btn-danger">Удалить
+        урок</a>
+    {% endif %}
 </div>
 {% endfor %}
 {% if current_user.teacher %}

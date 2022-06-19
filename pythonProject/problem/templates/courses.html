@@ -2,19 +2,31 @@
 
 {% block content %}
 <div>
+{% if not courses %}
+    {% if not current_user.teacher %}
+    <h1>На данный момент вы не подключены ни к одному курсу.
+        Свяжитесь с вашим учителем, чтобы он добавил вас</h1>
+    {% else %}
+    <h1>На данный момент вы не создали ни одного курса.
+        Чтобы создать курс, нажмите кнопку "Добавить курс"</h1>
+    {% endif %}
+{% endif %}
 {% for item in courses %}
-    <div class="course-card">
-      <div class="card-body">
-        <h5 class="card-title">{{ item.name }}</h5>
-        <p class="card-text">{{ item.about }}</p>
-        <a href="/courses/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
-      {% if current_user.teacher %}
-        <a href="/courses_delete/{{ item.id }}" class="btn btn-danger">
-            Удалить
-        </a>
-      {% endif %}
-      </div>
-    </div>
+<div class="course-card">
+  <div class="card-body">
+    <h5 class="card-title">{{ item.name }}</h5>
+    <p class="card-text">{{ item.about }}</p>
+    <a href="/courses/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
+  {% if current_user.teacher %}
+    <a href="/courses_delete/{{ item.id }}" class="btn btn-danger">
+        Удалить
+    </a>
+      <a href="/add_users_to_course/{{ item.id }}" class="btn btn-add">
+        Добавить учеников
+    </a>
+  {% endif %}
+  </div>
+</div>
 
 {% endfor %}
 {% if current_user.teacher %}

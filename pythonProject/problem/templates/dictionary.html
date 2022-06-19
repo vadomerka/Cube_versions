@@ -2,10 +2,11 @@
 
 {% block content %}
 <!--<link rel="stylesheet" href="static/style_two.css">-->
+{% if current_user.teacher %}
 <a href="/add_word" class="btn btn-success">Добавить слово</a>
-
+{% endif %}
+<h2>Слов в словаре: {{ len_all_words }}</h2>
 <ol>
-
     {% for word in all_words %}
     <div style="display: flex; direction: row; flex-wrap: wrap;">
         <a href="/dict_word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
@@ -25,5 +26,8 @@
     </div>
     {% endfor %}
 </ol>
+<!--<script>-->
+<!--    alert({{ all_words }});-->
+<!--</script>-->
 
 {% endblock %}

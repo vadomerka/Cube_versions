@@ -14,7 +14,7 @@ from data.trainers import Trainers
 
 # forms
 from forms.user import RegisterForm, LoginForm
-from forms.course import CoursesForm
+from forms.course import CoursesForm, AddUsersToCourseForm
 from forms.lesson import LessonsForm
 from forms.word import WordsForm
 
@@ -22,7 +22,7 @@ from forms.word import WordsForm
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse, WordResourse
 from resourses.lesson_resourses import LessonResource
-from resourses.user_resourses import UserResource
+from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
 import requests
 
@@ -40,6 +40,7 @@ api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
 api.add_resource(UserResource, "/rest_user/<int:id>")
+api.add_resource(UserListResource, "/rest_users")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -47,7 +48,13 @@ login_manager.init_app(app)
 @app.route("/")
 def index():
     if current_user.is_authenticated:
-        return redirect("/courses")
+        # print(current_user.courses)
+        # print("index")
+        if current_user.courses:
+            # print("courses")
+            return redirect("/courses")
+        # print("dict")
+        return redirect("/dictionary")
     else:
         return redirect('/login')
 
@@ -140,6 +147,34 @@ def make_course():
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, function="Добавить курс")
+
+
+@app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
+@login_required
+def add_users_to_course(course_id):
+    form = AddUsersToCourseForm()
+    db_sess = db_session.create_session()
+    users = get("http://localhost:5000/rest_users").json()['users']  # f
+    # users = db_sess.query(User).filter(User.teacher == 0)
+    course = db_sess.query(Courses).get(course_id)
+    # print(course)
+    pupils = []
+    for user in users:
+        if not user['teacher']:
+            pupil = db_sess.query(User).get(user['id'])
+            pupils.append(pupil)
+    # print(pupils)
+    if form.validate_on_submit():
+        pupils = request.form.getlist('lesson_pupil')
+        for pupils_id in list(pupils):
+            pupil = db_sess.query(User).get(int(pupils_id))
+            pupil.courses.append(course)
+            db_sess.merge(pupil)
+        db_sess.commit()
+        # print("redirect")
+        return redirect('/courses')
+    # print("non validate")
+    return render_template('add_users_to_course.html', form=form, pupils=pupils)
 
 
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
@@ -283,7 +318,8 @@ def delete_trainer_from_lesson(lesson_id, trainer_id):
 @login_required
 def dict_view():
     all_words = get("http://localhost:5000/rest_dict").json()["words"]
-    return render_template("dictionary.html", all_words=all_words, current_user=current_user)
+    return render_template("dictionary.html", all_words=all_words, current_user=current_user,
+                           len_all_words=len(all_words))
 
 
 @app.route('/add_word', methods=['GET', 'POST'])
@@ -322,12 +358,18 @@ def add_word():
         if front:
             front.save(filepath + "_front.png")
             new_word.front_side = save_name + "_front.png"
+        else:
+            new_word.front_side = "undefined_image.png"
         if left:
             left.save(filepath + "_left.png")
             new_word.left_side = save_name + "_left.png"
+        else:
+            new_word.left_side = "undefined_image.png"
         if right:
             right.save(filepath + "_right.png")
             new_word.right_side = save_name + "_right.png"
+        else:
+            new_word.right_side = "undefined_image.png"
         if up:
             up.save(filepath + "_up.png")
             new_word.up_side = save_name + "_up.png"
@@ -340,6 +382,8 @@ def add_word():
             im.save(filepath + "_up_180.png")
             im = im.transpose(Image.ROTATE_90)
             im.save(filepath + "_up_270.png")
+        else:
+            new_word.up_side = "undefined_image_up.png"
         if down:
             down.save(filepath + "_down.png")
             new_word.down_side = save_name + "_down.png"
@@ -352,6 +396,8 @@ def add_word():
             im.save(filepath + "_down_180.png")
             im = im.transpose(Image.ROTATE_270)
             im.save(filepath + "_down_270.png")
+        else:
+            new_word.down_side = "undefined_image_down.png"
 
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
@@ -420,6 +466,7 @@ def dict_word_view(word_id):
             else:
                 next_id = all_words[i + 1]["id"]
             break
+    # front_img = url_for("static", filename=word["front_side"])
     return render_template('dict_word.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
