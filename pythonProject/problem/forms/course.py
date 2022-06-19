@@ -5,8 +5,10 @@ from wtforms.validators import DataRequired, Length
 
 
 class CoursesForm(FlaskForm):
-    name = StringField('Название курса', validators=[DataRequired(), Length(min=1, max=32, message="Название курса должно быть короче 20 символов")])
-    about = TextAreaField("Описание", validators=[Length(min=1, max=512, message="Описание курса должно быть короче 60 символов")])
+    name = StringField('Название курса', validators=[DataRequired(), Length(min=1, max=32,
+                                                                            message="Название курса должно быть короче 32 символов")])
+    about = TextAreaField("Описание", validators=[
+        Length(min=0, max=512, message="Описание курса должно быть короче 512 символов")])
     submit = SubmitField('Применить')
 
 

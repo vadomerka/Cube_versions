@@ -30,10 +30,14 @@
             {% endfor %}
         {% endif %}
     </div>
-    <a id="continue" class="btn btn-primary my-btn" hidden style="
-    color: white; right: 10%; position: absolute;">Продолжить</a>
+    <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
+        <h3 id="left_word_number">start text</h3>
+        <a id="continue" class="btn btn-primary my-btn" hidden style="
+        color: white; right: 20%; position: absolute;">Продолжить</a>
+    </div>
 </div>
 <script>
+    // var test_word_number = 10;
     var width = window.innerWidth
     var height = window.innerHeight
     var extra_size_ansbut = 50;
@@ -204,6 +208,10 @@
             ans_buttons[i].style.backgroundColor = 'white';
             ans_buttons[i].disabled = false;
         };
+        // сколько слов осталось
+        left_words_number_string = unlearned.length.toString();
+        document.getElementById("left_word_number").innerText = "Осталось слов: " +
+        left_words_number_string + "/" + lesson.length.toString();
     }
 
     continue_button = document.getElementById("continue");

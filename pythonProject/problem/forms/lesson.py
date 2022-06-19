@@ -6,6 +6,6 @@ from wtforms.validators import DataRequired, Length
 
 class LessonsForm(FlaskForm):
     name = StringField('Название урока',
-                       validators=[DataRequired(), Length(max=40,
-                                                          message="Название урока не должно превышать 40 символов")])
+                       validators=[DataRequired(), Length(max=32,
+                                                          message="Название урока не должно превышать 32 символов")])
     submit = SubmitField('Применить')
