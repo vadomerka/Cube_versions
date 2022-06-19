@@ -564,7 +564,8 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     lesson_words = ";;;".join(lesson_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
-                           back_url=f"/courses/{course_id}/lesson/{lesson_id}")
+                           back_url=f"/courses/{course_id}/lesson/{lesson_id}",
+                           back_button_hidden="false")
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])

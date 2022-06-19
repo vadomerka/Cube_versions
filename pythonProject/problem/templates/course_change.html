@@ -2,7 +2,12 @@
 
 {% block content %}
 <h1>{{ course_data.name }}</h1>
-<p>{{ course_data.about }}</p>
+<p style="display: block; /* or inline-block, at least its a block element */
+    width: 100%; /* or width is certain by parent element */
+    height: auto; /* height cannot be defined */
+    word-break: break-all; /*  */
+    word-wrap: break-word; /* if you want to cut the complete word */
+    white-space: normal; /* be sure its not 'nowrap'! ! ! :/ */">{{ course_data.about }}</p>
 <h2>Lessons</h2>
 {% for less in course_data.lessons %}
 <div class="lesson-card">
@@ -18,7 +23,7 @@
 {% endfor %}
 {% if current_user.teacher %}
 <div>
-    <a href="/make_lesson/{{ course_data.id }}" class="btn btn-primary">Добавить урок</a>
+    <a href="/make_lesson/{{ course_data.id }}" class="btn btn-add">Добавить урок</a>
 </div>
 {% endif %}
 {% endblock %}

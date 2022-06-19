@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<a href="{{ back_url }}" class="btn btn-primary my-btn" style="color: white;"> Назад </a>
 <h1 style="color: white;">Выберете правильный вариант ответа</h1>
 <div class="trainer">
-    <div class="task-box">
+    <div class="task-box" style="position: relative; height: 150px;
+        display: flex;
+        justify-content: center;">
         {% if trainer.check_side < 5 %}
-        <img src="" class="task-field" name="task-field">
+        <img src="" class="task-field" name="task-field" style="
+        position: absolute;
+        height: 150px;
+        width: 150px">
         {% else %}
         <button style="" id="audio_but" class="c-button" name="task-field" >
             <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
@@ -15,7 +19,9 @@
         </button>
         {% endif %}
     </div>
-    <div class="answer-box">
+    <div class="answer-box" style="
+        display: flex;
+        justify-content: center;">
         {% if trainer.ans_side < 5 %}
             {% for i in range(answer_button_number) %}
             <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
@@ -24,7 +30,8 @@
             {% endfor %}
         {% endif %}
     </div>
-    <a id="continue" class="btn btn-primary my-btn" style="color: white;">Продолжить</a>
+    <a id="continue" class="btn btn-primary my-btn" hidden style="
+    color: white; right: 10%; position: absolute;">Продолжить</a>
 </div>
 <script>
     var width = window.innerWidth
@@ -144,10 +151,12 @@
         } else {
             current_word = unlearned[0];
         }
+        document.getElementById("continue").hidden = false;
         // buttonsInit();
     }
 
     function continueButtonClick(event){
+        document.getElementById("continue").hidden = true;
         buttonsInit();
     }
 
@@ -163,7 +172,7 @@
             // alert(audio_but);
             audio_but.addEventListener("click", audioButtonClick, false);
         }
-        task_but.style = "height: 150px; width: 150px";
+        // task_but.style = "height: 150px; width: 150px";
         wrong_variants = [];
         for (let i = 0; i < lesson.length; i++) {
             if (i != current_word){
