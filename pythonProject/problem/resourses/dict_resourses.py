@@ -37,39 +37,48 @@ class DictResourse(Resource):
         return jsonify(ret)
 
     def post(self):
+        # print(request.json)
         if not request.json:
             return jsonify({'error': 'Empty request'})
         elif not all(key in request.json for key in
-                     ["id",
+                     ["author",
                       "hieroglyph",
-                      "tranlation",
+                      "translation",
                       "front_side",
                       "left_side",
                       "right_side",
                       "up_side",
                       "down_side",
                       "front_side_audio",
+                      "left_side_audio",
                       "right_side_audio",
-                      "up_side_audio"
-                      ]):
+                      "up_side_audio",
+                      "down_side_audio"]):
+            # print(2)
             return jsonify({'error': 'Bad request'})
+        # print(3)
         args = parserAddWord.parse_args()
         session = db_session.create_session()
-
-        word = Words(id=args["id"],
+        # print(args)
+        word = Words(author=args["author"],
                      hieroglyph=args["hieroglyph"],
-                     tranlation=args["tranlation"],
+                     translation=args["translation"],
                      front_side=args["front_side"],
                      left_side=args["left_side"],
                      right_side=args["right_side"],
                      up_side=args["up_side"],
                      down_side=args["down_side"],
                      front_side_audio=args["front_side_audio"],
+                     left_side_audio=args["left_side_audio"],
                      right_side_audio=args["right_side_audio"],
-                     up_side_audio=args["up_side_audio"]
+                     up_side_audio=args["up_side_audio"],
+                     down_side_audio=args["down_side_audio"]
                      )
+        print(word)
+        print(4)
         session.add(word)
         session.commit()
+        print(5)
         return jsonify({'success': 'OK'})
 
 
@@ -101,19 +110,26 @@ class WordResourse(Resource):
         session = db_session.create_session()
         word = session.query(Words).get(word_id)
         path = "static/"
-        for name in (word.front_side,
-                     word.left_side,
-                     word.right_side,
-                     word.front_side_audio,
-                     word.right_side_audio,
-                     word.up_side_audio):
+        side_list = []
+        for x in [word.front_side,
+                  word.left_side,
+                  word.right_side,
+                  word.front_side_audio,
+                  word.left_side_audio,
+                  word.right_side_audio,
+                  word.down_side_audio,
+                  word.up_side_audio]:
+            if "undefined" not in x:
+                side_list.append(x)
+
+        for name in side_list:
             filename = path + str(name)
             # print(filename)
             if os.path.exists(filename):
                 os.remove(filename)
             else:
                 print(f"The file {filename} does not exist")
-        for name in (word.up_side, word.down_side):
+        for name in [x if "undefined" not in x else None for x in (word.up_side, word.down_side)]:
             if name is not None:
                 name = name.split(".")
                 name_0 = ".".join([name[0] + "_0", name[1]])

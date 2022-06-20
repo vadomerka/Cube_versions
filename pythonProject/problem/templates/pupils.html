@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Ваши ученики: </h1>
+{% for pupil in pupils %}
+<div class="pupils">
+    <a class="btn btn-primary" style="color: white;">{{ pupil.name }} {{ pupil.last_name }}</a>
+</div>
+{% endfor %}
+<a href="/add_pupil" class="btn btn-add">Создать ученика</a>
+{% endblock %}

@@ -2,32 +2,108 @@
 
 {% block content %}
 <!--<link rel="stylesheet" href="static/style_two.css">-->
-{% if current_user.teacher %}
-<a href="/add_word" class="btn btn-success">Добавить слово</a>
-{% endif %}
-<h2>Слов в словаре: {{ len_all_words }}</h2>
-<ol>
-    {% for word in all_words %}
-    <div style="display: flex; direction: row; flex-wrap: wrap;">
-        <a href="/dict_word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
-            {{ word.hieroglyph }} {{ word.translation }}
+<style>
+    .row {
+      display: flex;
+    }
+
+    .column {
+      flex: 50%;
+    }
+
+    .pages-row {
+        display: inline-block;
+
+    }
+
+    .page_button {
+        margin: 5px 5px 5px 5px;
+    }
+
+    .current_page_button {
+        margin: 0px 0px 0px 0px;
+        border-style: solid;
+        border-color: red;
+        border-width: 5px;
+    }
+</style>
+<div style="display: flex;">
+    {% if current_user.teacher %}
+    <a href="/add_word" class="btn btn-success">Добавить слово</a>
+    {% endif %}
+    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{ len_all_words }}</h2>
+</div>
+<!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
+<div class="row">
+    {% for i in range(len_word_page) %}
+    <div class="column">
+        <a href="/dict_word/{{ all_words[i].id }}" class="btn btn-primary"
+           style="min-width: 250px">
+            {{ all_words[i].hieroglyph }} {{ all_words[i].translation }}  <!--{{ (page - 1) * 30 + i  + 1 }} -->
             <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
         </a>
-        {% if current_user.id == word.author %}
+        {% if current_user.id == all_words[i].author %}
 
-        <a href="/change_word/{{ word.id }}" class="btn btn-warning">
+        <a href="/change_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-warning">
             Изменить
         </a>
-        <a href="/delete_word/{{ word.id }}" class="btn btn-danger">
+        <a href="/delete_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-danger">
             Удалить
         </a>
 
         {% endif %}
     </div>
     {% endfor %}
-</ol>
-<!--<script>-->
-<!--    alert({{ all_words }});-->
-<!--</script>-->
+</div>
+{% if pages_number > 1 %}
+<div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+    <div class="pages-row">
+        <a href="/dictionary/1" class="btn btn-primary page_button"><<</a>
+        {% if page > 1 %}
+        <a href="/dictionary/{{ page - 1 }}" class="btn btn-primary page_button"><</a>
+        {% else %}
+        <a href="/dictionary/{{ page }}" class="btn btn-primary page_button"><</a>
+        {% endif %}
 
+        {% if (pages_number - page) <= 6 %}
+            {% for i in range(pages_number - 9, pages_number) %}
+            {% if (i + 1) == page %}
+            <a href="/dictionary/{{ i + 1 }}"
+               class="btn btn-primary current_page_button">{{ i + 1 }}</a>
+            {% else %}
+            {% if (i + 1) > 0 %}
+            <a href="/dictionary/{{ i + 1 }}" class="btn btn-primary page_button">{{ i + 1 }}</a>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        {% else %}
+            {% if page == 1 %}
+                {% for i in range(page - 1, page + 8) %}
+                {% if (i + 1) == page %}
+                <a href="/dictionary/{{ i + 1 }}"
+                   class="btn btn-primary current_page_button">{{ i + 1 }}</a>
+                {% else %}
+                <a href="/dictionary/{{ i + 1 }}" class="btn btn-primary page_button">{{ i + 1 }}</a>
+                {% endif %}
+                {% endfor %}
+            {% else %}
+                {% for i in range(page - 2, page + 7) %}
+                {% if (i + 1) == page %}
+                <a href="/dictionary/{{ i + 1 }}"
+                   class="btn btn-primary current_page_button">{{ i + 1 }}</a>
+                {% else %}
+                <a href="/dictionary/{{ i + 1 }}" class="btn btn-primary page_button">{{ i + 1 }}</a>
+                {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+        {% if page < pages_number %}
+        <a href="/dictionary/{{ page + 1 }}" class="btn btn-primary page_button">></a>
+        {% else %}
+        <a href="/dictionary/{{ page }}" class="btn btn-primary page_button">></a>
+        {% endif %}
+        <a href="/dictionary/{{ pages_number }}" class="btn btn-primary page_button">>></a>
+</div>
+</div>
+{% endif %}
 {% endblock %}

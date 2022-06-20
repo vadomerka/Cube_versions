@@ -13,7 +13,7 @@ from data.users import User
 from data.trainers import Trainers
 
 # forms
-from forms.user import RegisterForm, LoginForm
+from forms.user import MakeUserForm, LoginForm
 from forms.course import CoursesForm, AddUsersToCourseForm
 from forms.lesson import LessonsForm
 from forms.word import WordsForm
@@ -48,48 +48,44 @@ login_manager.init_app(app)
 @app.route("/")
 def index():
     if current_user.is_authenticated:
-        # print(current_user.courses)
-        # print("index")
         if current_user.courses:
-            # print("courses")
             return redirect("/courses")
-        # print("dict")
         return redirect("/dictionary")
     else:
         return redirect('/login')
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    # print(form.validate_on_submit())
-    if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пароли не совпадают")
-        db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Такой пользователь уже есть")
-        user = User(
-            name=form.name.data,
-            email=form.email.data,
-            about=form.about.data,
-            teacher=form.teacher.data
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            return redirect("/")
-        return render_template('register.html',
-                               message="Что-то пошло не так",
-                               form=form)
-    return render_template('register.html', title='Регистрация', form=form)
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     form = RegisterForm()
+#     # print(form.validate_on_submit())
+#     if form.validate_on_submit():
+#         if form.password.data != form.password_again.data:
+#             return render_template('register.html', title='Регистрация',
+#                                    form=form,
+#                                    message="Пароли не совпадают")
+#         db_sess = db_session.create_session()
+#         if db_sess.query(User).filter(User.email == form.email.data).first():
+#             return render_template('register.html', title='Регистрация',
+#                                    form=form,
+#                                    message="Такой пользователь уже есть")
+#         user = User(
+#             name=form.name.data,
+#             email=form.email.data,
+#             about=form.about.data,
+#             teacher=form.teacher.data
+#         )
+#         user.set_password(form.password.data)
+#         db_sess.add(user)
+#         db_sess.commit()
+#         user = db_sess.query(User).filter(User.email == form.email.data).first()
+#         if user and user.check_password(form.password.data):
+#             login_user(user)
+#             return redirect("/")
+#         return render_template('register.html',
+#                                message="Что-то пошло не так",
+#                                form=form)
+#     return render_template('register.html', title='Регистрация', form=form)
 
 
 # response = requests.get('https://pythonexamples.org/', params=params)
@@ -119,6 +115,52 @@ def logout():
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.route('/pupils', methods=['GET', 'POST'])
+@login_required
+def pupils():
+    db_sess = db_session.create_session()
+    users_pupils = []
+    all_users = db_sess.query(User).all()
+    for user in all_users:
+        if user.creator == current_user.id:
+            users_pupils.append(user)
+    # print(users_pupils)
+    # users_pupils = current_user.pupils
+    return render_template('pupils.html', pupils=users_pupils)
+
+
+@app.route('/add_pupil', methods=['GET', 'POST'])
+@login_required
+def add_pupil():
+    form = MakeUserForm()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('add_pupil.html',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            return render_template('add_pupil.html',
+                                   form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            name=form.name.data,
+            last_name=form.last_name.data,
+            patronymic=form.patronymic.data,
+            email=form.email.data,
+            about=form.about.data,
+            teacher=form.teacher.data
+        )
+        user.set_password(form.password.data)
+        user.creator = current_user.id
+        print(user)
+        db_sess.add(user)
+        db_sess.commit()
+        # user = db_sess.query(User).filter(User.email == form.email.data).first()
+    return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
+                           form=form)
 
 
 @app.route('/courses', methods=['GET', 'POST'])
@@ -195,7 +237,7 @@ def delete_course(course_id):
 def course_view(course_id):
     course = get('http://localhost:5000/rest_course/' + str(course_id)
                  ).json()["course"]
-    return render_template('course_change.html', course_data=course,
+    return render_template('course_view.html', course_data=course,
                            back_button_hidden='false', back_url="/courses")
 
 
@@ -216,7 +258,7 @@ def make_lesson(course_id):
     db_sess = db_session.create_session()
     current_course = db_sess.query(Courses).get(course_id)
     all_words = db_sess.query(Words).all()
-    trainings = ["1 training", "2 training", "3 training"]
+    all_trainers = db_sess.query(Trainers).all()
     if form.validate_on_submit():
         new_lesson = Lessons()
         new_lesson.name = form.name.data
@@ -228,7 +270,8 @@ def make_lesson(course_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(course_id))
-    return render_template('make_lesson.html', form=form, dictionary=all_words, trainings=trainings)
+    return render_template('make_lesson.html', form=form, dictionary=all_words,
+                           trainings=all_trainers)
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -321,10 +364,23 @@ def delete_trainer_from_lesson(lesson_id, trainer_id):
 
 @app.route('/dictionary', methods=['GET', 'POST'])
 @login_required
-def dict_view():
+def dictionary_redirect():
+    return redirect("/dictionary/1")
+
+
+@app.route('/dictionary/<int:page>', methods=['GET', 'POST'])
+@login_required
+def dict_view(page):
     all_words = get("http://localhost:5000/rest_dict").json()["words"]
+    len_all_words = len(all_words)
+    all_words = all_words[30 * (page - 1):30 * page]
+    if len_all_words == 0:
+        pages_number = 1
+    else:
+        pages_number = (len_all_words - 1) // 30 + 1
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
-                           len_all_words=len(all_words))
+                           len_all_words=len_all_words, pages_number=pages_number, page=page,
+                           len_word_page=len(all_words))
 
 
 @app.route('/add_word', methods=['GET', 'POST'])
@@ -429,7 +485,7 @@ def add_word():
         cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
-        return redirect('/dictionary')
+        return redirect('/dictionary/1')
     return render_template('make_word.html', form=form, filename="tmp",
                            front_start_preview=front_start_preview,
                            left_start_preview=left_start_preview,
@@ -438,13 +494,35 @@ def add_word():
                            down_start_preview=down_start_preview)
 
 
-@app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
+@app.route('/add_words/<int:number>', methods=['GET', 'POST'])
 @login_required
-def delete_word(word_id):
+def add_words(number):
+    data = {"author": current_user.id,
+            "hieroglyph": "null",
+            "translation": "null",
+            "front_side": "undefined_image.png",
+            "left_side": "undefined_image.png",
+            "right_side": "undefined_image.png",
+            "up_side": "undefined_image_up.png",
+            "down_side": "undefined_image_down.png",
+            "front_side_audio": "undefined_trans_audio.mp3",
+            "left_side_audio": "undefined_translation_audio.mp3",
+            "right_side_audio": "undefined_trans_audio.mp3",
+            "up_side_audio": "undefined_phrase_audio.mp3",
+            "down_side_audio": "undefined_trans_audio.mp3"}
+    for i in range(number):
+        ret = post("http://localhost:5000/rest_dict", json=data, params=data)
+    # print(ret)
+    return redirect("/dictionary/1")
+
+
+@app.route('/delete_word/<int:page>/<int:word_id>', methods=['GET', 'POST'])
+@login_required
+def delete_word(page, word_id):  # ff
     ret = delete("http://localhost:5000/rest_word/" + str(word_id)).json()
     # print(ret)
     if ret == {'success': 'OK'}:
-        return redirect("/dictionary")
+        return redirect("/dictionary/" + str(page))
     else:
         return ret
 
@@ -472,7 +550,7 @@ def dict_word_view(word_id):
                 next_id = all_words[i + 1]["id"]
             break
     # front_img = url_for("static", filename=word["front_side"])
-    return render_template('dict_word.html',
+    return render_template('word_view.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
                            right_img=url_for("static", filename=word["right_side"]),
@@ -515,7 +593,7 @@ def lesson_word_view(course_id, lesson_id, word_id):
             else:
                 next_id = lesson_words[i + 1]["id"]
             break
-    return render_template('dict_word.html',
+    return render_template('word_view.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
                            right_img=url_for("static", filename=word["right_side"]),
@@ -568,9 +646,9 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
                            back_button_hidden="false")
 
 
-@app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
+@app.route('/change_word/<int:page>/<int:word_id>', methods=['GET', 'POST'])
 @login_required
-def change_word(word_id):
+def change_word(page, word_id):
     form = WordsForm()
     db_sess = db_session.create_session()
     all_words = db_sess.query(Words).all()
@@ -674,7 +752,7 @@ def change_word(word_id):
         cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
-        return redirect('/dictionary')
+        return redirect('/dictionary/' + str(page))
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp",
                            front_file=front_file, left_file=left_file, right_file=right_file,
                            up_file=up_file, down_file=down_file,

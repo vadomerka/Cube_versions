@@ -12,12 +12,14 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    last_name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    patronymic = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     email = sqlalchemy.Column(sqlalchemy.String,
                               index=True, unique=True, nullable=True)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     teacher = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
-
+    creator = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     courses = orm.relation("Courses",
                            secondary="users_to_course",
                            backref="users")
