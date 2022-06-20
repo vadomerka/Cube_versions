@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .column {
+        float: left;
+        width: 20%;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Clear floats after image containers */
+    .row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+</style>
 <form method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <p>
@@ -19,69 +36,123 @@
         {{ error }}
     </p>
     {% endfor %}
-    <div class="form-group">
-        <input type="file" accept="image/*" onchange="fileLoaders[0](event)"
-               class="form-control-file"
-               id="front" name="front" value="{{ front_file }}" hidden>
-        <label class="btn-primary" for="front">
-            <img id="front_output" width="300" height="300" src="{{ front_start_preview }}">
-        </label>
+    <div class="form-group" style="display: flex;
+                                   align-items: center;
+                                   justify-content: center;">
+        <div style="height: 600px; width: 750px">
+            <div class="row">
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column">
+                    <input type="file" accept="audio/*" onchange="fileLoaders[6](event)"
+                           class="form-control-file" id="phrase_audio" name="phrase_audio"
+                           value='{{ phrase_audio_file }}' hidden>
+                    <label for="phrase_audio" style="min-width: 75px; min-height: 75px"
+                           class="c-button">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                            <polygon points="67,57 67,157, 157,107"
+                                     style="fill:lime;fill-rule:evenodd;"/>
+                        </svg>
+                    </label>
+                </div>
+                <div class="column"></div>
+                <div class="column"></div>
+            </div>
+            <div class="row">
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column">
+                    <input type="file" accept="image/*" onchange="fileLoaders[0](event)"
+                           class="form-control-file"
+                           id="up" name="up" value="{{ up_file }}" hidden>
+                    <label class="btn-primary" for="up">
+                        <img id="up_output" width="100%" height="100%"
+                             src="{{ up_start_preview }}">
+                    </label>
+                </div>
+                <div class="column"></div>
+                <div class="column"></div>
+            </div>
 
-        <input type="file" accept="image/*" onchange="fileLoaders[1](event)"
-               class="form-control-file" id="left" name="left" value="{{ left_file }}" hidden>
-        <label class="btn-primary" for="left">
-            <img id="left_output" width="300" height="300" src="{{ left_start_preview }}">
-        </label>
+            <div class="row">
+                <div class="column">
+                    <input type="file" accept="audio/*" onchange="fileLoaders[7](event)"
+                           class="form-control-file" id="translation_audio" name="translation_audio"
+                           value='{{ translation_audio_file }}' hidden>
+                    <label for="translation_audio" style="min-width: 75px; min-height: 75px"
+                           class="c-button">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                            <polygon points="67,57 67,157, 157,107"
+                                     style="fill:lime;fill-rule:evenodd;"/>
+                        </svg>
+                    </label>
+                </div>
+                <div class="column">
+                    <input type="file" accept="image/*" onchange="fileLoaders[1](event)"
+                           class="form-control-file" id="left" name="left" value="{{ left_file }}"
+                           hidden>
+                    <label class="btn-primary" for="left">
+                        <img id="left_output" width="100%" height="100%"
+                             src="{{ left_start_preview }}">
+                    </label>
+                </div>
+                <div class="column">
+                    <input type="file" accept="image/*" onchange="fileLoaders[2](event)"
+                           class="form-control-file" id="front" name="front" value="{{ front_file }}"
+                           hidden>
+                    <label class="btn-primary" for="front">
+                        <img id="front_output" width="100%" height="100%"
+                             src="{{ front_start_preview }}">
+                    </label>
+                </div>
+                <div class="column">
+                    <input type="file" accept="image/*" onchange="fileLoaders[3](event)"
+                           class="form-control-file" id="right" name="right" value="{{ right_file }}"
+                           hidden>
+                    <label class="btn-primary" for="right">
+                        <img id="right_output" width="100%" height="100%"
+                             src="{{ right_start_preview }}">
+                    </label>
+                </div>
+                <div class="column"></div>
+            </div>
+            <div class="row">
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column">
+                    <input type="file" accept="image/*" onchange="fileLoaders[4](event)"
+                           class="form-control-file" id="down" name="down" value="{{ down_file }}"
+                           hidden>
+                    <label class="btn-primary" for="down">
+                        <img id="down_output" width="100%" height="100%"
+                             src="{{ down_start_preview }}">
+                    </label>
+                </div>
+                <div class="column">
+                    <input type="file" accept="audio/*" onchange="fileLoaders[5](event)"
+                           class="form-control-file" id="transcription_audio"
+                           name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
+                    <label for="transcription_audio" style="min-width: 75px; min-height: 75px"
+                           class="c-button">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                            <polygon points="67,57 67,157, 157,107"
+                                     style="fill:lime;fill-rule:evenodd;"/>
+                        </svg>
+                    </label>
+                </div>
+                <div class="column"></div>
+            </div>
 
-        <input type="file" accept="image/*" onchange="fileLoaders[2](event)"
-               class="form-control-file" id="right" name="right" value="{{ right_file }}" hidden>
-        <label class="btn-primary" for="right">
-            <img id="right_output" width="300" height="300" src="{{ right_start_preview }}">
-        </label>
-
-        <input type="file" accept="image/*" onchange="fileLoaders[3](event)"
-               class="form-control-file" id="up" name="up" value="{{ up_file }}" hidden>
-        <label class="btn-primary" for="up">
-            <img id="up_output" width="300" height="300" src="{{ up_start_preview }}">
-        </label>
-
-        <input type="file" accept="image/*" onchange="fileLoaders[4](event)"
-               class="form-control-file" id="down" name="down" value="{{ down_file }}" hidden>
-        <label class="btn-primary" for="down">
-            <img id="down_output" width="300" height="300" src="{{ down_start_preview }}">
-        </label>
+        </div>
 
 
-
-        <input type="file" accept="/*" onchange="fileLoaders[5](event)"
-               class="form-control-file" id="transcription_audio"
-               name="transcription_audio" value='{{ transcription_audio_file }}' >
-        <label class="btn-primary" for="transcription_audio">
-<!--            <img id="transcription_audio_output" width="300" height="300" src="">-->
-<!--            <button class="btn btn-primary" type="">transcription audio file</button>-->
-
-        </label>
-
-        <input type="file" accept="/*" onchange="fileLoaders[6](event)"
-               class="form-control-file" id="phrase_audio" name="phrase_audio"
-               value='{{ phrase_audio_file }}' >
-        <label class="btn-primary" for="phrase_audio">
-<!--            <img id="phrase_audio_output" width="300" height="300" src="">-->
-        </label>
-
-        <input type="file" accept="/*" onchange="fileLoaders[7](event)"
-               class="form-control-file" id="translation_audio" name="translation_audio"
-               value='{{ translation_audio_file }}' >
-        <label class="btn-primary" for="translation_audio">
-<!--            <img id="phrase_audio_output" width="300" height="300" src="">-->
-        </label>
     </div>
 
     <button type="submit" class="btn btn-primary">Отправить</button>
 </form>
 <script>
     fileLoaders = [0, 0, 0, 0, 0, 0, 0, 0]
-    id_list = ['front_output', "left_output", "right_output", "up_output", "down_output",
+    id_list = ['up_output', "left_output", "front_output", "right_output", "down_output",
                "transcription_audio_output", "phrase_audio_output"]
     start_values = []
     for (let i = 0; i < 5; i += 1){
@@ -95,6 +166,5 @@
         fileLoaders[i] = tmp_loader;
 
     }
-
 </script>
 {% endblock %}
