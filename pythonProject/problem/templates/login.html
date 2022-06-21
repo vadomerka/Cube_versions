@@ -1,30 +1,81 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Авторизация</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.email.label }}
-            <span class="vnumgf" style="color: #d93025;">*</span>
-            {{ form.email(class="form-control", type="email") }}
-            {% for error in form.email.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
+<script>
+    // container = document.getElementsByClassName("container")[0];
+    // alert(window.innerHeight * 0.33);
+    // val = (window.innerHeight * 0.33).toString();
+    // container.style = "position: relative; max-width: 540px; margin-top: " + val + "px;";
+
+
+
+
+</script>
+<style>
+    .login-page {
+            box-sizing: border-box;
+            top: 50%;
+            position: relative;
+            border-style: solid;
+            border-color: #3A3542;
+            padding: 15px;
+            background-color: #C1BFC5;
+    }
+    .container {
+        margin-top: 31vh;
+        width: 512px;
+    }
+    .page-title {
+        text-align: center;
+    }
+    .sign-in-container {
+        margin: 0px 0px 20px 0px;
+    }
+    .sign-in-button-container {
+        display: inline-block;
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%);
+    }
+
+
+
+</style>
+<div class="login-page">
+    <h1 class="page-title">Войдите в аккаунт</h1>
+    <div>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.email.label }}
+                <span class="vnumgf" style="color: #d93025;">*</span>
+                {{ form.email(class="form-control", type="email") }}
+                {% for error in form.email.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
             {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }} <span class="vnumgf" style="color: #d93025;">*</span>
-            {{ form.password(class="form-control", type="password") }}<br>
-            {% for error in form.password.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
+            </p>
+            <p>
+                {{ form.password.label }} <span class="vnumgf" style="color: #d93025;">*</span>
+                {{ form.password(class="form-control", type="password") }}<br>
+                {% for error in form.password.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
             {% endfor %}
-        </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-        <div>{{ message }}</div>
-    </form>
+            </p>
+            <div class="sign-in-container">
+                <div style="display: inline-block;">{{ form.remember_me() }} {{
+                    form.remember_me.label }}
+                </div>
+                <div class="sign-in-button-container">{{ form.submit(type="submit", class="btn
+                    btn-primary") }}
+                </div>
+            </div>
+            <div>{{ message }}</div>
+        </form>
+    </div>
+</div>
+
 {% endblock %}

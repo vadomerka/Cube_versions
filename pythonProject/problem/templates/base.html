@@ -22,11 +22,6 @@
                 {% if current_user.is_authenticated %}
                 <a class="navbar-brand" href="/logout" style="color: white;">{{ current_user.name
                     }}</a>
-                {% else %}
-                <p>
-                    <!--                    <a class="btn btn-primary" href="/register" style="color: white;">Зарегистрироваться</a>-->
-                    <a class="btn btn-success" href="/login" style="color: white;">Войти</a>
-                </p>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <div class="nav" id="up buttons">

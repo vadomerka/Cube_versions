@@ -18,7 +18,7 @@ class MakeUserForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('Почта', validators=[DataRequired("Пожалуйста, введите вашу почту")])
-    password = PasswordField('Пароль', validators=[DataRequired()])
+    email = EmailField('Введите почту', validators=[DataRequired()])
+    password = PasswordField('Введите пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')

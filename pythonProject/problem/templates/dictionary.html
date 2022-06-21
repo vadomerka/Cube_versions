@@ -30,28 +30,29 @@
 <div style="display: flex;">
     {% if current_user.teacher %}
     <a href="/add_word" class="btn btn-success">Добавить слово</a>
+    <button id="sorting_button" class="btn btn-add">Показать только свои слова</button>
     {% endif %}
     <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{ len_all_words }}</h2>
 </div>
 <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
 <div class="row">
     {% for i in range(len_word_page) %}
-    <div class="column">
-        <a href="/dict_word/{{ all_words[i].id }}" class="btn btn-primary"
-           style="min-width: 250px">
-            {{ all_words[i].hieroglyph }} {{ all_words[i].translation }}  <!--{{ (page - 1) * 30 + i  + 1 }} -->
-            <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
-        </a>
-        {% if current_user.id == all_words[i].author %}
+    <div class="column" id="column {{ i }}">
+<!--        <a href="/dict_word/{{ all_words[i].id }}" class="btn btn-primary"-->
+<!--           style="min-width: 250px">-->
+<!--            {{ all_words[i].hieroglyph }} {{ all_words[i].translation }}  &lt;!&ndash;{{ (page - 1) * 30 + i  + 1 }} &ndash;&gt;-->
+<!--            &lt;!&ndash;   padding-right: 100p; display: block; position: relative; text-align: left;     &ndash;&gt;-->
+<!--        </a>-->
+<!--        {% if current_user.id == all_words[i].author %}-->
 
-        <a href="/change_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-warning">
-            Изменить
-        </a>
-        <a href="/delete_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-danger">
-            Удалить
-        </a>
+<!--        <a href="/change_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-warning">-->
+<!--            Изменить-->
+<!--        </a>-->
+<!--        <a href="/delete_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-danger">-->
+<!--            Удалить-->
+<!--        </a>-->
 
-        {% endif %}
+<!--        {% endif %}-->
     </div>
     {% endfor %}
 </div>
@@ -106,4 +107,79 @@
 </div>
 </div>
 {% endif %}
+<script>
+    function sortingButtonClick(event){
+        if (sorting_button_state == 0){
+            sorting_button.innerText = "Показать только свои слова";
+        } else if (sorting_button_state == 1){
+            sorting_button.innerText = "Показать только чужие слова";
+        } else if (sorting_button_state == 2){
+            sorting_button.innerText = "Показать все слова";
+        }
+        sorting_button_state = (sorting_button_state + 1) % 3;
+    }
+
+    function javascriptList(list){
+        // alert(list);
+        list = list.split(";;;");
+        for (let i = 0; i < list.length; i += 1){
+            list[i] = list[i].split(";");
+        }
+        return list;
+    }
+
+    sorting_button = document.getElementById("sorting_button");
+    sorting_button.addEventListener("click", sortingButtonClick, false);
+    var sorting_button_state = 1;
+
+    all_words = javascriptList("{{ all_words_js }}");
+    my_words = javascriptList("{{ my_words_js }}");
+    rest_words = javascriptList("{{ rest_words_js }}");
+
+    word_js_table = {
+    "id": 0,
+    "hieroglyph": 1,
+    "translation": 2,
+    "front_side": 3,
+    "left_side": 4,
+    "right_side": 5,
+    "down_side": 6,
+    "up_side": 7,
+    "front_side_audio": 8,
+    "up_side_audio": 9,
+    "left_side_audio": 10,
+    "author": 11
+    };
+    // alert(word_js_table["id"]);
+
+    for (let i = 0; i < {{ len_word_page }}; i += 1){
+        column = document.getElementById("column " + i.toString());
+        word_button = document.createElement("a");
+        word_button.classList.add("btn");
+        word_button.classList.add("btn-primary");
+        word_button.href = "/dict_word/" + all_words[i][word_js_table["id"]];
+        word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
+        word_button.innerText = all_words[i][word_js_table["hieroglyph"]] +
+        " " + all_words[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
+        column.appendChild(word_button);
+
+        if ({{ current_user.id }} == all_words[i][word_js_table["author"]]){
+            change_but = document.createElement("a");
+            delete_but = document.createElement("a");
+            change_but.href = "/change_word/{{ page }}/" + all_words[i][word_js_table["id"]];
+            change_but.classList.add("btn");
+            change_but.classList.add("btn-warning");
+            change_but.innerText = "Изменить";
+
+            delete_but.href = "/delete_word/{{ page }}/" + all_words[i][word_js_table["id"]];
+            delete_but.classList.add("btn");
+            delete_but.classList.add("btn-danger");
+            delete_but.innerText = "Удалить";
+
+            column.appendChild(change_but);
+            column.appendChild(delete_but);
+        }
+    }
+
+</script>
 {% endblock %}

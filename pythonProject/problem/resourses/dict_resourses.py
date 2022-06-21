@@ -32,8 +32,10 @@ class DictResourse(Resource):
                   "up_side",
                   "down_side",
                   "front_side_audio",
+                  "left_side_audio",
                   "right_side_audio",
-                  "up_side_audio")) for item in dictionary]}
+                  "up_side_audio",
+                  "down_side_audio")) for item in dictionary]}
         return jsonify(ret)
 
     def post(self):

@@ -368,19 +368,57 @@ def dictionary_redirect():
     return redirect("/dictionary/1")
 
 
+def list_to_javascript(array):
+    array_js = []
+    for i in range(len(array)):
+        word = array[i]
+        print(word)
+        array_js.append(";".join([str(word["id"]),
+                                  word["hieroglyph"],
+                                  word["translation"],
+                                  word["front_side"],  # иероглиф
+                                  word["left_side"],  # перевод
+                                  word["right_side"],  # транскрипция
+                                  word["down_side"],  # картинка
+                                  word["up_side"],
+                                  word["front_side_audio"],
+                                  word["up_side_audio"],
+                                  word["left_side_audio"],
+                                  str(word["author"])]))  # свосочетание
+    array_js = ";;;".join(array_js)
+    return array_js
+
+
 @app.route('/dictionary/<int:page>', methods=['GET', 'POST'])
 @login_required
 def dict_view(page):
     all_words = get("http://localhost:5000/rest_dict").json()["words"]
+    my_words = []
+    rest_words = []
+    for word in all_words:
+        if word["author"] == current_user.id:
+            my_words.append(word)
+        else:
+            rest_words.append(word)
+    # all_words = my_words + rest_words
     len_all_words = len(all_words)
+
+    my_words = my_words[30 * (page - 1):30 * page]
+    rest_words = rest_words[30 * (page - 1):30 * page]
     all_words = all_words[30 * (page - 1):30 * page]
+
+    my_words_js = list_to_javascript(my_words)
+    rest_words_js = list_to_javascript(rest_words)
+    all_words_js = list_to_javascript(all_words)
     if len_all_words == 0:
         pages_number = 1
     else:
         pages_number = (len_all_words - 1) // 30 + 1
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
                            len_all_words=len_all_words, pages_number=pages_number, page=page,
-                           len_word_page=len(all_words))
+                           len_word_page=len(all_words), my_words=my_words, rest_words=rest_words,
+                           my_words_js=my_words_js, rest_words_js=rest_words_js,
+                           all_words_js=all_words_js)
 
 
 @app.route('/add_word', methods=['GET', 'POST'])
