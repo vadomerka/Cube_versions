@@ -18,6 +18,7 @@
 
     .page_button {
         margin: 5px 5px 5px 5px;
+        color: white;
     }
 
     .current_page_button {
@@ -35,87 +36,41 @@
     <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{ len_all_words }}</h2>
 </div>
 <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
-<div class="row">
-    {% for i in range(len_word_page) %}
-    <div class="column" id="column {{ i }}">
-<!--        <a href="/dict_word/{{ all_words[i].id }}" class="btn btn-primary"-->
-<!--           style="min-width: 250px">-->
-<!--            {{ all_words[i].hieroglyph }} {{ all_words[i].translation }}  &lt;!&ndash;{{ (page - 1) * 30 + i  + 1 }} &ndash;&gt;-->
-<!--            &lt;!&ndash;   padding-right: 100p; display: block; position: relative; text-align: left;     &ndash;&gt;-->
-<!--        </a>-->
-<!--        {% if current_user.id == all_words[i].author %}-->
-
-<!--        <a href="/change_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-warning">-->
-<!--            Изменить-->
-<!--        </a>-->
-<!--        <a href="/delete_word/{{ page }}/{{ all_words[i].id }}" class="btn btn-danger">-->
-<!--            Удалить-->
-<!--        </a>-->
-
-<!--        {% endif %}-->
-    </div>
+<div class="row" id="word_row">
+    {% for i in range(30) %}
+    <div class="column" id="column {{ i }}"></div>
     {% endfor %}
 </div>
-{% if pages_number > 1 %}
-<div style="align-items: center; width: 100%; justify-content: center; display: flex;">
-    <div class="pages-row">
-        <a href="/dictionary/1" class="btn btn-primary page_button"><<</a>
-        {% if page > 1 %}
-        <a href="/dictionary/{{ page - 1 }}" class="btn btn-primary page_button"><</a>
-        {% else %}
-        <a href="/dictionary/{{ page }}" class="btn btn-primary page_button"><</a>
-        {% endif %}
 
-        {% if (pages_number - page) <= 6 %}
-            {% for i in range(pages_number - 9, pages_number) %}
-            {% if (i + 1) == page %}
-            <a href="/dictionary/{{ i + 1 }}"
-               class="btn btn-primary current_page_button">{{ i + 1 }}</a>
-            {% else %}
-            {% if (i + 1) > 0 %}
-            <a href="/dictionary/{{ i + 1 }}" class="btn btn-primary page_button">{{ i + 1 }}</a>
-            {% endif %}
-            {% endif %}
-            {% endfor %}
-        {% else %}
-            {% if page == 1 %}
-                {% for i in range(page - 1, page + 8) %}
-                {% if (i + 1) == page %}
-                <a href="/dictionary/{{ i + 1 }}"
-                   class="btn btn-primary current_page_button">{{ i + 1 }}</a>
-                {% else %}
-                <a href="/dictionary/{{ i + 1 }}" class="btn btn-primary page_button">{{ i + 1 }}</a>
-                {% endif %}
-                {% endfor %}
-            {% else %}
-                {% for i in range(page - 2, page + 7) %}
-                {% if (i + 1) == page %}
-                <a href="/dictionary/{{ i + 1 }}"
-                   class="btn btn-primary current_page_button">{{ i + 1 }}</a>
-                {% else %}
-                <a href="/dictionary/{{ i + 1 }}" class="btn btn-primary page_button">{{ i + 1 }}</a>
-                {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% endif %}
-        {% if page < pages_number %}
-        <a href="/dictionary/{{ page + 1 }}" class="btn btn-primary page_button">></a>
-        {% else %}
-        <a href="/dictionary/{{ page }}" class="btn btn-primary page_button">></a>
-        {% endif %}
-        <a href="/dictionary/{{ pages_number }}" class="btn btn-primary page_button">>></a>
+<div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+    <div class="pages-row" id="pages-row">
+
 </div>
 </div>
-{% endif %}
+
 <script>
     function sortingButtonClick(event){
         if (sorting_button_state == 0){
-            sorting_button.innerText = "Показать только свои слова";
-        } else if (sorting_button_state == 1){
             sorting_button.innerText = "Показать только чужие слова";
-        } else if (sorting_button_state == 2){
+            current_word_list = my_words;
+            current_page_word_list = my_page_words;
+            current_page_max_number = my_page_number;
+        } else if (sorting_button_state == 1){
             sorting_button.innerText = "Показать все слова";
+            current_word_list = rest_words;
+            current_page_word_list = rest_page_words;
+            current_page_max_number = rest_page_number;
+        } else if (sorting_button_state == 2){
+            sorting_button.innerText = "Показать только свои слова";
+            current_word_list = all_words;
+            current_page_word_list = all_page_words;
+            current_page_max_number = all_page_number;
         }
+        if (current_word_list == [] && current_page > current_page_max_number) {
+            // window.location.href = "/dictionary/" + current_page_max_number;
+            current_page = current_page_max_number;
+        }
+        createWordButtons(current_page_word_list);
         sorting_button_state = (sorting_button_state + 1) % 3;
     }
 
@@ -128,13 +83,181 @@
         return list;
     }
 
+    function createWordButtons(word_list){
+        // delete previous buttons
+        for (let i = 0; i < 30; i += 1){
+            prev_but = document.getElementById("word_button " + i.toString())
+            if (prev_but != null){prev_but.remove();}
+            prev_but = document.getElementById("change_but " + i.toString())
+            if (prev_but != null){prev_but.remove();}
+            prev_but = document.getElementById("delete_but " + i.toString())
+            if (prev_but != null){prev_but.remove();}
+        }
+        // create new buttons
+        for (let i = 0; i < word_list.length; i += 1){
+            column = document.getElementById("column " + i.toString());
+            word_button = document.createElement("a");
+            word_button.id = "word_button " + i.toString();
+            word_button.classList.add("btn");
+            word_button.classList.add("btn-primary");
+            word_button.href = "/dict_word/" + word_list[i][word_js_table["id"]];
+            word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
+            word_button.innerText = word_list[i][word_js_table["hieroglyph"]] +
+            " " + word_list[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
+            column.appendChild(word_button);
+
+            if ({{ current_user.id }} == word_list[i][word_js_table["author"]]){
+                change_but = document.createElement("a");
+                delete_but = document.createElement("a");
+                change_but.id = "change_but " + i.toString();
+                delete_but.id = "delete_but " + i.toString();
+                change_but.href = "/change_word/" + word_list[i][word_js_table["id"]];
+                change_but.classList.add("btn");
+                change_but.classList.add("btn-warning");
+                change_but.innerText = "Изменить";
+
+                delete_but.href = "/delete_word/" + all_words[i][word_js_table["id"]];
+                delete_but.classList.add("btn");
+                delete_but.classList.add("btn-danger");
+                delete_but.innerText = "Удалить";
+
+                column.appendChild(change_but);
+                column.appendChild(delete_but);
+            }
+        }
+    }
+
+
+
+    function createOnePageButton(row, text, onClickFunction){
+        page_button = document.createElement("button");
+        page_button.onclick = onClickFunction;
+        page_button.id = "page_button " + text;
+        page_button.classList.add("btn");
+        page_button.classList.add("btn-primary");
+        // alert(text);
+        // alert(current_page);
+        if (text == current_page){
+            page_button.classList.add("current_page_button")
+        } else {
+            page_button.classList.add("page_button");
+        }
+        page_button.innerText = text;
+        row.appendChild(page_button);
+    }
+
+    function deletePageButtons(){
+        prev_but = document.getElementById("page_button <<");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("page_button <");
+        if (prev_but != null){prev_but.remove();}
+
+        for (let i = 1; i < all_page_number + 1; i++){
+            prev_but = document.getElementById("page_button " + i.toString());
+            if (prev_but != null){prev_but.remove();}
+        }
+
+        prev_but = document.getElementById("page_button >>");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("page_button >");
+        if (prev_but != null){prev_but.remove();}
+    }
+
+    function pageButtonNumberFunction(event){
+        // alert(event.target.innerText);
+        current_page = parseInt(event.target.innerText, 10);
+        // alert(current_page);
+        current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+        createWordButtons(current_page_word_list);
+        if (current_page_max_number > 1){  // f
+            // alert("creating page buttons");
+            createPageButtons();
+        }
+    }
+
+    function pageButtonFunctions(button_text){
+        if (button_text == "<<"){
+            return function(event){
+                current_page = 1;
+                current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+                createWordButtons(current_page_word_list);
+                if (current_page_max_number > 1){  // f
+                    // alert("creating page buttons");
+                    createPageButtons();
+                }
+            };
+        } else if (button_text == "<"){
+            return function(event){
+                if (current_page != 1) {
+                    current_page -= 1;
+                    current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+                    createWordButtons(current_page_word_list);
+                    if (current_page_max_number > 1){  // f
+                        // alert("creating page buttons");
+                        createPageButtons();
+                    }
+                }
+            };
+        } else if (button_text == ">"){
+            return function(event) {
+                if (current_page != current_page_max_number) {
+                    current_page += 1;
+                    current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+                    createWordButtons(current_page_word_list);
+                    if (current_page_max_number > 1){  // f
+                        // alert("creating page buttons");
+                        createPageButtons();
+                    }
+                }
+            }
+        } else if (button_text == ">>"){
+            return function(event){
+                current_page = current_page_max_number;
+                current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+                createWordButtons(current_page_word_list);
+                if (current_page_max_number > 1){  // f
+                    // alert("creating page buttons");
+                    createPageButtons();
+                }
+            };
+        }
+    }
+
+    function createPageButtons(){
+<!--        <div class="column" id="column  i "></div>-->
+        deletePageButtons();
+
+        pages_row = document.getElementById("pages-row");
+        createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
+        createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
+        for (let i = 0; i < current_page_max_number; i ++){
+            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+        }
+        createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
+        createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
+    }
+
+
     sorting_button = document.getElementById("sorting_button");
     sorting_button.addEventListener("click", sortingButtonClick, false);
-    var sorting_button_state = 1;
+    var sorting_button_state = 0;
+    var current_page = 1;
 
     all_words = javascriptList("{{ all_words_js }}");
     my_words = javascriptList("{{ my_words_js }}");
     rest_words = javascriptList("{{ rest_words_js }}");
+
+    all_page_number = Math.floor(all_words.length / 30) + 1
+    my_page_number = Math.floor(my_words.length / 30) + 1
+    rest_page_number = Math.floor(rest_words.length / 30) + 1
+
+    my_page_words = my_words.slice(30 * (current_page - 1), 30 * current_page);
+    rest_page_words = rest_words.slice(30 * (current_page - 1), 30 * current_page);
+    all_page_words = all_words.slice(30 * (current_page - 1), 30 * current_page);
+
+    current_word_list = all_words;
+    current_page_word_list = all_page_words;
+    current_page_max_number = all_page_number;
 
     word_js_table = {
     "id": 0,
@@ -150,35 +273,10 @@
     "left_side_audio": 10,
     "author": 11
     };
-    // alert(word_js_table["id"]);
-
-    for (let i = 0; i < {{ len_word_page }}; i += 1){
-        column = document.getElementById("column " + i.toString());
-        word_button = document.createElement("a");
-        word_button.classList.add("btn");
-        word_button.classList.add("btn-primary");
-        word_button.href = "/dict_word/" + all_words[i][word_js_table["id"]];
-        word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
-        word_button.innerText = all_words[i][word_js_table["hieroglyph"]] +
-        " " + all_words[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
-        column.appendChild(word_button);
-
-        if ({{ current_user.id }} == all_words[i][word_js_table["author"]]){
-            change_but = document.createElement("a");
-            delete_but = document.createElement("a");
-            change_but.href = "/change_word/{{ page }}/" + all_words[i][word_js_table["id"]];
-            change_but.classList.add("btn");
-            change_but.classList.add("btn-warning");
-            change_but.innerText = "Изменить";
-
-            delete_but.href = "/delete_word/{{ page }}/" + all_words[i][word_js_table["id"]];
-            delete_but.classList.add("btn");
-            delete_but.classList.add("btn-danger");
-            delete_but.innerText = "Удалить";
-
-            column.appendChild(change_but);
-            column.appendChild(delete_but);
-        }
+    createWordButtons(current_page_word_list);
+    if (current_page_max_number > 1){  // f
+        // alert("creating page buttons");
+        createPageButtons();
     }
 
 </script>

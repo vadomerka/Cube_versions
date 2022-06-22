@@ -362,17 +362,11 @@ def delete_trainer_from_lesson(lesson_id, trainer_id):
     return abort(404, message=f"Trainer {trainer_id} not found")
 
 
-@app.route('/dictionary', methods=['GET', 'POST'])
-@login_required
-def dictionary_redirect():
-    return redirect("/dictionary/1")
-
-
 def list_to_javascript(array):
     array_js = []
     for i in range(len(array)):
         word = array[i]
-        print(word)
+        # print(word)
         array_js.append(";".join([str(word["id"]),
                                   word["hieroglyph"],
                                   word["translation"],
@@ -389,9 +383,9 @@ def list_to_javascript(array):
     return array_js
 
 
-@app.route('/dictionary/<int:page>', methods=['GET', 'POST'])
+@app.route('/dictionary', methods=['GET', 'POST'])
 @login_required
-def dict_view(page):
+def dict_view():
     all_words = get("http://localhost:5000/rest_dict").json()["words"]
     my_words = []
     rest_words = []
@@ -403,20 +397,24 @@ def dict_view(page):
     # all_words = my_words + rest_words
     len_all_words = len(all_words)
 
-    my_words = my_words[30 * (page - 1):30 * page]
-    rest_words = rest_words[30 * (page - 1):30 * page]
-    all_words = all_words[30 * (page - 1):30 * page]
+    # my_page_number = len(my_words) // 30 + 1
+    # rest_page_number = len(rest_words) // 30 + 1
+    # all_page_number = len(all_words) // 30 + 1
+
+    # my_words = my_words[30 * (page - 1):30 * page]
+    # rest_words = rest_words[30 * (page - 1):30 * page]
+    # all_words = all_words[30 * (page - 1):30 * page]
 
     my_words_js = list_to_javascript(my_words)
     rest_words_js = list_to_javascript(rest_words)
     all_words_js = list_to_javascript(all_words)
-    if len_all_words == 0:
-        pages_number = 1
-    else:
-        pages_number = (len_all_words - 1) // 30 + 1
+    # if len_all_words == 0:
+    #     pages_number = 1
+    # else:
+    #     pages_number = (len_all_words - 1) // 30 + 1
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
-                           len_all_words=len_all_words, pages_number=pages_number, page=page,
-                           len_word_page=len(all_words), my_words=my_words, rest_words=rest_words,
+                           len_all_words=len_all_words,
+                           my_words=my_words, rest_words=rest_words,
                            my_words_js=my_words_js, rest_words_js=rest_words_js,
                            all_words_js=all_words_js)
 
@@ -439,8 +437,9 @@ def add_word():
         new_word = Words()
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
-        new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
+        print(new_word.hieroglyph)
+        print(new_word.translation)
         front = request.files['front']
         left = request.files['left']
         right = request.files['right']
@@ -523,7 +522,7 @@ def add_word():
         cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
-        return redirect('/dictionary/1')
+        return redirect('/dictionary')
     return render_template('make_word.html', form=form, filename="tmp",
                            front_start_preview=front_start_preview,
                            left_start_preview=left_start_preview,
@@ -551,16 +550,16 @@ def add_words(number):
     for i in range(number):
         ret = post("http://localhost:5000/rest_dict", json=data, params=data)
     # print(ret)
-    return redirect("/dictionary/1")
+    return redirect("/dictionary")
 
 
-@app.route('/delete_word/<int:page>/<int:word_id>', methods=['GET', 'POST'])
+@app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
-def delete_word(page, word_id):  # ff
+def delete_word(word_id):  # ff
     ret = delete("http://localhost:5000/rest_word/" + str(word_id)).json()
     # print(ret)
     if ret == {'success': 'OK'}:
-        return redirect("/dictionary/" + str(page))
+        return redirect("/dictionary")
     else:
         return ret
 
@@ -684,9 +683,9 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
                            back_button_hidden="false")
 
 
-@app.route('/change_word/<int:page>/<int:word_id>', methods=['GET', 'POST'])
+@app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
-def change_word(page, word_id):
+def change_word(word_id):
     form = WordsForm()
     db_sess = db_session.create_session()
     all_words = db_sess.query(Words).all()
@@ -717,8 +716,9 @@ def change_word(page, word_id):
     if form.validate_on_submit():
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
-        new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
+        print(form.hieroglyph.data)
+        print(new_word.hieroglyph)
         front = request.files['front']
         left = request.files['left']
         right = request.files['right']
@@ -790,7 +790,7 @@ def change_word(page, word_id):
         cur_user.words.append(new_word)
         db_sess.commit()
         db_sess.close()
-        return redirect('/dictionary/' + str(page))
+        return redirect('/dictionary')
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp",
                            front_file=front_file, left_file=left_file, right_file=right_file,
                            up_file=up_file, down_file=down_file,
