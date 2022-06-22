@@ -717,9 +717,6 @@ def change_word(word_id):
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
-        # print(form.hieroglyph.data)
-        # print(new_word.hieroglyph)
-        print(form.translation.data)
         front = request.files['front']
         left = request.files['left']
         right = request.files['right']

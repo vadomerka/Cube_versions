@@ -53,24 +53,30 @@
         if (sorting_button_state == 0){
             sorting_button.innerText = "Показать только чужие слова";
             current_word_list = my_words;
-            current_page_word_list = my_page_words;
-            current_page_max_number = my_page_number;
         } else if (sorting_button_state == 1){
             sorting_button.innerText = "Показать все слова";
             current_word_list = rest_words;
-            current_page_word_list = rest_page_words;
-            current_page_max_number = rest_page_number;
         } else if (sorting_button_state == 2){
             sorting_button.innerText = "Показать только свои слова";
             current_word_list = all_words;
-            current_page_word_list = all_page_words;
-            current_page_max_number = all_page_number;
         }
-        if (current_word_list == [] && current_page > current_page_max_number) {
+        current_page_max_number = Math.floor(current_word_list.length / 30) + 1;
+        current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+        // alert(current_page_word_list.length == 0);
+        // alert(current_page > current_page_max_number);
+        if (current_page_word_list.length == 0 && current_page > current_page_max_number) {
             // window.location.href = "/dictionary/" + current_page_max_number;
             current_page = current_page_max_number;
+            current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+            // alert(current_page);
         }
+        // alert(current_page_word_list.length == 0);
+        // alert(current_page);
+        // alert(current_page_max_number);
+        // console.log(current_page_word_list);
+
         createWordButtons(current_page_word_list);
+        createPageButtons();
         sorting_button_state = (sorting_button_state + 1) % 3;
     }
 
@@ -226,15 +232,44 @@
     function createPageButtons(){
 <!--        <div class="column" id="column  i "></div>-->
         deletePageButtons();
+        if (current_page_max_number > 1){
+            pages_row = document.getElementById("pages-row");
+            createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
+            createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
 
-        pages_row = document.getElementById("pages-row");
-        createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
-        createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
-        for (let i = 0; i < current_page_max_number; i ++){
-            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+            if ((current_page_max_number - current_page) <= 6 && (current_page_max_number - current_page) >= 0) {
+                if (current_page_max_number >= 9){
+                    for (let i = (current_page_max_number - 9); i < current_page_max_number; i++){
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                } else {
+                    for (let i = 0; i < current_page_max_number; i++){
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                }
+            } else {
+                if (current_page == 1) {
+                    if (current_page_max_number < 9){
+                        for (let i = 0; i < current_page_max_number; i ++){
+                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                        }
+                    } else {
+                        for (let i = 0; i < 9; i ++){
+                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                        }
+                    }
+                } else {
+                    for (let i = (current_page - 2); i < (current_page + 7); i++) {
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                }
+            }
+            // for (let i = 0; i < current_page_max_number; i ++){
+            //     createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+            // }
+            createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
+            createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
         }
-        createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
-        createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
     }
 
 
