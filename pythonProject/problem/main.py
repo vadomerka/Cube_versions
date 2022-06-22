@@ -307,7 +307,8 @@ def add_trainers_to_lesson(lesson_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('add_trainers_to_lesson.html', trainers=all_trainers, form=form, len_trainers=len(all_trainers),
+    return render_template('add_trainers_to_lesson.html', trainers=all_trainers, form=form,
+                           len_trainers=len(all_trainers),
                            lesson_trainers=lesson_trainers, unused_trainers=unused_trainers)
 
 
@@ -341,8 +342,10 @@ def add_words_to_lesson(lesson_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('add_words_to_lesson.html', lesson_words=lesson_words, unused_words=unused_words,
-                           dictionary=all_words, form=form, len_dictionary=len(all_words), course_words=list(course_words))
+    return render_template('add_words_to_lesson.html', lesson_words=lesson_words,
+                           unused_words=unused_words,
+                           dictionary=all_words, form=form, len_dictionary=len(all_words),
+                           course_words=list(course_words))
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -423,7 +426,6 @@ def list_to_javascript(array):
     array_js = []
     for i in range(len(array)):
         word = array[i]
-        # print(word)
         array_js.append(";".join([str(word["id"]),
                                   word["hieroglyph"],
                                   word["translation"],
@@ -435,7 +437,7 @@ def list_to_javascript(array):
                                   word["front_side_audio"],
                                   word["up_side_audio"],
                                   word["left_side_audio"],
-                                  str(word["author"])]))  # свосочетание
+                                  str(word["author"])]))  # свосочетание\
     array_js = ";;;".join(array_js)
     return array_js
 
@@ -721,6 +723,9 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     lesson = db_sess.query(Lessons).get(lesson_id)
     trainer = db_sess.query(Trainers).get(trainer_id)
     lesson_words = []
+    all_words = db_sess.query(Words).all()
+    # print(all_words)
+
     for i in range(len(lesson.words)):
         word = lesson.words[i]
         lesson_words.append(";".join([word.front_side,  # иероглиф
@@ -731,15 +736,28 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
                                       word.front_side_audio,
                                       word.up_side_audio,
                                       word.left_side_audio]))  # свосочетание
-    if len(lesson_words) >= 6:
-        answer_button_number = 6
-    else:
-        answer_button_number = len(lesson_words)
+    lesson_all_words = []
+    for i in range(len(all_words)):
+        word = all_words[i]
+        lesson_all_words.append(";".join([word.front_side,  # иероглиф
+                                          word.left_side,  # перевод
+                                          word.right_side,  # транскрипция
+                                          word.down_side,  # картинка
+                                          word.up_side,
+                                          word.front_side_audio,
+                                          word.up_side_audio,
+                                          word.left_side_audio]))  # свосочетание
+    answer_button_number = 6
+    # if len(lesson_words) >= 6:
+    #     answer_button_number = 6
+    # else:
+    #     answer_button_number = len(lesson_words)
     lesson_words = ";;;".join(lesson_words)
+    lesson_all_words = ";;;".join(lesson_all_words)
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                           back_button_hidden="false")
+                           back_button_hidden="false", all_words=lesson_all_words)
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])

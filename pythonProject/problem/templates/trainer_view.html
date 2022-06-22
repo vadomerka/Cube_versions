@@ -49,6 +49,12 @@
     for (let i = 0; i < lesson.length; i += 1){
         lesson[i] = lesson[i].split(";");
     }
+    var all_words = "{{ all_words }}";
+    all_words = all_words.split(";;;");
+    for (let i = 0; i < all_words.length; i += 1){
+        all_words[i] = all_words[i].split(";");
+    }
+
     var task_audio;
     var audio_playing = false;
     var results = [];
@@ -60,6 +66,18 @@
     var current_word = 0;
     var check_side = {{ trainer.check_side }};
     var ans_side = {{ trainer.ans_side }};
+
+    word_wrong_variants = [];
+    for (let i = 0; i < lesson.length; i++){
+        tmp_wrong_vars = []
+        for (let i = 0; i < all_words.length; i++) {
+            if (i != current_word){
+                tmp_wrong_vars.push(all_words[i][ans_side]);
+            }
+        }
+        shuffle(tmp_wrong_vars);
+        word_wrong_variants.push(tmp_wrong_vars);
+    }
 
     function shuffle(array) {
       let currentIndex = array.length,  randomIndex;
@@ -178,13 +196,8 @@
             audio_but.addEventListener("click", audioButtonClick, false);
         }
         // task_but.style = "height: 150px; width: 150px";
-        wrong_variants = [];
-        for (let i = 0; i < lesson.length; i++) {
-            if (i != current_word){
-                wrong_variants.push(lesson[i][ans_side]);
-            }
-        }
-        shuffle(wrong_variants);
+
+        wrong_variants =  word_wrong_variants[current_word]  // ff
         var ans_variants = [lesson[current_word][ans_side]];
         for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
             ans_variants.push(wrong_variants[i]);
