@@ -6,8 +6,20 @@
 <form action="" method="post" name="checks">
     {{ form.hidden_tag() }}
     {% for i in range(len_dictionary) %}
-    <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}</button>
-    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word" value='{{ dictionary[i].id }}'>
+    {% if dictionary[i] in lesson_words %}
+    <button id="dict {{ i }}" style="background-color: green"
+            name="lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">
+        {{ dictionary[i].hieroglyph }}
+    </button>
+    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="lesson_word"
+           value='{{ dictionary[i].id }}'>
+    {% else %}
+    <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary"
+            value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}
+    </button>
+    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word"
+           value='{{ dictionary[i].id }}'>
+    {% endif %}
     {% endfor %}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 </form>
@@ -17,7 +29,7 @@
         input_of_button = document.getElementById("input of " + event.target.id);
         if (prev_name == "lesson_word") {
             event.target.name = "not_lesson_word";
-            event.target.style = "background-color: blue";
+            event.target.style = "background-color: #007bff";
             input_of_button.name = "not_lesson_word";
         } else {
             event.target.name = "lesson_word";
@@ -29,5 +41,6 @@
         lesson_word_button = document.getElementById("dict " + i.toString());
         lesson_word_button.addEventListener("click", onLessonWordButtonClick, false);
     }
+
 </script>
 {% endblock %}

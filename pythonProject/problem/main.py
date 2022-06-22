@@ -292,14 +292,13 @@ def add_trainers_to_lesson(lesson_id):
             current_course = c
     # all_words = db_sess.query(Words).all()
     all_trainers = db_sess.query(Trainers).all()
-    # lesson_words = lesson.words
-    # unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
+    lesson_trainers = lesson.trainers
     unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))),
                              key=lambda x: x.id)
-    # print(unused_trainers)
 
     if form.validate_on_submit():
         trainers = request.form.getlist('lesson_trainer')
+        lesson.trainers = []
         for trainers_id in list(trainers):
             sql_trainers = db_sess.query(Trainers).get(int(trainers_id))
             lesson.trainers.append(sql_trainers)
@@ -308,7 +307,8 @@ def add_trainers_to_lesson(lesson_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('add_trainers_to_lesson.html', trainers=unused_trainers, form=form, len_trainers=len(unused_trainers))
+    return render_template('add_trainers_to_lesson.html', trainers=all_trainers, form=form, len_trainers=len(all_trainers),
+                           lesson_trainers=lesson_trainers, unused_trainers=unused_trainers)
 
 
 @app.route('/add_words_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -330,6 +330,7 @@ def add_words_to_lesson(lesson_id):
 
     if form.validate_on_submit():
         words = request.form.getlist('lesson_word')
+        lesson.words = []
         for word_id in list(words):
             sql_word = db_sess.query(Words).get(int(word_id))
             lesson.words.append(sql_word)
@@ -337,7 +338,8 @@ def add_words_to_lesson(lesson_id):
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('add_words_to_lesson.html', dictionary=unused_words, form=form, len_dictionary=len(unused_words))
+    return render_template('add_words_to_lesson.html', lesson_words=lesson_words, unused_words=unused_words,
+                           dictionary=all_words, form=form, len_dictionary=len(all_words))
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
