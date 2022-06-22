@@ -23,6 +23,7 @@ class Words(SqlAlchemyBase, SerializerMixin):
     author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False)
 
     user = orm.relation('User')
+    # courses =
     hieroglyph = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     translation = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     front_side = sqlalchemy.Column(sqlalchemy.String, nullable=True)

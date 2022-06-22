@@ -318,15 +318,18 @@ def add_words_to_lesson(lesson_id):
     db_sess = db_session.create_session()
     lesson = db_sess.query(Lessons).get(lesson_id)
     current_course = 0
+    course_words = set()
     for c in db_sess.query(User).get(current_user.id).courses:
         if lesson in c.lessons:
             current_course = c
+        for les in c.lessons:
+            if les != lesson:
+                for word in les.words:
+                    course_words.add(word)
+    # print(list(course_words))
     all_words = db_sess.query(Words).all()
-    # all_trainers = db_sess.query(Trainers).all()
     lesson_words = lesson.words
     unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
-    # unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))),
-    #                          key=lambda x: x.id)
 
     if form.validate_on_submit():
         words = request.form.getlist('lesson_word')
@@ -339,7 +342,7 @@ def add_words_to_lesson(lesson_id):
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
     return render_template('add_words_to_lesson.html', lesson_words=lesson_words, unused_words=unused_words,
-                           dictionary=all_words, form=form, len_dictionary=len(all_words))
+                           dictionary=all_words, form=form, len_dictionary=len(all_words), course_words=list(course_words))
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
