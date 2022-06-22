@@ -13,21 +13,53 @@
         </p>
         {% endfor %}
     </p>
-    <h1>Слова урока</h1>
-    {% for word in dictionary %}
-    <label class="container"> {{ word.hieroglyph }}
-        <input type="checkbox" name="lesson_word" value='{{ word.id }}'>
-        <span class="checkmark"></span>
-    </label>
+    <h1>Выберите слова урока</h1>
+    {% for i in range(len_dictionary) %}
+    <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}</button>
+    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word" value='{{ dictionary[i].id }}'>
     {% endfor %}
-    <h1>Тренажеры урока</h1>
-    {% for trainer in trainings %}
-    <label class="container"> {{ trainer.name }}
-        <input type="checkbox" name="lesson_trainer" value='{{ trainer.id }}'>
-        <span class="checkmark"></span>
-    </label>
+    <h1>Выберите тренажеры урока</h1>
+    {% for i in range(len_trainers) %}
+    <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary" value="{{ trainers[i].id }}">{{ trainers[i].name }}</button>
+    <input id="input of train {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_trainer" value='{{ trainers[i].id }}'>
     {% endfor %}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
+<script>
+    function onLessonWordButtonClick(event){
+        prev_name = event.target.name
+        input_of_button = document.getElementById("input of " + event.target.id);
+        if (prev_name == "lesson_word") {
+            event.target.name = "not_lesson_word";
+            event.target.style = "background-color: blue";
+            input_of_button.name = "not_lesson_word";
+        } else {
+            event.target.name = "lesson_word";
+            event.target.style = "background-color: green";
+            input_of_button.name = "lesson_word";
+        }
+    }
+    function onLessonTrainButtonClick(event){
+        prev_name = event.target.name
+        input_of_button = document.getElementById("input of " + event.target.id);
+        if (prev_name == "lesson_trainer") {
+            event.target.name = "not_lesson_trainer";
+            event.target.style = "background-color: blue";
+            input_of_button.name = "not_lesson_trainer";
+        } else {
+            event.target.name = "lesson_trainer";
+            event.target.style = "background-color: green";
+            input_of_button.name = "lesson_trainer";
+        }
+    }
+    for (let i = 0; i < {{ len_dictionary }}; i++){
+        lesson_word_button = document.getElementById("dict " + i.toString());
+        lesson_word_button.addEventListener("click", onLessonWordButtonClick, false);
+    }
+    for (let i = 0; i < {{ len_trainers }}; i++){
+        lesson_trainer_button = document.getElementById("train " + i.toString());
+        lesson_trainer_button.addEventListener("click", onLessonTrainButtonClick, false);
+    }
+</script>
 {% endblock %}

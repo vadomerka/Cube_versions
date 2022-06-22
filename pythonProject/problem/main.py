@@ -15,7 +15,7 @@ from data.trainers import Trainers
 # forms
 from forms.user import MakeUserForm, LoginForm
 from forms.course import CoursesForm, AddUsersToCourseForm
-from forms.lesson import LessonsForm
+from forms.lesson import LessonsForm, AddWordsToLessonForm, AddTrainersToLessonForm
 from forms.word import WordsForm
 
 # resourses
@@ -128,7 +128,7 @@ def pupils():
             users_pupils.append(user)
     # print(users_pupils)
     # users_pupils = current_user.pupils
-    return render_template('pupils.html', pupils=users_pupils)
+    return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true")
 
 
 @app.route('/add_pupil', methods=['GET', 'POST'])
@@ -158,6 +158,7 @@ def add_pupil():
         print(user)
         db_sess.add(user)
         db_sess.commit()
+        return redirect('/pupils')
         # user = db_sess.query(User).filter(User.email == form.email.data).first()
     return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
                            form=form)
@@ -171,7 +172,7 @@ def courses():
         "courses"]
     # print(user_courses)
     return render_template('courses.html', courses=user_courses, new_id=len(user_courses) + 1,
-                           back_button_hidden='true')
+                           back_button_hidden='true', back_url='/dictionary')
 
 
 @app.route('/make_course', methods=['GET', 'POST'])
@@ -266,12 +267,77 @@ def make_lesson(course_id):
         for word_id in list(words):
             sql_word = db_sess.query(Words).get(int(word_id))
             new_lesson.words.append(sql_word)
+        trainers = request.form.getlist('lesson_trainer')
+        for trainers_id in list(trainers):
+            sql_trainers = db_sess.query(Trainers).get(int(trainers_id))
+            new_lesson.trainers.append(sql_trainers)
         current_course.lessons.append(new_lesson)
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(course_id))
     return render_template('make_lesson.html', form=form, dictionary=all_words,
-                           trainings=all_trainers)
+                           trainers=all_trainers, len_dictionary=len(all_words),
+                           len_trainers=len(all_trainers))
+
+
+@app.route('/add_trainers_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def add_trainers_to_lesson(lesson_id):
+    form = AddTrainersToLessonForm()
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    current_course = 0
+    for c in db_sess.query(User).get(current_user.id).courses:
+        if lesson in c.lessons:
+            current_course = c
+    # all_words = db_sess.query(Words).all()
+    all_trainers = db_sess.query(Trainers).all()
+    # lesson_words = lesson.words
+    # unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
+    unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))),
+                             key=lambda x: x.id)
+    # print(unused_trainers)
+
+    if form.validate_on_submit():
+        trainers = request.form.getlist('lesson_trainer')
+        for trainers_id in list(trainers):
+            sql_trainers = db_sess.query(Trainers).get(int(trainers_id))
+            lesson.trainers.append(sql_trainers)
+
+        current_course.lessons.append(lesson)
+        db_sess.merge(current_course)
+        db_sess.commit()
+        return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
+    return render_template('add_trainers_to_lesson.html', trainers=unused_trainers, form=form, len_trainers=len(unused_trainers))
+
+
+@app.route('/add_words_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def add_words_to_lesson(lesson_id):
+    form = AddWordsToLessonForm()
+    db_sess = db_session.create_session()
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    current_course = 0
+    for c in db_sess.query(User).get(current_user.id).courses:
+        if lesson in c.lessons:
+            current_course = c
+    all_words = db_sess.query(Words).all()
+    # all_trainers = db_sess.query(Trainers).all()
+    lesson_words = lesson.words
+    unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
+    # unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))),
+    #                          key=lambda x: x.id)
+
+    if form.validate_on_submit():
+        words = request.form.getlist('lesson_word')
+        for word_id in list(words):
+            sql_word = db_sess.query(Words).get(int(word_id))
+            lesson.words.append(sql_word)
+        current_course.lessons.append(lesson)
+        db_sess.merge(current_course)
+        db_sess.commit()
+        return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
+    return render_template('add_words_to_lesson.html', dictionary=unused_words, form=form, len_dictionary=len(unused_words))
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -286,32 +352,18 @@ def change_lesson(lesson_id):
             current_course = c
     # trainings = ["1 training", "2 training", "3 training"]
     # print(trainings)
-    all_words = db_sess.query(Words).all()
-    all_trainers = db_sess.query(Trainers).all()
-    lesson_words = lesson.words
-    unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
-    unused_trainers = sorted(list(set(all_trainers).difference(set(lesson.trainers))),
-                             key=lambda x: x.id)
+
     if request.method == "GET":
         form.name.data = lesson.name
 
     if form.validate_on_submit():
         lesson.name = form.name.data
-        words = request.form.getlist('lesson_word')
-        for word_id in list(words):
-            sql_word = db_sess.query(Words).get(int(word_id))
-            lesson.words.append(sql_word)
-        trainers = request.form.getlist('lesson_trainer')
-        for trainers_id in list(trainers):
-            sql_trainers = db_sess.query(Trainers).get(int(trainers_id))
-            lesson.trainers.append(sql_trainers)
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
 
-    return render_template('make_lesson.html', form=form, dictionary=unused_words,
-                           trainings=unused_trainers)
+    return render_template('change_lesson_name.html', form=form)
     # return render_template('lesson_view.html', lesson_data=lesson)
 
 
@@ -416,7 +468,7 @@ def dict_view():
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
                            my_words_js=my_words_js, rest_words_js=rest_words_js,
-                           all_words_js=all_words_js)
+                           all_words_js=all_words_js, back_button_hidden="true")
 
 
 @app.route('/add_word', methods=['GET', 'POST'])
@@ -534,22 +586,24 @@ def add_word():
 @app.route('/add_words/<int:number>', methods=['GET', 'POST'])
 @login_required
 def add_words(number):
-    data = {"author": current_user.id,
-            "hieroglyph": "null",
-            "translation": "null",
-            "front_side": "undefined_image.png",
-            "left_side": "undefined_image.png",
-            "right_side": "undefined_image.png",
-            "up_side": "undefined_image_up.png",
-            "down_side": "undefined_image_down.png",
-            "front_side_audio": "undefined_trans_audio.mp3",
-            "left_side_audio": "undefined_translation_audio.mp3",
-            "right_side_audio": "undefined_trans_audio.mp3",
-            "up_side_audio": "undefined_phrase_audio.mp3",
-            "down_side_audio": "undefined_trans_audio.mp3"}
-    for i in range(number):
-        ret = post("http://localhost:5000/rest_dict", json=data, params=data)
-    # print(ret)
+    if current_user.teacher == 1:
+        data = {"author": current_user.id,
+                "hieroglyph": "null",
+                "translation": "null",
+                "front_side": "undefined_image.png",
+                "left_side": "undefined_image.png",
+                "right_side": "undefined_image.png",
+                "up_side": "undefined_image_up.png",
+                "down_side": "undefined_image_down.png",
+                "front_side_audio": "undefined_trans_audio.mp3",
+                "left_side_audio": "undefined_translation_audio.mp3",
+                "right_side_audio": "undefined_trans_audio.mp3",
+                "up_side_audio": "undefined_phrase_audio.mp3",
+                "down_side_audio": "undefined_trans_audio.mp3"}
+        for i in range(number):
+            ret = post("http://localhost:5000/rest_dict", json=data, params=data)
+        # print(ret)
+        return redirect("/dictionary")
     return redirect("/dictionary")
 
 

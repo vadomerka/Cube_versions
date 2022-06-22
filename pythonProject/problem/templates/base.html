@@ -25,10 +25,10 @@
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <div class="nav" id="up buttons">
-                    <a class="btn btn-primary" href="/courses" style="color: white;">Мои Курсы</a>
-                    <a class="btn btn-primary" href="/dictionary/1" style="color: white;">Словарь</a>
+                    <a id="nav button 1" class="btn btn-primary" href="/courses" style="color: white;">Мои Курсы</a>
+                    <a id="nav button 2" class="btn btn-primary" href="/dictionary" style="color: white;">Словарь</a>
                     {% if current_user.teacher %}
-                    <a class="btn btn-primary" href="/pupils" style="color: white;">Мои ученики</a>
+                    <a id="nav button 3" class="btn btn-primary" href="/pupils" style="color: white;">Мои ученики</a>
                     {% endif %}
                     <a class="btn btn-primary" id="back_button" style="color: white;"
                        href="{{ back_url }}" hidden>Назад</a>
@@ -41,6 +41,17 @@
 </header>
 <main role="main" class="container">
     <script>
+        for (let i = 1; i < 4; i++){
+            nav_button = document.getElementById("nav button " + i.toString());
+            // alert(i);
+            if (nav_button != null){
+                if (location.href == nav_button.href){
+                    // alert("nav button " + i.toString());
+                    nav_button.style = "background-color: darkblue";
+                }
+            }
+        }
+
         back_button = document.getElementById("back_button")
         back_button.hidden = {{ back_button_hidden }};
         document.addEventListener("keydown", function(event) {
@@ -48,7 +59,6 @@
             location.href = '{{ back_url }}';
             }
         })
-
     </script>
     {% block content %}{% endblock %}
 </main>

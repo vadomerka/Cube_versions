@@ -274,7 +274,10 @@
 
 
     sorting_button = document.getElementById("sorting_button");
-    sorting_button.addEventListener("click", sortingButtonClick, false);
+    // alert(sorting_button);
+    if (sorting_button != null){
+        sorting_button.addEventListener("click", sortingButtonClick, false);
+    }
     var sorting_button_state = 0;
     var current_page = 1;
 

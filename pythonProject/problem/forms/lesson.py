@@ -9,3 +9,11 @@ class LessonsForm(FlaskForm):
                        validators=[DataRequired(), Length(max=32,
                                                           message="Название урока не должно превышать 32 символов")])
     submit = SubmitField('Применить')
+
+
+class AddWordsToLessonForm(FlaskForm):
+    submit = SubmitField('Применить')
+
+
+class AddTrainersToLessonForm(FlaskForm):
+    submit = SubmitField('Применить')

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Выберете слова для добавления к уроку</h1>
+<form action="" method="post" name="checks">
+    {{ form.hidden_tag() }}
+    {% for i in range(len_dictionary) %}
+    <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}</button>
+    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word" value='{{ dictionary[i].id }}'>
+    {% endfor %}
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+</form>
+<script>
+    function onLessonWordButtonClick(event){
+        prev_name = event.target.name
+        input_of_button = document.getElementById("input of " + event.target.id);
+        if (prev_name == "lesson_word") {
+            event.target.name = "not_lesson_word";
+            event.target.style = "background-color: blue";
+            input_of_button.name = "not_lesson_word";
+        } else {
+            event.target.name = "lesson_word";
+            event.target.style = "background-color: green";
+            input_of_button.name = "lesson_word";
+        }
+    }
+    for (let i = 0; i < {{ len_dictionary }}; i++){
+        lesson_word_button = document.getElementById("dict " + i.toString());
+        lesson_word_button.addEventListener("click", onLessonWordButtonClick, false);
+    }
+</script>
+{% endblock %}

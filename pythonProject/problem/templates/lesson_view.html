@@ -1,44 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Материалы урока</h1>
+<style>
+    .column {
+        float: left;
+        width: 50%;
+    }
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+</style>
+<h1>{{ lesson_data.name }}</h1>
 <div>
-    {% for word in lesson_data.words %}
-    <div style="display: flex; direction: row; flex-wrap: wrap;">
-        <a href="/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/word/{{ word.id }}" class="btn btn-primary" style="min-width: 250px">
-            {{ word.hieroglyph }} {{ word.translation }}
-            <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
-        </a>
+    <div class="column">
+        <h2>Материалы урока</h2>
+        {% for word in lesson_data.words %}
+        <div style="display: flex; direction: row; flex-wrap: wrap;">
+            <a href="/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/word/{{ word.id }}"
+               class="btn btn-primary" style="min-width: 250px">
+                {{ word.hieroglyph }} {{ word.translation }}
+                <!--   padding-right: 100p; display: block; position: relative; text-align: left;     -->
+            </a>
+            {% if current_user.teacher %}
+            <a href="/delete_word_from_lesson/{{ lesson_data.id }}/{{ word.id }}"
+               class="btn btn-danger">
+                Удалить из урока
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
         {% if current_user.teacher %}
-        <a href="/delete_word_from_lesson/{{ lesson_data.id }}/{{ word.id }}" class="btn btn-danger">
-            Удалить из урока
-        </a>
+        <div class="course-card">
+            <a class="btn btn-add" href="/add_words_to_lesson/{{ lesson_data.id }}">Добавить
+                слова</a>
+        </div>
         {% endif %}
     </div>
-    {% endfor %}
-    {% if current_user.teacher %}
-    <div class="course-card">
-        <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить слова</a>
-    </div>
-    {% endif %}
-    <div style="margain: 5px 5px 5px 5px;">
-        <h1>Тренажеры урока</h1>
+    <div class="column">
+        <h2>Тренажеры урока</h2>
         {% for trainer in lesson_data.trainers %}
-            <div style="display: flex; direction: row; flex-wrap: wrap;">
-                <a href="/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/trainer/{{ trainer.id }}" class="btn btn-primary" style="min-width: 250px">
-                    {{ trainer.name }}
-                </a>
-                {% if current_user.teacher %}
-                <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}" class="btn btn-danger">
-                    Удалить из урока
-                </a>
-                {% endif %}
-            </div>
+        <div style="display: flex; direction: row; flex-wrap: wrap;">
+            <a href="/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
+               class="btn btn-primary" style="min-width: 250px">
+                {{ trainer.name }}
+            </a>
+            {% if current_user.teacher %}
+            <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}"
+               class="btn btn-danger">
+                Удалить из урока
+            </a>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
     {% if current_user.teacher %}
     <div class="course-card">
-        <a class="btn btn-add" href="/change_lesson/{{ lesson_data.id }}">Добавить тренажеры</a>
+        <a class="btn btn-add" href="/add_trainers_to_lesson/{{ lesson_data.id }}">Добавить
+            тренажеры</a>
     </div>
     {% endif %}
 </div>
