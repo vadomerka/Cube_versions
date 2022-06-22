@@ -30,7 +30,7 @@
     {% endfor %}
     <p>
         {{ form.translation.label }}<br>
-        {{ form.translation(class="form-control") }}<br>
+        {{ form.translation(class="form-control", id="translation") }}<br>
         {% for error in form.translation.errors %}
     <p content="alert alert-danger" role="alert">
         {{ error }}
@@ -148,7 +148,7 @@
 
     </div>
 
-    <button type="submit" class="btn btn-primary">Отправить</button>
+    {{ form.submit(type="submit", class="btn btn-primary") }}
 </form>
 <script>
     fileLoaders = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -164,7 +164,11 @@
             }
         };
         fileLoaders[i] = tmp_loader;
-
     }
+
+    translation_input = document.getElementById("hieroglyph");
+    translation_input.value = "{{ prev_hieroglyph }}";
+    translation_input = document.getElementById("translation");
+    translation_input.value = "{{ prev_translation }}";
 </script>
 {% endblock %}

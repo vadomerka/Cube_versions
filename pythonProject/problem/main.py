@@ -693,8 +693,8 @@ def change_word(word_id):
     path_to_file = os.path.dirname(__file__)
     full_path = os.path.join(path_to_file)
 
-    form.hieroglyph.data = new_word.hieroglyph
-    form.translation.data = new_word.translation
+    prev_hieroglyph = new_word.hieroglyph
+    prev_translation = new_word.translation
 
     front_file = Image.open(os.path.join(full_path, "static", new_word.front_side))
     left_file = Image.open(os.path.join(full_path, "static", new_word.left_side))
@@ -717,8 +717,9 @@ def change_word(word_id):
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
-        print(form.hieroglyph.data)
-        print(new_word.hieroglyph)
+        # print(form.hieroglyph.data)
+        # print(new_word.hieroglyph)
+        print(form.translation.data)
         front = request.files['front']
         left = request.files['left']
         right = request.files['right']
@@ -792,6 +793,7 @@ def change_word(word_id):
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp",
+                           prev_hieroglyph=prev_hieroglyph, prev_translation=prev_translation,
                            front_file=front_file, left_file=left_file, right_file=right_file,
                            up_file=up_file, down_file=down_file,
                            transcription_audio_file=transcription_audio_file,
