@@ -1,15 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Ученики курса</h1>
 <form action="" method="post">
     {{ form.hidden_tag() }}
-    {% for pupil in pupils %}
-        <label class="container btn-primary btn" style="font-size: 22px;"> {{ pupil.name }}
-            <input type="checkbox" name="lesson_pupil" value='{{ pupil.id }}'>
-            <span class="checkmark"></span>
-        </label>
+    {% for i in range(len_pupils) %}
+    {% if pupils[i] in my_pupils %}
+    <button id="pupil {{ i }}" name="lesson_pupil" type="button" class="btn btn-primary"
+            style="background-color: green"
+            value="{{ pupils[i].id }}">{{ pupils[i].name }}
+    </button>
+    <input id="input of pupil {{ i }}" hidden type="checkbox" checked="checked" name="lesson_pupil"
+           value='{{ pupils[i].id }}'>
+    {% else %}
+    <button id="pupil {{ i }}" name="not_lesson_pupil" type="button" class="btn btn-primary"
+            value="{{ pupils[i].id }}">{{ pupils[i].name }}
+    </button>
+    <input id="input of pupil {{ i }}" hidden type="checkbox" checked="checked"
+           name="not_lesson_pupil"
+           value='{{ pupils[i].id }}'>
+    {% endif %}
+    <!--    <span>endfor</span>-->
     {% endfor %}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
-    </form>
+</form>
+<script>
+    function onPupilButtonClick(event){
+        prev_name = event.target.name
+        input_of_button = document.getElementById("input of " + event.target.id);
+        if (prev_name == "lesson_pupil") {
+            event.target.name = "not_lesson_pupil";
+            event.target.style = "background-color: #007bff";
+            input_of_button.name = "not_lesson_pupil";
+        } else {
+            event.target.name = "lesson_pupil";
+            event.target.style = "background-color: green";
+            input_of_button.name = "lesson_pupil";
+        }
+    }
+    for (let i = 0; i < {{ len_pupils }}; i++){
+        lesson_pupil_button = document.getElementById("pupil " + i.toString());
+        lesson_pupil_button.addEventListener("click", onPupilButtonClick, false);
+    }
+
+
+</script>
+<style>
+    .course-pupils {
+        background-color: blue;
+    }
+
+</style>
 {% endblock %}

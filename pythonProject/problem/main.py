@@ -203,24 +203,29 @@ def add_users_to_course(course_id):
     # users = db_sess.query(User).filter(User.teacher == 0)
     course = db_sess.query(Courses).get(course_id)
     # print(course)
-    pupils = []
+    all_pupils = []
+    course_pupils = []
     for user in users:
         if not user['teacher']:
             pupil = db_sess.query(User).get(user['id'])
-            pupils.append(pupil)
+            if pupil in course.users:
+                # if pupil.creator == current_user.id:
+                course_pupils.append(pupil)
+            all_pupils.append(pupil)
     # print(pupils)
     if form.validate_on_submit():
-        pupils = request.form.getlist('lesson_pupil')
-        for pupils_id in list(pupils):
+        all_pupils = request.form.getlist('lesson_pupil')
+        for pupils_id in list(all_pupils):
             pupil = db_sess.query(User).get(int(pupils_id))
             pupil.courses.append(course)
             db_sess.merge(pupil)
         db_sess.commit()
         # print("redirect")
-        return redirect('/courses')
+        return redirect('/courses/' + str(course_id))
     # print("non validate")
-    return render_template('add_users_to_course.html', form=form, pupils=pupils,
-                           back_button_hidden='false', back_url="/courses")
+    # print(len(all_pupils))
+    return render_template('add_users_to_course.html', form=form, pupils=all_pupils, course_pupils=course_pupils,
+                           back_button_hidden='false', back_url="/courses", len_pupils=len(all_pupils))
 
 
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
@@ -238,6 +243,7 @@ def delete_course(course_id):
 def course_view(course_id):
     course = get('http://localhost:5000/rest_course/' + str(course_id)
                  ).json()["course"]
+    # print(course)
     return render_template('course_view.html', course_data=course,
                            back_button_hidden='false', back_url="/courses")
 
@@ -420,6 +426,22 @@ def delete_trainer_from_lesson(lesson_id, trainer_id):
                 current_course = c
         return redirect('/courses/' + str(current_course.id) + "/lesson/" + str(lesson_id))
     return abort(404, message=f"Trainer {trainer_id} not found")
+
+
+@app.route("/delete_pupil_from_course/<int:course_id>/<int:pupil_id>", methods=['GET'])
+@login_required
+def delete_pupil_from_course(course_id, pupil_id):
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    pupil = db_sess.query(User).get(pupil_id)
+    print(course.users)
+    if pupil in course.users:
+        course.users.remove(pupil)
+        db_sess.merge(course)
+        db_sess.commit()
+        return redirect('/courses/' + str(course_id))
+
+    return abort(404, message=f"Pupil {pupil_id} not found")
 
 
 def list_to_javascript(array):

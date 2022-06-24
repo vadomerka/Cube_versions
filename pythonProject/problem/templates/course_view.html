@@ -25,5 +25,10 @@
 <div>
     <a href="/make_lesson/{{ course_data.id }}" class="btn btn-add">Добавить урок</a>
 </div>
+<br>
+{% for pupil in course_data.users %}
+<a href="/pupil/{{ pupil.id }}" class="btn btn-primary">{{ pupil.id }} {{ pupil.name }}</a>
+<a href="/delete_pupil_from_course/{{ course_data.id }}/{{ pupil.id }}" class="btn btn-danger">Удалить</a> <br>
+{% endfor %}
 {% endif %}
 {% endblock %}
