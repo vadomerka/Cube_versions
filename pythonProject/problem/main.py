@@ -155,12 +155,12 @@ def add_pupil():
         )
         user.set_password(form.password.data)
         user.creator = current_user.id
-        print(user)
+        # print(user)
         db_sess.add(user)
         db_sess.commit()
         return redirect('/pupils')
         # user = db_sess.query(User).filter(User.email == form.email.data).first()
-    return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
+    return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils", back_button_backspace='false',
                            form=form)
 
 

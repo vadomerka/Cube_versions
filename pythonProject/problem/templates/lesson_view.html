@@ -55,12 +55,13 @@
             {% endif %}
         </div>
         {% endfor %}
-    </div>
-    {% if current_user.teacher %}
+        {% if current_user.teacher %}
     <div class="course-card">
         <a class="btn btn-add" href="/add_trainers_to_lesson/{{ lesson_data.id }}">Добавить
             тренажеры</a>
     </div>
     {% endif %}
+    </div>
+
 </div>
 {% endblock %}
