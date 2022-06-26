@@ -215,14 +215,18 @@ def add_users_to_course(course_id):
     # print(course_pupils)
     if form.validate_on_submit():
         all_pupils = request.form.getlist('lesson_pupil')
-        # for pupils_id in list(all_pupils):
-        #     pupil = db_sess.query(User).get(int(pupils_id))
-        #     pupil.courses.append(course)
-        #     print(pupil.name)
-        #     db_sess.merge(pupil)
-        all_pupils.append(db_sess.query(User).get(current_user.id))
-        course.users = all_pupils
-        db_sess.merge(course)
+        for pupils_id in list(all_pupils):
+            pupil = db_sess.query(User).get(int(pupils_id))
+            pupil.courses.append(course)
+            # print(pupil.name)
+            db_sess.merge(pupil)
+        not_lesson_pupils = request.form.getlist('not_lesson_pupil')
+        for pupils_id in list(not_lesson_pupils):
+            pupil = db_sess.query(User).get(int(pupils_id))
+            if course in pupil.courses:
+                pupil.courses.remove(course)
+            # print(pupil.name)
+            db_sess.merge(pupil)
         db_sess.commit()
         # print("redirect")
         return redirect('/courses/' + str(course_id))

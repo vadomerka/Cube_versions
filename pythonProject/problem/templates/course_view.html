@@ -32,5 +32,8 @@
 <a href="/delete_pupil_from_course/{{ course_data.id }}/{{ pupil.id }}" class="btn btn-danger">Удалить</a> <br>
 {% endif %}
 {% endfor %}
+<a href="/add_users_to_course/{{ course_data.id }}" class="btn btn-add">
+    Добавить учеников
+</a>
 {% endif %}
 {% endblock %}
