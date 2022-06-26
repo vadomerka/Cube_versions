@@ -5,7 +5,7 @@
 <form action="" method="post">
     {{ form.hidden_tag() }}
     {% for i in range(len_pupils) %}
-    {% if pupils[i] in my_pupils %}
+    {% if pupils[i] in course_pupils %}
     <button id="pupil {{ i }}" name="lesson_pupil" type="button" class="btn btn-primary"
             style="background-color: green"
             value="{{ pupils[i].id }}">{{ pupils[i].name }}

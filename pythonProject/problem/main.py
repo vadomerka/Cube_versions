@@ -191,7 +191,7 @@ def make_course():
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, function="Добавить курс",
-                           back_button_hidden='false', back_url="/courses")
+                           back_button_hidden='false', back_url="/courses", back_button_backspace='false')
 
 
 @app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
@@ -212,13 +212,17 @@ def add_users_to_course(course_id):
                 # if pupil.creator == current_user.id:
                 course_pupils.append(pupil)
             all_pupils.append(pupil)
-    # print(pupils)
+    # print(course_pupils)
     if form.validate_on_submit():
         all_pupils = request.form.getlist('lesson_pupil')
-        for pupils_id in list(all_pupils):
-            pupil = db_sess.query(User).get(int(pupils_id))
-            pupil.courses.append(course)
-            db_sess.merge(pupil)
+        # for pupils_id in list(all_pupils):
+        #     pupil = db_sess.query(User).get(int(pupils_id))
+        #     pupil.courses.append(course)
+        #     print(pupil.name)
+        #     db_sess.merge(pupil)
+        all_pupils.append(db_sess.query(User).get(current_user.id))
+        course.users = all_pupils
+        db_sess.merge(course)
         db_sess.commit()
         # print("redirect")
         return redirect('/courses/' + str(course_id))
@@ -800,11 +804,25 @@ def change_word(word_id):
     right_file = Image.open(os.path.join(full_path, "static", new_word.right_side))
     up_file = Image.open(os.path.join(full_path, "static", new_word.up_side))
     down_file = Image.open(os.path.join(full_path, "static", new_word.down_side))
+
     transcription_audio_file = vlc.MediaPlayer(os.path.join(
         full_path, "static", new_word.front_side_audio))
     phrase_audio_file = vlc.MediaPlayer(os.path.join(full_path, "static", new_word.up_side_audio))
     translation_audio_file = vlc.MediaPlayer(
         os.path.join(full_path, "static", new_word.left_side_audio))
+
+    if "undefined" not in new_word.front_side_audio:
+        is_transcription_audio = "true"
+    else:
+        is_transcription_audio = "false"
+    if "undefined" not in new_word.up_side_audio:
+        is_phrase_audio = "true"
+    else:
+        is_phrase_audio = "false"
+    if "undefined" not in new_word.left_side_audio:
+        is_translation_audio = "true"
+    else:
+        is_translation_audio = "false"
     # print(transcription_audio_file)
 
     front_start_preview = "/static/" + new_word.front_side
@@ -892,9 +910,9 @@ def change_word(word_id):
                            prev_hieroglyph=prev_hieroglyph, prev_translation=prev_translation,
                            front_file=front_file, left_file=left_file, right_file=right_file,
                            up_file=up_file, down_file=down_file,
-                           transcription_audio_file=transcription_audio_file,
-                           phrase_audio_file=phrase_audio_file,
-                           translation_audio_file=translation_audio_file,
+                           transcription_audio_file=transcription_audio_file, is_transcription_audio=is_transcription_audio,
+                           phrase_audio_file=phrase_audio_file, is_phrase_audio=is_phrase_audio,
+                           translation_audio_file=translation_audio_file, is_translation_audio=is_translation_audio,
                            front_start_preview=front_start_preview,
                            left_start_preview=left_start_preview,
                            right_start_preview=right_start_preview,

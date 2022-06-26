@@ -54,6 +54,7 @@
 
         back_button = document.getElementById("back_button")
         back_button.hidden = {{ back_button_hidden }};
+        if ('{{ back_button_backspace }}' != 'false')
         document.addEventListener("keydown", function(event) {
             if (event.key == "Backspace") {
             location.href = '{{ back_url }}';

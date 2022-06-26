@@ -27,8 +27,10 @@
 </div>
 <br>
 {% for pupil in course_data.users %}
-<a href="/pupil/{{ pupil.id }}" class="btn btn-primary">{{ pupil.id }} {{ pupil.name }}</a>
+{% if pupil.id != current_user.id %}
+<a href="/pupil/{{ pupil.id }}" class="btn btn-primary">{{ pupil.name }}</a>
 <a href="/delete_pupil_from_course/{{ course_data.id }}/{{ pupil.id }}" class="btn btn-danger">Удалить</a> <br>
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endblock %}

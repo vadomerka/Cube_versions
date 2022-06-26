@@ -44,10 +44,10 @@
                 <div class="column"></div>
                 <div class="column"></div>
                 <div class="column">
-                    <input type="file" accept="audio/*" onchange="fileLoaders[6](event)"
+                    <input type="file" accept="audio/*"
                            class="form-control-file" id="phrase_audio" name="phrase_audio"
                            value='{{ phrase_audio_file }}' hidden>
-                    <label for="phrase_audio" style="min-width: 75px; min-height: 75px"
+                    <label id="phrase_audio_button" for="phrase_audio" style="min-width: 75px; min-height: 75px"
                            class="c-button">
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
                             <polygon points="67,57 67,157, 157,107"
@@ -76,10 +76,10 @@
 
             <div class="row">
                 <div class="column">
-                    <input type="file" accept="audio/*" onchange="fileLoaders[7](event)"
+                    <input type="file" accept="audio/*"
                            class="form-control-file" id="translation_audio" name="translation_audio"
                            value='{{ translation_audio_file }}' hidden>
-                    <label for="translation_audio" style="min-width: 75px; min-height: 75px"
+                    <label id="translation_audio_button" for="translation_audio" style="min-width: 75px; min-height: 75px"
                            class="c-button">
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
                             <polygon points="67,57 67,157, 157,107"
@@ -129,10 +129,10 @@
                     </label>
                 </div>
                 <div class="column">
-                    <input type="file" accept="audio/*" onchange="fileLoaders[5](event)"
+                    <input type="file" accept="audio/*"
                            class="form-control-file" id="transcription_audio"
                            name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
-                    <label for="transcription_audio" style="min-width: 75px; min-height: 75px"
+                    <label id="transcription_audio_button" for="transcription_audio" style="min-width: 75px; min-height: 75px"
                            class="c-button">
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
                             <polygon points="67,57 67,157, 157,107"
@@ -170,5 +170,72 @@
     translation_input.value = "{{ prev_hieroglyph }}";
     translation_input = document.getElementById("translation");
     translation_input.value = "{{ prev_translation }}";
+
+    // alert('{{ is_transcription_audio }}');
+    is_transcription_audio = '{{ is_transcription_audio }}';
+    is_phrase_audio = '{{ is_phrase_audio }}';
+    is_translation_audio = '{{ is_translation_audio }}';
+
+    transcription_audio = document.getElementById("transcription_audio");
+    transcription_audio.addEventListener("change", function(event){
+        button = document.getElementById("transcription_audio_button");
+        val = transcription_audio.value;
+        // alert(val);
+        if (val != ""){
+            button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        } else {
+            button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        }
+    }, false);
+    button = document.getElementById("transcription_audio_button");
+
+    if ( ((transcription_audio.value != "") || (is_transcription_audio)) == 'true' ){
+        button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+    } else {
+        button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+    }
+
+
+    translation_audio = document.getElementById("translation_audio");
+    translation_audio.addEventListener("change", function(event){
+        button = document.getElementById("translation_audio_button");
+        val = translation_audio.value;
+        if (val != ""){
+            button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        } else {
+            button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        }
+    }, false);
+    button = document.getElementById("translation_audio_button");
+    if (((translation_audio.value != "")  || (is_translation_audio)) == 'true'){
+        button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+    } else {
+        button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+    }
+
+
+    phrase_audio = document.getElementById("phrase_audio");
+    phrase_audio.addEventListener("change", function(event){
+        button = document.getElementById("phrase_audio_button");
+        val = phrase_audio.value;
+        // alert(val);
+        if (val != "" || is_phrase_audio){
+            button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        } else {
+            button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        }
+    }, false);
+    button = document.getElementById("phrase_audio_button");
+    // alert(phrase_audio.value);
+    if (((phrase_audio.value != "")  || (is_phrase_audio)) == 'true'){
+        button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+    } else {
+        button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+    }
+    // audioColorChange("translation_audio")
+    // audioColorChange("transcription_audio");
+    // audioColorChange("phrase_audio");
+    // alert("{{ translation_audio_file }}");
+
 </script>
 {% endblock %}
