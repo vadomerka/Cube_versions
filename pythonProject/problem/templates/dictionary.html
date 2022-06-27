@@ -9,6 +9,7 @@
 
     .column {
       flex: 50%;
+
     }
 
     .pages-row {
@@ -26,6 +27,22 @@
         border-style: solid;
         border-color: red;
         border-width: 5px;
+    }
+    .word_button{
+        min-width: 250px;
+
+        position: relative;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+    .user-word-button {
+        margin-left: 5px;
+        position: relative;
+        top: 50%;
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
     }
 </style>
 <div style="display: flex;">
@@ -111,13 +128,14 @@
             column = document.getElementById("column " + i.toString());
             word_button = document.createElement("a");
             word_button.id = "word_button " + i.toString();
+
             word_button.classList.add("btn");
             word_button.classList.add("btn-primary");
             word_button.href = "/dict_word/" + word_list[i][word_js_table["id"]];
-            word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
+            // word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
             word_button.innerText = word_list[i][word_js_table["hieroglyph"]] +
             " " + word_list[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
-            column.appendChild(word_button);
+
 
             if ({{ current_user.id }} == word_list[i][word_js_table["author"]]){
                 change_but = document.createElement("a");
@@ -127,15 +145,22 @@
                 change_but.href = "/change_word/" + word_list[i][word_js_table["id"]];
                 change_but.classList.add("btn");
                 change_but.classList.add("btn-warning");
+                change_but.classList.add("user-word-button");
                 change_but.innerText = "Изменить";
 
                 delete_but.href = "/delete_word/" + word_list[i][word_js_table["id"]];
                 delete_but.classList.add("btn");
                 delete_but.classList.add("btn-danger");
+                delete_but.classList.add("user-word-button");
                 delete_but.innerText = "Удалить";
-
+                word_button.style = "min-width: 250px";
+                word_button.classList.add("user-word-button");
+                column.appendChild(word_button);
                 column.appendChild(change_but);
                 column.appendChild(delete_but);
+            } else {
+                word_button.classList.add("word_button");
+                column.appendChild(word_button);
             }
         }
     }
