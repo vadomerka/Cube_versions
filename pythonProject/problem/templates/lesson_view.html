@@ -12,6 +12,7 @@
         clear: both;
     }
 
+
 </style>
 <h1>{{ lesson_data.name }}</h1>
 <div>
@@ -56,11 +57,11 @@
         </div>
         {% endfor %}
         {% if current_user.teacher %}
-    <div class="course-card">
-        <a class="btn btn-add" href="/add_trainers_to_lesson/{{ lesson_data.id }}">Добавить
-            тренажеры</a>
-    </div>
-    {% endif %}
+        <div class="course-card">
+            <a class="btn btn-add" href="/add_trainers_to_lesson/{{ lesson_data.id }}">Добавить
+                тренажеры</a>
+        </div>
+        {% endif %}
     </div>
 
 </div>

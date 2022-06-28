@@ -45,6 +45,26 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+def list_to_javascript(array):
+    array_js = []
+    for i in range(len(array)):
+        word = array[i]
+        array_js.append(";".join([str(word["id"]),
+                                  word["hieroglyph"],
+                                  word["translation"],
+                                  word["front_side"],  # иероглиф
+                                  word["left_side"],  # перевод
+                                  word["right_side"],  # транскрипция
+                                  word["down_side"],  # картинка
+                                  word["up_side"],
+                                  word["front_side_audio"],
+                                  word["up_side_audio"],
+                                  word["left_side_audio"],
+                                  str(word["author"])]))  # свосочетание\
+    array_js = ";;;".join(array_js)
+    return array_js
+
+
 @app.route("/")
 def index():
     if current_user.is_authenticated:
@@ -160,7 +180,8 @@ def add_pupil():
         db_sess.commit()
         return redirect('/pupils')
         # user = db_sess.query(User).filter(User.email == form.email.data).first()
-    return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils", back_button_backspace='false',
+    return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
+                           back_button_backspace='false',
                            form=form)
 
 
@@ -191,7 +212,8 @@ def make_course():
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, function="Добавить курс",
-                           back_button_hidden='false', back_url="/courses", back_button_backspace='false')
+                           back_button_hidden='false', back_url="/courses",
+                           back_button_backspace='false')
 
 
 @app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
@@ -232,8 +254,10 @@ def add_users_to_course(course_id):
         return redirect('/courses/' + str(course_id))
     # print("non validate")
     # print(len(all_pupils))
-    return render_template('add_users_to_course.html', form=form, pupils=all_pupils, course_pupils=course_pupils,
-                           back_button_hidden='false', back_url="/courses", len_pupils=len(all_pupils))
+    return render_template('add_users_to_course.html', form=form, pupils=all_pupils,
+                           course_pupils=course_pupils,
+                           back_button_hidden='false', back_url="/courses",
+                           len_pupils=len(all_pupils))
 
 
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
@@ -254,6 +278,71 @@ def course_view(course_id):
     # print(course)
     return render_template('course_view.html', course_data=course,
                            back_button_hidden='false', back_url="/courses")
+
+
+def pupil_js_list(array):
+    array_js = []
+    for i in range(len(array)):
+        pupil = array[i]
+        array_js.append(";".join([str(pupil.id), pupil.name, str(pupil.creator)]))
+    array_js = ";;;".join(array_js)
+    return array_js
+
+
+@app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
+@login_required  # fff
+def course_pupils_view(course_id):
+    form = AddUsersToCourseForm()
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    all_pupils = []
+    course_pupils = []
+    not_course_pupils = []
+    my_pupils = []
+    rest_pupils = []
+    for user in db_sess.query(User).all():
+        if not user.teacher:
+            all_pupils.append(user)
+            if user.creator == current_user.id:
+                my_pupils.append(user)
+            else:
+                rest_pupils.append(user)
+            if user in course.users:
+                course_pupils.append(user)
+            else:
+                not_course_pupils.append(user)
+    if form.validate_on_submit():
+        pupils_js = request.form.getlist('form-res')
+        str_arr = pupils_js[0]
+        ans_arr = [int(item) for item in str_arr.split(",")]
+        # print(ans_arr)
+
+        for pupil_js in all_pupils:
+            if ans_arr[pupil_js.id]:
+                pupil = db_sess.query(User).get(int(pupil_js.id))
+                pupil.courses.append(course)
+                db_sess.merge(pupil)
+            else:
+                pupil = db_sess.query(User).get(int(pupil_js.id))
+                if course in pupil.courses:
+                    pupil.courses.remove(course)
+                # print(pupil.name)
+                db_sess.merge(pupil)
+        db_sess.commit()
+        # print("redirect")
+        # print(len(ans_arr))
+        return redirect("/courses/" + str(course_id))
+    all_pupils_js = pupil_js_list(all_pupils)
+    my_pupils_js = pupil_js_list(my_pupils)
+    rest_pupils_js = pupil_js_list(rest_pupils)
+    course_pupils_js = pupil_js_list(course_pupils)
+    not_course_pupils_js = pupil_js_list(not_course_pupils)
+    return render_template('course_pupils.html', course=course, course_pupils=all_pupils,
+                           back_button_hidden='false', back_url="/courses/" + str(course_id),
+                           pupils_in_column_number=13, column_number=4, all_pupils_js=all_pupils_js,
+                           my_pupils_js=my_pupils_js, rest_pupils_js=rest_pupils_js,
+                           course_pupils_js=course_pupils_js, not_course_pupils_js=not_course_pupils_js,
+                           form=form)
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -450,26 +539,6 @@ def delete_pupil_from_course(course_id, pupil_id):
         return redirect('/courses/' + str(course_id))
 
     return abort(404, message=f"Pupil {pupil_id} not found")
-
-
-def list_to_javascript(array):
-    array_js = []
-    for i in range(len(array)):
-        word = array[i]
-        array_js.append(";".join([str(word["id"]),
-                                  word["hieroglyph"],
-                                  word["translation"],
-                                  word["front_side"],  # иероглиф
-                                  word["left_side"],  # перевод
-                                  word["right_side"],  # транскрипция
-                                  word["down_side"],  # картинка
-                                  word["up_side"],
-                                  word["front_side_audio"],
-                                  word["up_side_audio"],
-                                  word["left_side_audio"],
-                                  str(word["author"])]))  # свосочетание\
-    array_js = ";;;".join(array_js)
-    return array_js
 
 
 @app.route('/dictionary', methods=['GET', 'POST'])
@@ -914,9 +983,11 @@ def change_word(word_id):
                            prev_hieroglyph=prev_hieroglyph, prev_translation=prev_translation,
                            front_file=front_file, left_file=left_file, right_file=right_file,
                            up_file=up_file, down_file=down_file,
-                           transcription_audio_file=transcription_audio_file, is_transcription_audio=is_transcription_audio,
+                           transcription_audio_file=transcription_audio_file,
+                           is_transcription_audio=is_transcription_audio,
                            phrase_audio_file=phrase_audio_file, is_phrase_audio=is_phrase_audio,
-                           translation_audio_file=translation_audio_file, is_translation_audio=is_translation_audio,
+                           translation_audio_file=translation_audio_file,
+                           is_translation_audio=is_translation_audio,
                            front_start_preview=front_start_preview,
                            left_start_preview=left_start_preview,
                            right_start_preview=right_start_preview,

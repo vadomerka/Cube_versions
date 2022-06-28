@@ -21,19 +21,26 @@
     {% endif %}
 </div>
 {% endfor %}
+
 {% if current_user.teacher %}
 <div>
     <a href="/make_lesson/{{ course_data.id }}" class="btn btn-add">Добавить урок</a>
 </div>
 <br>
-{% for pupil in course_data.users %}
-{% if pupil.id != current_user.id %}
-<a href="/pupil/{{ pupil.id }}" class="btn btn-primary">{{ pupil.name }}</a>
-<a href="/delete_pupil_from_course/{{ course_data.id }}/{{ pupil.id }}" class="btn btn-danger">Удалить</a> <br>
+<br>
+<div>
+    <a href="/course/{{ course_data.id }}/pupils" class="btn btn-add">Просмотреть учеников курса</a>
+</div>
 {% endif %}
-{% endfor %}
-<a href="/add_users_to_course/{{ course_data.id }}" class="btn btn-add">
-    Добавить учеников
-</a>
-{% endif %}
+<!--<br>-->
+<!--{% for pupil in course_data.users %}-->
+<!--{% if pupil.id != current_user.id %}-->
+<!--<a href="/pupil/{{ pupil.id }}" class="btn btn-primary">{{ pupil.name }}</a>-->
+<!--<a href="/delete_pupil_from_course/{{ course_data.id }}/{{ pupil.id }}" class="btn btn-danger">Удалить</a>-->
+<!--<br>-->
+<!--{% endif %}-->
+<!--{% endfor %}-->
+<!--<a href="/add_users_to_course/{{ course_data.id }}" class="btn btn-add">-->
+<!--    Добавить учеников-->
+
 {% endblock %}
