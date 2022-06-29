@@ -13,16 +13,21 @@
         </p>
         {% endfor %}
     </p>
-    <h1>Выберите слова урока</h1>
-    {% for i in range(len_dictionary) %}
-    <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}</button>
-    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word" value='{{ dictionary[i].id }}'>
-    {% endfor %}
+<!--    <h1>Выберите слова урока</h1>-->
+<!--    {% for i in range(len_dictionary) %}-->
+<!--    <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}</button>-->
+<!--    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word" value='{{ dictionary[i].id }}'>-->
+<!--    {% endfor %}-->
     <h1>Выберите тренажеры урока</h1>
-    {% for i in range(len_trainers) %}
-    <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary" value="{{ trainers[i].id }}">{{ trainers[i].name }}</button>
-    <input id="input of train {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_trainer" value='{{ trainers[i].id }}'>
-    {% endfor %}
+    <div style="display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                align-content: center;">
+        {% for i in range(len_trainers) %}
+        <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary" value="{{ trainers[i].id }}">{{ trainers[i].name }}</button>
+        <input id="input of train {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_trainer" value='{{ trainers[i].id }}'>
+        {% endfor %}
+    </div>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
@@ -53,10 +58,10 @@
             input_of_button.name = "lesson_trainer";
         }
     }
-    for (let i = 0; i < {{ len_dictionary }}; i++){
-        lesson_word_button = document.getElementById("dict " + i.toString());
-        lesson_word_button.addEventListener("click", onLessonWordButtonClick, false);
-    }
+    // for (let i = 0; i < {{ len_dictionary }}; i++){
+    //     lesson_word_button = document.getElementById("dict " + i.toString());
+    //     lesson_word_button.addEventListener("click", onLessonWordButtonClick, false);
+    // }
     for (let i = 0; i < {{ len_trainers }}; i++){
         lesson_trainer_button = document.getElementById("train " + i.toString());
         lesson_trainer_button.addEventListener("click", onLessonTrainButtonClick, false);

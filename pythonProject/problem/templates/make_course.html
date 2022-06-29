@@ -15,7 +15,7 @@
     </p>
     <p>
         {{ form.about.label }}<br>
-        {{ form.about(class="form-control") }}<br>
+        {{ form.about(class="textarea form-control") }}<br>
         {% for error in form.about.errors %}
             <p content="alert alert-danger" role="alert">
                 {{ error }}

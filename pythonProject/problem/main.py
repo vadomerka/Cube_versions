@@ -206,6 +206,7 @@ def make_course():
         # new_course.id = course_id
         new_course.name = form.name.data
         new_course.about = form.about.data
+        # print()  # 'line 1\r\nline 2'
         current_user.courses.append(new_course)
         # print(current_user)
         db_sess.merge(current_user)
@@ -276,7 +277,10 @@ def course_view(course_id):
     course = get('http://localhost:5000/rest_course/' + str(course_id)
                  ).json()["course"]
     # print(course)
-    return render_template('course_view.html', course_data=course,
+    course_about = '&lt;br&lt;'.join(course["about"].split("\r\n"))
+    course_about = '<<<<'.join(course["about"].split("\r\n"))
+    print(course_about)
+    return render_template('course_view.html', course_data=course, course_about=course_about,
                            back_button_hidden='false', back_url="/courses")
 
 
@@ -290,7 +294,65 @@ def pupil_js_list(array):
 
 
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
-@login_required  # fff
+@login_required
+def course_pupils_view(course_id):
+    form = AddUsersToCourseForm()
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    all_pupils = []
+    course_pupils = []
+    not_course_pupils = []
+    my_pupils = []
+    rest_pupils = []
+    for user in db_sess.query(User).all():
+        if not user.teacher:
+            all_pupils.append(user)
+            if user.creator == current_user.id:
+                my_pupils.append(user)
+            else:
+                rest_pupils.append(user)
+            if user in course.users:
+                course_pupils.append(user)
+            else:
+                not_course_pupils.append(user)
+    if form.validate_on_submit():
+        pupils_js = request.form.getlist('form-res')
+        str_arr = pupils_js[0]
+        ans_arr = [int(item) for item in str_arr.split(",")]
+        # print(ans_arr)
+
+        for pupil_js in all_pupils:
+            if ans_arr[pupil_js.id]:
+                pupil = db_sess.query(User).get(int(pupil_js.id))
+                pupil.courses.append(course)
+                db_sess.merge(pupil)
+            else:
+                pupil = db_sess.query(User).get(int(pupil_js.id))
+                if course in pupil.courses:
+                    pupil.courses.remove(course)
+                # print(pupil.name)
+                db_sess.merge(pupil)
+        db_sess.commit()
+        # print("redirect")
+        # print(len(ans_arr))
+        return redirect("/courses/" + str(course_id))
+    all_pupils_js = pupil_js_list(all_pupils)
+    my_pupils_js = pupil_js_list(my_pupils)
+    rest_pupils_js = pupil_js_list(rest_pupils)
+    course_pupils_js = pupil_js_list(course_pupils)
+    not_course_pupils_js = pupil_js_list(not_course_pupils)
+    return render_template('course_pupils.html', course=course, course_pupils=all_pupils,
+                           back_button_hidden='false', back_url="/courses/" + str(course_id),
+                           pupils_in_column_number=13, column_number=4, all_pupils_js=all_pupils_js,
+                           my_pupils_js=my_pupils_js, rest_pupils_js=rest_pupils_js,
+                           course_pupils_js=course_pupils_js,
+                           not_course_pupils_js=not_course_pupils_js,
+                           form=form)
+
+
+'''
+@app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
+@login_required
 def course_pupils_view(course_id):
     form = AddUsersToCourseForm()
     db_sess = db_session.create_session()
@@ -343,6 +405,16 @@ def course_pupils_view(course_id):
                            my_pupils_js=my_pupils_js, rest_pupils_js=rest_pupils_js,
                            course_pupils_js=course_pupils_js, not_course_pupils_js=not_course_pupils_js,
                            form=form)
+'''
+
+
+def lesson_words_js_list(array):
+    array_js = []
+    for i in range(len(array)):
+        word = array[i]
+        array_js.append(";".join([str(word['id']), word['hieroglyph'], word['translation']]))
+    array_js = ";;;".join(array_js)
+    return array_js
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -350,9 +422,12 @@ def course_pupils_view(course_id):
 def lesson_view(course_id, lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
-    # print(lesson)
+    # print(lesson['words'])
+    lesson_words_js = lesson_words_js_list(lesson['words'])
     return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
-                           back_button_hidden='false', back_url=f"/courses/{course_id}")
+                           back_button_hidden='false', back_url=f"/courses/{course_id}",
+                           lesson_words_js=lesson_words_js, column_number=1,
+                           items_in_column_number=13)
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
@@ -415,6 +490,15 @@ def add_trainers_to_lesson(lesson_id):
                            lesson_trainers=lesson_trainers, unused_trainers=unused_trainers)
 
 
+def add_words_js_list(array):
+    array_js = []
+    for i in range(len(array)):
+        word = array[i]
+        array_js.append(";".join([str(word.id), word.hieroglyph, word.translation]))
+    array_js = ";;;".join(array_js)
+    return array_js
+
+
 @app.route('/add_words_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def add_words_to_lesson(lesson_id):
@@ -432,15 +516,62 @@ def add_words_to_lesson(lesson_id):
                     course_words.add(word)
     # print(list(course_words))
     all_words = db_sess.query(Words).all()
+    my_words = []
+    rest_words = []
+    for word in all_words:
+        if word.author == current_user.id:
+            my_words.append(word)
+        else:
+            rest_words.append(word)
     lesson_words = lesson.words
     unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
+    course_words = sorted(list(course_words), key=lambda x: x.id)
+    not_course_words = sorted(list(set(all_words).difference(set(course_words))), key=lambda x: x.id)
 
+    all_words_js = add_words_js_list(all_words)
+    my_words_js = add_words_js_list(my_words)
+    rest_words_js = add_words_js_list(rest_words)
+    lesson_words_js = add_words_js_list(lesson_words)
+    unused_words_js = add_words_js_list(unused_words)
+    course_words_js = add_words_js_list(course_words)
+    not_course_words_js = add_words_js_list(not_course_words)
     if form.validate_on_submit():
+        '''
         words = request.form.getlist('lesson_word')
+        # print(word)
         lesson.words = []
         for word_id in list(words):
             sql_word = db_sess.query(Words).get(int(word_id))
-            lesson.words.append(sql_word)
+            lesson.words.append(sql_word)'''
+        items_js = request.form.getlist('form-res')
+        str_arr = items_js[0]
+        # print(str_arr)
+        ans_arr = [int(item) for item in str_arr.split(",")]
+        # print(ans_arr)
+        for i in range(len(ans_arr)):
+            word = db_sess.query(Words).get(i)
+            if ans_arr[i] == 0:
+                if word and word in lesson.words:
+                    lesson.words.remove(word)
+            else:
+                lesson.words.append(word)
+        print(lesson.words)
+        # for items_js in ans_arr:
+        #     word = db_sess.query(Words).get(int(items_js))
+        #     lesson.words.append(word)
+        # for items_js in all_pupils:
+        #     if ans_arr[items_js.id]:
+        #         pupil = db_sess.query(User).get(int(items_js.id))
+        #         pupil.courses.append(course)
+        #         db_sess.merge(pupil)
+        #     else:
+        #         pupil = db_sess.query(User).get(int(items_js.id))
+        #         if course in pupil.courses:
+        #             pupil.courses.remove(course)
+        #         # print(pupil.name)
+        #         db_sess.merge(pupil)
+        # db_sess.commit()
+
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()
@@ -448,7 +579,11 @@ def add_words_to_lesson(lesson_id):
     return render_template('add_words_to_lesson.html', lesson_words=lesson_words,
                            unused_words=unused_words,
                            dictionary=all_words, form=form, len_dictionary=len(all_words),
-                           course_words=list(course_words))
+                           course_words=course_words, items_in_column_number=13, column_number=4,
+                           all_items_js=all_words_js, my_items_js=my_words_js,
+                           rest_items_js=rest_words_js, lesson_items_js=lesson_words_js,
+                           unused_items_js=unused_words_js, course_items_js=course_words_js,
+                           not_course_items_js=not_course_words_js, )
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -715,7 +850,7 @@ def add_words(number):
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
-def delete_word(word_id):  # ff
+def delete_word(word_id):
     ret = delete("http://localhost:5000/rest_word/" + str(word_id)).json()
     # print(ret)
     if ret == {'success': 'OK'}:

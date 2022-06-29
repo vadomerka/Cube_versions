@@ -2,66 +2,407 @@
 
 {% block content %}
 
-<h1>Выберете слова для добавления к уроку</h1>
-<form action="" method="post" name="checks">
-    {{ form.hidden_tag() }}
-    {% for i in range(len_dictionary) %}
-    {% if dictionary[i] in lesson_words %}
-    {% if dictionary[i] in course_words %}
-    <button id="dict {{ i }}" style="background-color: green" name="lesson_word" type="button" class="btn btn-primary course-words"
-            value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}
-    </button>
-    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="lesson_word"
-           value='{{ dictionary[i].id }}'>
-    {% else %}
-    <button id="dict {{ i }}" style="background-color: green"
-            name="lesson_word" type="button" class="btn btn-primary" value="{{ dictionary[i].id }}">
-        {{ dictionary[i].hieroglyph }}
-    </button>
-    <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="lesson_word"
-           value='{{ dictionary[i].id }}'>
-    {% endif %}
-    {% else %}
-    {% if dictionary[i] in course_words %}
-        <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary course-words course-words"
-                value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}
-        </button>
-        <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word"
-               value='{{ dictionary[i].id }}'>
-    {% else %}
-        <button id="dict {{ i }}" name="not_lesson_word" type="button" class="btn btn-primary"
-                value="{{ dictionary[i].id }}">{{ dictionary[i].hieroglyph }}
-        </button>
-        <input id="input of dict {{ i }}" hidden type="checkbox" checked="checked" name="not_lesson_word"
-               value='{{ dictionary[i].id }}'>
-    {% endif %}
-    {% endif %}
-    {% endfor %}
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-</form>
-<script>
-    function onLessonWordButtonClick(event){
-        prev_name = event.target.name
-        input_of_button = document.getElementById("input of " + event.target.id);
-        if (prev_name == "lesson_word") {
-            event.target.name = "not_lesson_word";
-            event.target.style = "";
-            input_of_button.name = "not_lesson_word";
-        } else {
-            event.target.name = "lesson_word";
-            event.target.style = "background-color: green";
-            input_of_button.name = "lesson_word";
-        }
-    }
-    for (let i = 0; i < {{ len_dictionary }}; i++){
-        lesson_word_button = document.getElementById("dict " + i.toString());
-        lesson_word_button.addEventListener("click", onLessonWordButtonClick, false);
+<style>
+    .row {
+      display: flex;
     }
 
-</script>
-<style>
-    .course-words {
+    .column {
+      flex: 50%;
+    }
+
+    .pages-row {
+        display: inline-block;
+
+    }
+
+    .page_button {
+        margin: 5px 5px 5px 5px;
+        color: white;
+    }
+
+    .current_page_button {
+        margin: 0px 0px 0px 0px;
+        border-style: solid;
+        border-color: red;
+        border-width: 5px;
+    }
+    .item_button{
+        min-width: 250px;
+
+        position: relative;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+    .user-word-button {
+        color: white;
+        margin-left: 5px;
+        position: relative;
+
+    }
+    .not-course-word {
+        background-color: rgb(0, 123, 255);
+        min-width: 250px;
+    }
+
+    .course-word {
+        min-width: 250px;
         background-color: blue;
     }
+
 </style>
+<h1>Ученики</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <div style="display: flex;">
+        {% if current_user.teacher %}
+        <button id="sorting_button" class="btn btn-add" type="button"></button>
+        {% endif %}
+        <!--    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Учеников в словаре: len_all_items</h2>-->
+    </div>
+    <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
+
+    <div class="row" id="item_row">
+        {% for i in range(column_number) %}
+        <div class="column" id="column {{ i }}"></div>
+        {% endfor %}
+    </div>
+
+    <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+        <div class="pages-row" id="pages-row">
+        </div>
+    </div>
+    <!--    <div name="form-res" id="form-res"></div>-->
+    <input hidden id="form-res" name="form-res">
+    <p>{{ form.submit(type="submit", class="btn btn-primary", style="margin-top: 20px;",
+        id="submit-button") }}</p>
+    {{message}}
+</form>
+<script>
+	// alert("full update");
+    function sortingButtonClick(event){
+    	sorting_button_state = (sorting_button_state + 1) % items_lists.length;
+        sorting_button.innerText = sorting_button_innerTexts[sorting_button_state];
+        current_item_list = items_lists[sorting_button_state];
+    	current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+    	current_page_max_number = page_numbers[sorting_button_state];
+    	// current_page_max_number = Math.floor(current_word_list.length / 30) + 1;
+        // current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+
+        if ((current_page_item_list[0] == "")){
+            current_page_item_list = [];
+        }
+        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
+            current_page = current_page_max_number;
+            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        }
+        // alert(current_page_max_number);
+        // alert(current_page);
+        createitemButtons(current_page_item_list);
+        createPageButtons();
+    }
+
+    function javascriptList(list){
+        // alert(list);
+        list = list.split(";;;");
+        for (let i = 0; i < list.length; i += 1){
+            list[i] = list[i].split(";");
+        }
+        return list;
+    }
+
+    function itemButtonClick(event){
+        prev_name = event.target.name
+        if (prev_name == "lesson_item") {
+            // alert(event.target.style.cssText);
+            event.target.name = "not_lesson_item";
+            event.target.style = '';
+            // event.target.style = 'min-width: 250px';
+            bool_lesson_items[parseInt(event.target.value, 10)] = 0;
+        } else {
+            event.target.name = "lesson_item";
+            event.target.style = event.target.style.cssText + "background-color: green";
+            bool_lesson_items[parseInt(event.target.value, 10)] = 1;
+        }
+    }
+
+    function createitemButtons(item_list){
+        // delete previous buttons
+        for (let i = 0; i < max_items_number_on_one_page; i += 1){
+            prev_but = document.getElementById("item_button " + i.toString())
+            if (prev_but != null){prev_but.remove();}
+        }
+
+        for (let i = 0; i < item_list.length; i += 1){
+            // console.log(i);
+            column = document.getElementById("column " + (i % {{ column_number }}).toString());
+            column.style = "flex: " + (100 / {{ column_number }}).toString() + "%";
+            item_button = document.createElement("button");
+            item_button.id = "item_button " + i.toString();
+            item_button.type = "button";
+            item_button.addEventListener("click", itemButtonClick, false);
+            item_button.classList.add("btn");
+            item_button.classList.add("btn-primary");
+            // item_button.classList.add("not-course-word");
+            button_id = item_list[i][item_js_table["id"]];
+            if (bool_course_items[button_id] == 1){
+                item_button.classList.add("course-word");
+            } else {
+                item_button.classList.add("not-course-word");
+            }
+            item_button.value = button_id;
+            if (bool_lesson_items[button_id] == 1){
+            	item_button.style = "min-width: 250px; background-color: green";
+            	bool_lesson_items[button_id] = 1;
+            	item_button.name = "lesson_item";
+            } else {
+                if (bool_course_items[button_id] == 1){item_button.style = "min-width: 250px; background-color: blue";}
+                else{item_button.style = "min-width: 250px; background-color: rgb(0, 123, 255);";}
+            	item_button.name = "not_lesson_item";
+            	bool_lesson_items[button_id] = 0;
+            }
+            console.log(button_id);
+            // console.log(i, bool_lesson_items, bool_lesson_items[button_id]);
+            item_button.classList.add("user-word-button");
+            // item_button.href = "/dict_word/" + item_list[i][item_js_table["id"]];
+            // item_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
+            item_button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '
+            + item_list[i][item_js_table["translation"]];
+
+            column.appendChild(item_button);
+        }
+    }
+
+
+    function createOnePageButton(row, text, onClickFunction){
+        page_button = document.createElement("button");
+        page_button.onclick = onClickFunction;
+        page_button.id = "page_button " + text;
+        page_button.classList.add("btn");
+        page_button.classList.add("btn-primary");
+        // alert(text);
+        // alert(current_page);
+        if (text == current_page){
+            page_button.classList.add("current_page_button")
+        } else {
+            page_button.classList.add("page_button");
+        }
+        page_button.innerText = text;
+        row.appendChild(page_button);
+    }
+
+    function deletePageButtons(){
+        prev_but = document.getElementById("page_button <<");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("page_button <");
+        if (prev_but != null){prev_but.remove();}
+
+        for (let i = 1; i < page_numbers[0] + 1; i++){
+            prev_but = document.getElementById("page_button " + i.toString());
+            if (prev_but != null){prev_but.remove();}
+        }
+
+        prev_but = document.getElementById("page_button >>");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("page_button >");
+        if (prev_but != null){prev_but.remove();}
+    }
+
+    function pageButtonNumberFunction(event){
+        // alert(event.target.innerText);
+        // alert("pageButtonNumberFunction -1");
+        current_page = parseInt(event.target.innerText, 10);
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        // alert("createitemButtons 1")
+        createitemButtons(current_page_item_list);
+        // alert("createitemButtons 2")
+        if (current_page_max_number > 1){  // f
+            // alert("creating page buttons");
+            createPageButtons();
+        }
+    }
+
+    function pageButtonFunctions(button_text){
+        if (button_text == "<<"){
+            return function(event){
+                current_page = 1;
+                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                createitemButtons(current_page_item_list);
+                if (current_page_max_number > 1){  // f
+                    createPageButtons();
+                }
+            };
+        } else if (button_text == "<"){
+            return function(event){
+                if (current_page != 1) {
+                    current_page -= 1;
+                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                    createitemButtons(current_page_item_list);
+                    if (current_page_max_number > 1){createPageButtons();}
+                }
+            };
+        } else if (button_text == ">"){
+            return function(event) {
+                if (current_page != current_page_max_number) {
+                    current_page += 1;
+                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                    createitemButtons(current_page_item_list);
+                    if (current_page_max_number > 1){  // f
+                        // alert("creating page buttons");
+                        createPageButtons();
+                    }
+                }
+            }
+        } else if (button_text == ">>"){
+            return function(event){
+                current_page = current_page_max_number;
+                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                createitemButtons(current_page_item_list);
+                if (current_page_max_number > 1){  // f
+                    // alert("creating page buttons");
+                    createPageButtons();
+                }
+            };
+        }
+    }
+
+    function createPageButtons(){
+        deletePageButtons();
+        if (current_page_max_number > 1){
+            pages_row = document.getElementById("pages-row");
+            createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
+            createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
+
+            if ((current_page_max_number - current_page) <= 6 && (current_page_max_number - current_page) >= 0) {
+                if (current_page_max_number >= 9){
+                    for (let i = (current_page_max_number - 9); i < current_page_max_number; i++){
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                } else {
+                    for (let i = 0; i < current_page_max_number; i++){
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                }
+            } else {
+                if (current_page == 1) {
+                    if (current_page_max_number < 9){
+                        for (let i = 0; i < current_page_max_number; i ++){
+                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                        }
+                    } else {
+                        for (let i = 0; i < 9; i ++){
+                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                        }
+                    }
+                } else {
+                    for (let i = (current_page - 2); i < (current_page + 7); i++) {
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                }
+            }
+            // alert()
+            // for (let i = 0; i < current_page_max_number; i ++){
+            //     createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+            // }
+            createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
+            createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
+        }
+    }
+
+    function onSubmitButtonClick(event){
+    	form_res = document.getElementById("form-res");
+    	for (let i = 0; i < bool_lesson_items.length; i++){
+    	    if (bool_lesson_items[i] != 0 && bool_lesson_items[i] != 1) {
+    	        bool_lesson_items[i] = 0;
+    	    }
+    	}
+    	// alert(bool_lesson_items);
+    	form_res.value = bool_lesson_items;
+    }
+
+
+    sorting_button = document.getElementById("sorting_button");
+    // alert(sorting_button);
+    if (sorting_button != null){
+        sorting_button.addEventListener("click", sortingButtonClick, false);
+    }
+    sorting_button_innerTexts = ["Показать только свои слова",
+    							 "Показать только чужие слова",
+    							 "Показать слова урока",
+    							 "Показать слова, которых нет в этом уроке",
+    							 "Показать слова других курсов",
+    							 "Показать слова, которых нет в ваших курсах",
+    							 "Показать все слова"];
+    sorting_button.innerText = sorting_button_innerTexts[0];
+
+    var sorting_button_state = 0;
+    var current_page = 1;
+    var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
+
+
+    items_lists = [all_items = javascriptList("{{ all_items_js }}"),
+                    my_items = javascriptList("{{ my_items_js }}"),
+                    rest_items = javascriptList("{{ rest_items_js }}"),
+                    lesson_items = javascriptList("{{ lesson_items_js }}"),
+                    not_lesson_items = javascriptList("{{ unused_items_js }}"),
+                    course_items = javascriptList("{{ course_items_js }}"),
+                    not_course_items = javascriptList("{{ not_course_items_js }}")];
+    for (let i = 0; i < items_lists.length; i++){
+        if (items_lists[i][0] == ''){
+            items_lists[i] = [];
+        }
+        // console.log(items_lists[i]);
+    }
+
+    bool_lesson_items = []
+    for (let i = 0; i < items_lists[0].length; i++) {
+    	bool_lesson_items.push(0);
+    }
+    for (let i = 0; i < items_lists[3].length; i++) {
+    	bool_lesson_items[parseInt(items_lists[3][i][0])] = 1;
+    }
+    // alert(bool_lesson_items);
+
+    bool_course_items = []
+    for (let i = 0; i < items_lists[0].length; i++) {
+    	bool_course_items.push(0);
+    }
+    for (let i = 0; i < items_lists[5].length; i++) {
+    	bool_course_items[parseInt(items_lists[5][i][0])] = 1;
+    }
+
+    page_numbers = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
+        page_numbers.push(page_number);
+        // console.log(page_numbers[i]);
+    }
+    page_lists = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+        max_items_number_on_one_page * current_page);
+        page_lists.push(page_items);
+    }
+
+    current_item_list = items_lists[sorting_button_state];
+    current_page_item_list = page_lists[sorting_button_state];
+    current_page_max_number = page_numbers[sorting_button_state];
+
+    item_js_table = {
+    "id": 0,
+    "hieroglyph": 1,
+    "translation": 2};
+
+    createitemButtons(current_page_item_list);
+    if (current_page_max_number > 1){
+        createPageButtons();
+    }
+
+    document.getElementById("submit-button").addEventListener("click", onSubmitButtonClick, false);
+    // form_res = document.getElementById("form-res");
+    // form_res.value = bool_course_items;
+
+</script>
 {% endblock %}

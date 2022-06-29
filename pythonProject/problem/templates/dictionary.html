@@ -135,7 +135,9 @@
             // word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
             word_button.innerText = word_list[i][word_js_table["hieroglyph"]] +
             " " + word_list[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
-
+            word_button.style = "min-width: 250px";
+            word_button.classList.add("user-word-button");
+            column.appendChild(word_button);
 
             if ({{ current_user.id }} == word_list[i][word_js_table["author"]]){
                 change_but = document.createElement("a");
@@ -153,14 +155,8 @@
                 delete_but.classList.add("btn-danger");
                 delete_but.classList.add("user-word-button");
                 delete_but.innerText = "Удалить";
-                word_button.style = "min-width: 250px";
-                word_button.classList.add("user-word-button");
-                column.appendChild(word_button);
                 column.appendChild(change_but);
                 column.appendChild(delete_but);
-            } else {
-                word_button.classList.add("word_button");
-                column.appendChild(word_button);
             }
         }
     }
