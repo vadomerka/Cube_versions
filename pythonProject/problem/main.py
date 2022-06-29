@@ -137,6 +137,15 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+def pupil_js_list(array):
+    array_js = []
+    for i in range(len(array)):
+        pupil = array[i]
+        array_js.append(";".join([str(pupil.id), pupil.name, str(pupil.creator)]))
+    array_js = ";;;".join(array_js)
+    return array_js
+
+
 @app.route('/pupils', methods=['GET', 'POST'])
 @login_required
 def pupils():
@@ -147,8 +156,10 @@ def pupils():
         if user.creator == current_user.id:
             users_pupils.append(user)
     # print(users_pupils)
+    users_pupils_js = pupil_js_list(users_pupils)
     # users_pupils = current_user.pupils
-    return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true")
+    return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",
+                           users_pupils_js=users_pupils_js, items_in_column_number=13, column_number=4)
 
 
 @app.route('/add_pupil', methods=['GET', 'POST'])
@@ -284,15 +295,6 @@ def course_view(course_id):
                            back_button_hidden='false', back_url="/courses")
 
 
-def pupil_js_list(array):
-    array_js = []
-    for i in range(len(array)):
-        pupil = array[i]
-        array_js.append(";".join([str(pupil.id), pupil.name, str(pupil.creator)]))
-    array_js = ";;;".join(array_js)
-    return array_js
-
-
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
 @login_required
 def course_pupils_view(course_id):
@@ -348,64 +350,6 @@ def course_pupils_view(course_id):
                            course_pupils_js=course_pupils_js,
                            not_course_pupils_js=not_course_pupils_js,
                            form=form)
-
-
-'''
-@app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
-@login_required
-def course_pupils_view(course_id):
-    form = AddUsersToCourseForm()
-    db_sess = db_session.create_session()
-    course = db_sess.query(Courses).get(course_id)
-    all_pupils = []
-    course_pupils = []
-    not_course_pupils = []
-    my_pupils = []
-    rest_pupils = []
-    for user in db_sess.query(User).all():
-        if not user.teacher:
-            all_pupils.append(user)
-            if user.creator == current_user.id:
-                my_pupils.append(user)
-            else:
-                rest_pupils.append(user)
-            if user in course.users:
-                course_pupils.append(user)
-            else:
-                not_course_pupils.append(user)
-    if form.validate_on_submit():
-        pupils_js = request.form.getlist('form-res')
-        str_arr = pupils_js[0]
-        ans_arr = [int(item) for item in str_arr.split(",")]
-        # print(ans_arr)
-
-        for pupil_js in all_pupils:
-            if ans_arr[pupil_js.id]:
-                pupil = db_sess.query(User).get(int(pupil_js.id))
-                pupil.courses.append(course)
-                db_sess.merge(pupil)
-            else:
-                pupil = db_sess.query(User).get(int(pupil_js.id))
-                if course in pupil.courses:
-                    pupil.courses.remove(course)
-                # print(pupil.name)
-                db_sess.merge(pupil)
-        db_sess.commit()
-        # print("redirect")
-        # print(len(ans_arr))
-        return redirect("/courses/" + str(course_id))
-    all_pupils_js = pupil_js_list(all_pupils)
-    my_pupils_js = pupil_js_list(my_pupils)
-    rest_pupils_js = pupil_js_list(rest_pupils)
-    course_pupils_js = pupil_js_list(course_pupils)
-    not_course_pupils_js = pupil_js_list(not_course_pupils)
-    return render_template('course_pupils.html', course=course, course_pupils=all_pupils,
-                           back_button_hidden='false', back_url="/courses/" + str(course_id),
-                           pupils_in_column_number=13, column_number=4, all_pupils_js=all_pupils_js,
-                           my_pupils_js=my_pupils_js, rest_pupils_js=rest_pupils_js,
-                           course_pupils_js=course_pupils_js, not_course_pupils_js=not_course_pupils_js,
-                           form=form)
-'''
 
 
 def lesson_words_js_list(array):

@@ -1,11 +1,262 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .column {
+        float: left;
+        width: 50%;
+    }
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    .page-but {
+        margin: 5px 5px 5px 5px;
+    }
+    .current_page_button {
+        margin: 0px 0px 0px 0px;
+        border-style: solid;
+        border-color: red;
+        border-width: 5px;
+    }
+    .pupil-button {
+        min-width: 250px;
+    }
+
+</style>
 <h1>Ваши ученики: </h1>
-{% for pupil in pupils %}
-<div class="pupils">
-    <a class="btn btn-primary" style="color: white;">{{ pupil.name }} {{ pupil.last_name }}</a>
+<div>
+    {% if current_user.teacher %}
+        <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
+            <a class="btn btn-add" href="/add_pupil">Добавить
+                учеников</a>
+        </div>
+    {% endif %}
+
+    <div class="row" id="item_row">
+        {% for i in range(column_number) %}
+        <div class="column" id="column {{ i }}"></div>
+        {% endfor %}
+    </div>
+        <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+            <div class="pages-row" id="pages-row">
+            </div>
+        </div>
 </div>
-{% endfor %}
-<a href="/add_pupil" class="btn btn-add">Создать ученика</a>
+<script>
+    function javascriptList(list){
+        // alert(list);
+        list = list.split(";;;");
+        for (let i = 0; i < list.length; i += 1){
+            list[i] = list[i].split(";");
+        }
+        return list;
+    }
+
+    function createItemButtons(item_list){
+        // delete previous buttons
+        for (let i = 0; i < max_items_number_on_one_page; i += 1){
+            prev_but = document.getElementById("button " + i.toString())
+            if (prev_but != null){prev_but.remove();}
+            prev_but = document.getElementById("delete " + i.toString())
+            if (prev_but != null){prev_but.remove();}
+        }
+
+        for (let i = 0; i < item_list.length; i += 1){
+            column = document.getElementById("column " + (i % {{ column_number }}).toString());
+            column.style.cssText += "flex: " + (100 / {{ column_number }}).toString() + "%";
+            button = document.createElement("a");
+            button.id = "button " + i.toString();
+            button.type = "button";
+            // button.addEventListener("click", wordButtonClick, false);
+            button.href = "/pupils/" + button.id;
+            button.classList.add("btn");
+            button.classList.add("btn-primary");
+            button.classList.add("pupil-button");
+
+            // button.classList.add("user-word-button");
+            button.innerText = item_list[i][item_js_table["name"]];
+            column.appendChild(button);
+        }
+    }
+
+
+    function createOnePageButton(row, text, onClickFunction){
+        page_button = document.createElement("button");
+        page_button.onclick = onClickFunction;
+        page_button.id = "page_button " + text;
+        page_button.classList.add("page-but");
+        page_button.classList.add("btn");
+        page_button.classList.add("btn-primary");
+        // alert(text);
+        // alert(current_page);
+        if (text == current_page){
+            page_button.classList.add("current_page_button")
+        } else {
+            page_button.classList.add("page_button");
+        }
+        page_button.innerText = text;
+        row.appendChild(page_button);
+    }
+
+    function deletePageButtons(){
+        prev_but = document.getElementById("page_button <<");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("page_button <");
+        if (prev_but != null){prev_but.remove();}
+
+        for (let i = 1; i < page_numbers[0] + 1; i++){
+            prev_but = document.getElementById("page_button " + i.toString());
+            if (prev_but != null){prev_but.remove();}
+        }
+
+        prev_but = document.getElementById("page_button >>");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("page_button >");
+        if (prev_but != null){prev_but.remove();}
+    }
+
+    function pageButtonNumberFunction(event){
+        // alert(event.target.innerText);
+        // alert("pageButtonNumberFunction -1");
+        current_page = parseInt(event.target.innerText, 10);
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        // alert("createItemButtons 1")
+        createItemButtons(current_page_item_list);
+        // alert("createItemButtons 2")
+        if (current_page_max_number > 1){  // f
+            // alert("creating page buttons");
+            createPageButtons();
+        }
+    }
+
+    function pageButtonFunctions(button_text){
+        if (button_text == "<<"){
+            return function(event){
+                current_page = 1;
+                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                createItemButtons(current_page_item_list);
+                if (current_page_max_number > 1){  // f
+                    createPageButtons();
+                }
+            };
+        } else if (button_text == "<"){
+            return function(event){
+                if (current_page != 1) {
+                    current_page -= 1;
+                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                    createItemButtons(current_page_item_list);
+                    if (current_page_max_number > 1){createPageButtons();}
+                }
+            };
+        } else if (button_text == ">"){
+            return function(event) {
+                if (current_page != current_page_max_number) {
+                    current_page += 1;
+                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                    createItemButtons(current_page_item_list);
+                    if (current_page_max_number > 1){  // f
+                        // alert("creating page buttons");
+                        createPageButtons();
+                    }
+                }
+            }
+        } else if (button_text == ">>"){
+            return function(event){
+                current_page = current_page_max_number;
+                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                createItemButtons(current_page_item_list);
+                if (current_page_max_number > 1){  // f
+                    // alert("creating page buttons");
+                    createPageButtons();
+                }
+            };
+        }
+    }
+
+    function createPageButtons(){
+        deletePageButtons();
+        if (current_page_max_number > 1){
+            pages_row = document.getElementById("pages-row");
+            createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
+            createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
+
+            if ((current_page_max_number - current_page) <= 6 && (current_page_max_number - current_page) >= 0) {
+                if (current_page_max_number >= 9){
+                    for (let i = (current_page_max_number - 9); i < current_page_max_number; i++){
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                } else {
+                    for (let i = 0; i < current_page_max_number; i++){
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                }
+            } else {
+                if (current_page == 1) {
+                    if (current_page_max_number < 9){
+                        for (let i = 0; i < current_page_max_number; i ++){
+                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                        }
+                    } else {
+                        for (let i = 0; i < 9; i ++){
+                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                        }
+                    }
+                } else {
+                    for (let i = (current_page - 2); i < (current_page + 7); i++) {
+                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+                    }
+                }
+            }
+            // alert()
+            // for (let i = 0; i < current_page_max_number; i ++){
+            //     createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
+            // }
+            createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
+            createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
+        }
+    }
+
+    var sorting_button_state = 0;
+    var current_page = 1;
+    var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
+
+    items_lists = [all_items = javascriptList("{{ users_pupils_js }}")];
+    for (let i = 0; i < items_lists.length; i++){
+        if (items_lists[i][0] == ''){
+            items_lists[i] = [];
+        }
+        // console.log(items_lists[i]);
+    }
+
+    page_numbers = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
+        page_numbers.push(page_number);
+        // console.log(page_numbers[i]);
+    }
+    page_lists = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+        max_items_number_on_one_page * current_page);
+        page_lists.push(page_items);
+    }
+
+    current_item_list = items_lists[sorting_button_state];
+    current_page_item_list = page_lists[sorting_button_state];
+    current_page_max_number = page_numbers[sorting_button_state];
+
+    item_js_table = {
+    "id": 0,
+    "name": 1,
+    "creator": 2};
+
+    createItemButtons(current_page_item_list);
+    if (current_page_max_number > 1){
+        createPageButtons();
+    }
+
+    // document.getElementById("submit-button").addEventListener("click", onSubmitButtonClick, false);
+</script>
 {% endblock %}
