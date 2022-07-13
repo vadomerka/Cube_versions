@@ -33,11 +33,11 @@ class UserResource(Resource):
                                 list(user.words)]
         return jsonify(ret)
 
-    def delete(self, course_id):
-        abort_if_news_not_found(course_id)
+    def delete(self, user_id):
+        abort_if_not_found(user_id)
         session = db_session.create_session()
-        course = session.query(Courses).get(course_id)
-        session.delete(course)
+        user = session.query(User).get(user_id)
+        session.delete(user)
         session.commit()
         return jsonify({'success': 'OK'})
 

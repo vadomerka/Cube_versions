@@ -13,7 +13,7 @@ from data.users import User
 from data.trainers import Trainers
 
 # forms
-from forms.user import MakeUserForm, LoginForm
+from forms.user import MakeUserForm, MakePasswordForm, LoginForm
 from forms.course import CoursesForm, AddUsersToCourseForm
 from forms.lesson import LessonsForm, AddWordsToLessonForm, AddTrainersToLessonForm
 from forms.word import WordsForm
@@ -39,7 +39,7 @@ api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
-api.add_resource(UserResource, "/rest_user/<int:id>")
+api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -75,37 +75,15 @@ def index():
         return redirect('/login')
 
 
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-#     form = RegisterForm()
-#     # print(form.validate_on_submit())
-#     if form.validate_on_submit():
-#         if form.password.data != form.password_again.data:
-#             return render_template('register.html', title='Регистрация',
-#                                    form=form,
-#                                    message="Пароли не совпадают")
-#         db_sess = db_session.create_session()
-#         if db_sess.query(User).filter(User.email == form.email.data).first():
-#             return render_template('register.html', title='Регистрация',
-#                                    form=form,
-#                                    message="Такой пользователь уже есть")
-#         user = User(
-#             name=form.name.data,
-#             email=form.email.data,
-#             about=form.about.data,
-#             teacher=form.teacher.data
-#         )
-#         user.set_password(form.password.data)
-#         db_sess.add(user)
-#         db_sess.commit()
-#         user = db_sess.query(User).filter(User.email == form.email.data).first()
-#         if user and user.check_password(form.password.data):
-#             login_user(user)
-#             return redirect("/")
-#         return render_template('register.html',
-#                                message="Что-то пошло не так",
-#                                form=form)
-#     return render_template('register.html', title='Регистрация', form=form)
+@app.route('/profile_change/<hash_token>', methods=['GET', 'POST'])
+def profile_change(hash_token):
+    db_sess = db_session.create_session()
+    hash_token = int(hash_token)
+    user = db_sess.query(User).filter(User.hash_token == hash_token).first()
+    if user:
+        login_user(user)
+        return redirect("/change_password/" + str(user.id))
+    return render_template("wrong_link.html")
 
 
 # response = requests.get('https://pythonexamples.org/', params=params)
@@ -115,7 +93,7 @@ def login():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password(form.password.data):
+        if user and user.hashed_password and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html',
@@ -137,11 +115,46 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+def user_profile(user_id):
+    db_sess = db_session.create_session()
+    if current_user.id == user_id:
+        return render_template('profile.html', user=current_user, is_owner=1)
+    profile_user = db_sess.query(User).get(user_id)
+    return render_template('profile.html', user=profile_user, is_owner=0)
+
+
+# @app.route('/<int:my_href>', methods=['GET', 'POST'])
+# def pupil_link(my_href):
+#     # print(my_href)
+#     return redirect('/')
+
+
+@app.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def change_password(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    form = MakePasswordForm()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('change_password.html',
+                                   form=form,
+                                   user=user,
+                                   message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        user.set_password(form.password.data)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template("change_password.html", user=user, form=form)
+
+
 def pupil_js_list(array):
     array_js = []
     for i in range(len(array)):
         pupil = array[i]
-        array_js.append(";".join([str(pupil.id), pupil.name, str(pupil.creator)]))
+        array_js.append(";".join([str(pupil.id), pupil.name, pupil.email, str(pupil.creator)]))
     array_js = ";;;".join(array_js)
     return array_js
 
@@ -167,10 +180,6 @@ def pupils():
 def add_pupil():
     form = MakeUserForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            return render_template('add_pupil.html',
-                                   form=form,
-                                   message="Пароли не совпадают")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('add_pupil.html',
@@ -184,16 +193,50 @@ def add_pupil():
             about=form.about.data,
             teacher=form.teacher.data
         )
-        user.set_password(form.password.data)
+        # user.set_password(form.password.data)
         user.creator = current_user.id
-        # print(user)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/pupils')
+        return redirect('/generate_link/' + str(user.id))
         # user = db_sess.query(User).filter(User.email == form.email.data).first()
     return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
                            back_button_backspace='false',
                            form=form)
+
+
+@app.route('/generate_link/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def generate_link(user_id):
+
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    user.hash_token = 1
+    return render_template("generate_link.html", user=user)
+
+
+@app.route('/add_token_to_user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def add_token_to_user(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    # print(request.json)
+    hash_token = hash(str(user_id) + " " + str(dt.datetime.now()))
+    user.hash_token = hash_token
+    db_sess.merge(user)
+    db_sess.commit()
+    # return redirect("/generate_link/" + str(user_id))
+    return {'hash_token': str(hash_token)}
+
+
+@app.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def delete_user(user_id):
+    ret = delete("http://localhost:5000/rest_user/" + str(user_id)).json()
+    # print(ret)
+    if ret == {'success': 'OK'}:
+        return redirect("/pupils")
+    else:
+        return ret
 
 
 @app.route('/courses', methods=['GET', 'POST'])
@@ -290,7 +333,7 @@ def course_view(course_id):
     # print(course)
     course_about = '&lt;br&lt;'.join(course["about"].split("\r\n"))
     course_about = '<<<<'.join(course["about"].split("\r\n"))
-    print(course_about)
+    # print(course_about)
     return render_template('course_view.html', course_data=course, course_about=course_about,
                            back_button_hidden='false', back_url="/courses")
 
@@ -320,6 +363,7 @@ def course_pupils_view(course_id):
     if form.validate_on_submit():
         pupils_js = request.form.getlist('form-res')
         str_arr = pupils_js[0]
+        # print(str_arr)
         ans_arr = [int(item) for item in str_arr.split(",")]
         # print(ans_arr)
 
@@ -367,11 +411,16 @@ def lesson_view(course_id, lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
     # print(lesson['words'])
+    column_number = 1
+    items_in_column_number = 13
+    if not current_user.teacher:
+        # column_number = 2
+        items_in_column_number = 26
     lesson_words_js = lesson_words_js_list(lesson['words'])
     return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
                            back_button_hidden='false', back_url=f"/courses/{course_id}",
-                           lesson_words_js=lesson_words_js, column_number=1,
-                           items_in_column_number=13)
+                           lesson_words_js=lesson_words_js, column_number=column_number,
+                           items_in_column_number=items_in_column_number)
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])

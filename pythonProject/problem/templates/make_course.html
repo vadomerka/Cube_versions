@@ -5,7 +5,7 @@
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.name.label }}<br>
+        {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
             <p content="alert alert-danger" role="alert">

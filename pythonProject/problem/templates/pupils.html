@@ -70,14 +70,25 @@
             button.id = "button " + i.toString();
             button.type = "button";
             // button.addEventListener("click", wordButtonClick, false);
-            button.href = "/pupils/" + button.id;
+            button.href = "/profile/" + item_list[i][item_js_table["id"]];
+            // console.log(button.id);
             button.classList.add("btn");
             button.classList.add("btn-primary");
             button.classList.add("pupil-button");
 
             // button.classList.add("user-word-button");
-            button.innerText = item_list[i][item_js_table["name"]];
+            button.innerText = item_list[i][item_js_table["email"]];
             column.appendChild(button);
+
+            // if ({{ current_user.id }} == item_list[i][item_js_table["creator"]]){
+            //     delete_but = document.createElement("a");
+            //     delete_but.href = "/delete_user/" + item_list[i][item_js_table["id"]];
+            //     delete_but.classList.add("btn");
+            //     delete_but.classList.add("btn-danger");
+            //     // delete_but.classList.add("user-word-button");
+            //     delete_but.innerText = "Удалить";
+            //     column.appendChild(delete_but);
+            // }
         }
     }
 
@@ -250,7 +261,8 @@
     item_js_table = {
     "id": 0,
     "name": 1,
-    "creator": 2};
+    "email": 2,
+    "creator": 3};
 
     createItemButtons(current_page_item_list);
     if (current_page_max_number > 1){

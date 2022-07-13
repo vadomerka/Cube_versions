@@ -117,6 +117,13 @@
             event.target.style = event.target.style.cssText + "background-color: green";
             bool_course_pupils[parseInt(event.target.value, 10)] = 1;
         }
+
+        form_res = document.getElementById("form-res");
+    	for (let i = 0; i < bool_course_pupils.length; i++){
+    	    console.log(bool_course_pupils[i]);
+    	    if (bool_course_pupils[i] != 1) bool_course_pupils[i] = 0;
+    	}
+    	form_res.value = bool_course_pupils;
         // alert(bool_course_pupils.length);
     }
 
@@ -151,7 +158,7 @@
             pupil_button.classList.add("user-word-button");
             // pupil_button.href = "/dict_word/" + pupil_list[i][pupil_js_table["id"]];
             // pupil_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
-            pupil_button.innerText = pupil_list[i][pupil_js_table["name"]];  // (page - 1) * max_pupils_number_on_one_page + i  + 1
+            pupil_button.innerText = pupil_list[i][pupil_js_table["email"]];  // (page - 1) * max_pupils_number_on_one_page + i  + 1
 
             column.appendChild(pupil_button);
             // if ({{ current_user.id }} == pupil_list[i][pupil_js_table["author"]]){
@@ -320,6 +327,11 @@
 
     function onSubmitButtonClick(event){
     	form_res = document.getElementById("form-res");
+    	// alert("submit");
+    	for (let i = 0; i < bool_course_pupils.length(); i++){
+    	    alert(bool_course_pupils[i]);
+    	    if (bool_course_pupils[i] != 1) bool_course_pupils[i] = 0;
+    	}
     	form_res.value = bool_course_pupils;
     }
 
@@ -334,7 +346,7 @@
     							 "Показать учеников курса", 
     							 "Показать учеников, не подключенных к курсу", 
     							 "Показать всех учеников"];
-    sorting_button.innerText = sorting_button_innerTexts[1];
+    sorting_button.innerText = sorting_button_innerTexts[0];
 
     var sorting_button_state = 0;
     var current_page = 1;
@@ -380,15 +392,21 @@
     pupil_js_table = {
     "id": 0,
     "name": 1,
-    "creator": 2};
+    "email": 2,
+    "creator": 3};
 
     createPupilButtons(current_page_pupil_list);
     if (current_page_max_number > 1){
         createPageButtons();
     }
-
-    document.getElementById("submit-button").addEventListener("click", onSubmitButtonClick, false);
-    // form_res = document.getElementById("form-res");
-    // form_res.value = bool_course_pupils;
+    submit_button = document.getElementById("submit-button");
+    submit_button.addEventListener("click", onSubmitButtonClick, false);
+    form_res = document.getElementById("form-res");
+    for (let i = 0; i < bool_course_pupils.length; i++){
+        console.log(bool_course_pupils[i]);
+        if (bool_course_pupils[i] != 1) bool_course_pupils[i] = 0;
+    }
+    form_res.value = bool_course_pupils;
+    // alert(submit_button.id);
 </script>
 {% endblock %}

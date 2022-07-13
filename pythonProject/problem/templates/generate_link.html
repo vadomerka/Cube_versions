@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .link-input {
+        width: 72%;
+        height: 60px;
+        background: #fff;
+        border: 1px solid #d3d4d7;
+        border-radius: 8px 8px 8px 8px;
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 0;
+        float: left;
+        font-size: 20px;
+        color: #36383b;
+        padding: 0 20px;
+    }
+    .generator-button {
+        border-radius: 6px;
+        color: #fff;
+        transition: background 100ms linear;
+        text-decoration: none;
+        outline: none !important;
+        vertical-align: bottom;
+        margin-bottom: 0;
+        background: #1b3987;
+        min-width: 25%;
+        float: right;
+        position: relative;
+        font-size: 20px;
+        line-height: 1.11;
+        padding: 18px 30px;
+    }
+    .generator {
+        display: flex;
+    }
+    .centre {
+        margin-top: 26vh;
+    }
+
+</style>
+<div class="centre">
+    <h1>Создайте ссылку для входа, а затем отправьте ее на почту пользователю</h1>
+    <div class="generator">
+        <input id="link_input" class="link-input" value="">
+        <button id="send_button" class="generator-button">Создать ссылку</button>
+    </div>
+</div>
+<script>
+    link_input = document.getElementById("link_input");
+    send_button = document.getElementById("send_button");
+    send_button.addEventListener("click", async function(event){
+        const response = await fetch("http://127.0.0.1:5000/add_token_to_user/{{ user.id }}", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: `{
+           "id": "{{ user.id }}",
+           "token": "token"
+          }`,
+        });
+
+        response.json().then(data => {
+          console.log(data);
+          hash_token = data["hash_token"];
+          link_input.value = "http://127.0.0.1:5000/profile_change/" + hash_token;
+        });
+    }, false)
+
+
+
+</script>
+{% endblock %}

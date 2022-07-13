@@ -107,17 +107,19 @@
             button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '
             + item_list[i][item_js_table["translation"]];
             column.appendChild(button);
-
-            delete_but = document.createElement("a");
-            delete_but.id = 'delete ' + i.toString();
-            delete_but.href = "/delete_word_from_lesson/{{ lesson_data['id'] }}" + "/" + item_list[i][item_js_table["id"]];
-            delete_but.classList.add("btn");
-            delete_but.classList.add("btn-danger");
-            // delete_but.classList.add("user-word-button");
-            delete_but.innerText = "Удалить";
             button.style = "min-width: 250px";
             button.classList.add("user-word-button");
-            column.appendChild(delete_but);
+            // alert("{{ current_user.teacher }}");
+            if ("{{ current_user.teacher }}" == "True"){
+                delete_but = document.createElement("a");
+                delete_but.id = 'delete ' + i.toString();
+                delete_but.href = "/delete_word_from_lesson/{{ lesson_data['id'] }}" + "/" + item_list[i][item_js_table["id"]];
+                delete_but.classList.add("btn");
+                delete_but.classList.add("btn-danger");
+                // delete_but.classList.add("user-word-button");
+                delete_but.innerText = "Удалить";
+                column.appendChild(delete_but);
+            }
         }
     }
 

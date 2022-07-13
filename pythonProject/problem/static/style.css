@@ -31,10 +31,14 @@ body {
 .btn-primary {
     display: inline-block;
     vertical-align: top;
-    color: #fce38a;
+    color: white;
+}
+.btn-primary:active {
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
 }
 .btn-primary:hover {
-    color: #082567;
+    background-color: #082567;
 }
 .btn-success {
     color: #fce38a;

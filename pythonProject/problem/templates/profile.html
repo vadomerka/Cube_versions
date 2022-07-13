@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Профиль пользователя {{ user.id }}</h1>
+<h3>Имя {{ user.name }}</h3>
+<h3>Фамилия {{ user.last_name }}</h3>
+<h3>Отчество {{ user.patronymic }}</h3>
+
+<h3>О пользователе {{ user.about }}</h3>
+{% if user.teacher %}
+<h3>Пользователь является учителем</h3>
+{% else %}
+<h3>Пользователь является учеником</h3>
+{% endif %}
+{% if is_owner %}
+<a href="/change_profile" class="btn btn-primary">Изменить аккаунт</a>
+<a href="/logout" class="btn btn-primary">Выйти из аккаунта</a>
+<a href="/delete_user/{{ user.id }}" class="btn btn-primary">Удалить аккаунт</a>
+{% else %}
+    {% if current_user.id == user.creator %}
+        <a class="btn btn-primary" href="/generate_link/{{ user.id }}">Создать ссылку для входа</a>
+    {% endif %}
+{% endif %}
+{% endblock %}

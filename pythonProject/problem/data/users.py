@@ -24,6 +24,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                            secondary="users_to_course",
                            backref="users")
     words = orm.relation("Words", back_populates='user')
+    hash_token = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, unique=True)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

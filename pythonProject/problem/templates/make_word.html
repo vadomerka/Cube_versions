@@ -17,11 +17,14 @@
       clear: both;
       display: table;
     }
+    .side-image {
+        padding: 5px;
+    }
 </style>
 <form method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.hieroglyph.label }}<br>
+        {{ form.hieroglyph.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
         {{ form.hieroglyph(class="form-control") }}<br>
         {% for error in form.hieroglyph.errors %}
     <p content="alert alert-danger" role="alert">
@@ -29,7 +32,7 @@
     </p>
     {% endfor %}
     <p>
-        {{ form.translation.label }}<br>
+        {{ form.translation.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
         {{ form.translation(class="form-control", id="translation") }}<br>
         {% for error in form.translation.errors %}
     <p content="alert alert-danger" role="alert">
@@ -66,7 +69,7 @@
                            class="form-control-file"
                            id="up" name="up" value="{{ up_file }}" hidden>
                     <label class="btn-primary" for="up">
-                        <img id="up_output" width="100%" height="100%"
+                        <img class="side-image" id="up_output" width="100%" height="100%" style="padding: 10px;"
                              src="{{ up_start_preview }}">
                     </label>
                 </div>
@@ -92,7 +95,7 @@
                            class="form-control-file" id="left" name="left" value="{{ left_file }}"
                            hidden>
                     <label class="btn-primary" for="left">
-                        <img id="left_output" width="100%" height="100%"
+                        <img class="side-image" id="left_output" width="100%" height="100%" style="padding: 10px;"
                              src="{{ left_start_preview }}">
                     </label>
                 </div>
@@ -101,7 +104,7 @@
                            class="form-control-file" id="front" name="front" value="{{ front_file }}"
                            hidden>
                     <label class="btn-primary" for="front">
-                        <img id="front_output" width="100%" height="100%"
+                        <img class="side-image" id="front_output" width="100%" height="100%" style="padding: 10px;"
                              src="{{ front_start_preview }}">
                     </label>
                 </div>
@@ -110,7 +113,7 @@
                            class="form-control-file" id="right" name="right" value="{{ right_file }}"
                            hidden>
                     <label class="btn-primary" for="right">
-                        <img id="right_output" width="100%" height="100%"
+                        <img class="side-image" id="right_output" width="100%" height="100%" style="padding: 10px;"
                              src="{{ right_start_preview }}">
                     </label>
                 </div>
@@ -124,7 +127,7 @@
                            class="form-control-file" id="down" name="down" value="{{ down_file }}"
                            hidden>
                     <label class="btn-primary" for="down">
-                        <img id="down_output" width="100%" height="100%"
+                        <img class="side-image" id="down_output" width="100%" height="100%" style="padding: 10px;"
                              src="{{ down_start_preview }}">
                     </label>
                 </div>
@@ -142,10 +145,7 @@
                 </div>
                 <div class="column"></div>
             </div>
-
         </div>
-
-
     </div>
 
     {{ form.submit(type="submit", class="btn btn-primary") }}
@@ -175,24 +175,42 @@
     is_transcription_audio = '{{ is_transcription_audio }}';
     is_phrase_audio = '{{ is_phrase_audio }}';
     is_translation_audio = '{{ is_translation_audio }}';
+    no_value_color = "red";
+    value_color = "green";
 
     transcription_audio = document.getElementById("transcription_audio");
+    image1 = document.getElementById("front_output");
+    image2 = document.getElementById("right_output");
+    image3 = document.getElementById("down_output");
     transcription_audio.addEventListener("change", function(event){
         button = document.getElementById("transcription_audio_button");
         val = transcription_audio.value;
         // alert(val);
         if (val != ""){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+            image1.style = "background-color: " + value_color;
+            image2.style = "background-color: " + value_color;
+            image3.style = "background-color: " + value_color;
+            // alert("green");
         } else {
             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+            image1.style = "background-color: " + no_value_color;
+            image2.style = "background-color: " + no_value_color;
+            image3.style = "background-color: " + no_value_color;
+            // alert("red");
         }
     }, false);
     button = document.getElementById("transcription_audio_button");
-
     if ( ((transcription_audio.value != "") || (is_transcription_audio)) == 'true' ){
         button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        image1.style = "background-color: " + value_color;
+        image2.style = "background-color: " + value_color;
+        image3.style = "background-color: " + value_color;
     } else {
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        image1.style = "background-color: " + no_value_color;
+        image2.style = "background-color: " + no_value_color;
+        image3.style = "background-color: " + no_value_color;
     }
 
 
@@ -200,42 +218,67 @@
     translation_audio.addEventListener("change", function(event){
         button = document.getElementById("translation_audio_button");
         val = translation_audio.value;
+        image = document.getElementById("left_output");
         if (val != ""){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+            image.style = "background-color: " + value_color;
         } else {
             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+            image.style = "background-color: " + no_value_color;
         }
     }, false);
     button = document.getElementById("translation_audio_button");
+    image = document.getElementById("left_output");
     if (((translation_audio.value != "")  || (is_translation_audio)) == 'true'){
         button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        image.style = "background-color: " + value_color;
     } else {
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        image.style = "background-color: " + no_value_color;
     }
 
 
     phrase_audio = document.getElementById("phrase_audio");
+    image = document.getElementById("up_output");
     phrase_audio.addEventListener("change", function(event){
         button = document.getElementById("phrase_audio_button");
         val = phrase_audio.value;
         // alert(val);
         if (val != "" || is_phrase_audio){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+            image.style = "background-color: " + value_color;
         } else {
             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+            image.style = "background-color: red" + no_value_color;
         }
     }, false);
     button = document.getElementById("phrase_audio_button");
+    image = document.getElementById("up_output");
     // alert(phrase_audio.value);
     if (((phrase_audio.value != "")  || (is_phrase_audio)) == 'true'){
         button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        image.style = "background-color: " + value_color;
     } else {
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        image.style = "background-color: " + no_value_color;
     }
     // audioColorChange("translation_audio")
     // audioColorChange("transcription_audio");
     // audioColorChange("phrase_audio");
-    // alert("{{ translation_audio_file }}");
+    // alert("{{ down_start_preview }}".indexOf("tutorial")); // /static/-1192877985595636362_up.png
+                                     // /static/tutorial_up.png  // /static/tutorial_down.png
+    // down_img = document.getElementById("down_output");
+    // down_img.addEventListener("", function(event){
+        // alert("button_change");
+        // button = document.getElementById("phrase_audio_button");
+        // val = phrase_audio.value;
+        // alert(val);
+        // if (val != "" || is_phrase_audio){
+        //             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
+        //         } else {
+        //             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
+        //         }
+        // }, false);
 
 </script>
 {% endblock %}

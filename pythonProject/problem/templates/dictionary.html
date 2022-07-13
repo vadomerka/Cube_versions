@@ -29,7 +29,10 @@
         border-width: 5px;
     }
     .word_button{
-        min-width: 250px;
+        width: 250px;
+        height: 36px;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         position: relative;
         top: 50%;
@@ -38,11 +41,11 @@
         transform: translate(-50%, -50%);
     }
     .user-word-button {
+        height: 36px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         margin-left: 5px;
         position: relative;
-        top: 50%;
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
     }
 </style>
 <div style="display: flex;">
@@ -135,7 +138,7 @@
             // word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
             word_button.innerText = word_list[i][word_js_table["hieroglyph"]] +
             " " + word_list[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
-            word_button.style = "min-width: 250px";
+            word_button.style = "width: 250px";
             word_button.classList.add("user-word-button");
             column.appendChild(word_button);
 
