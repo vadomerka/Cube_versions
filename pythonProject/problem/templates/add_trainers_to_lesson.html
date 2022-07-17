@@ -5,22 +5,30 @@
 <h1>Выберете тренажеры для добавления к уроку</h1>
 <form action="" method="post" name="checks">
     {{ form.hidden_tag() }}
-    {% for i in range(len_trainers) %}
-    {% if trainers[i] in lesson_trainers %}
-    <button id="train {{ i }}" style="background-color: green;"
-            name="lesson_trainer" type="button" class="btn btn-primary" value="{{ trainers[i].id }}">
-        {{ trainers[i].name }}
-    </button>
-    <input id="input of train {{ i }}" hidden type="checkbox" checked="checked" name="lesson_trainer"
-           value='{{ trainers[i].id }}'>
-    {% else %}
-    <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary"
-            value="{{ trainers[i].id }}">{{ trainers[i].name }}
-    </button>
-    <input id="input of train {{ i }}" hidden type="checkbox" checked="checked"
-           name="not_lesson_trainer" value='{{ trainers[i].id }}'>
-    {% endif %}
-    {% endfor %}
+    <div style="display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                align-content: center;">
+        {% for i in range(len_trainers) %}
+        {% if trainers[i] in lesson_trainers %}
+        <button id="train {{ i }}" style="background-color: green;"
+                name="lesson_trainer" type="button" class="btn btn-primary"
+                value="{{ trainers[i].id }}">
+            {{ trainers[i].name }}
+        </button>
+        <input id="input of train {{ i }}" hidden type="checkbox" checked="checked"
+               name="lesson_trainer"
+               value='{{ trainers[i].id }}'>
+        {% else %}
+        <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary"
+                value="{{ trainers[i].id }}">{{ trainers[i].name }}
+        </button>
+        <input id="input of train {{ i }}" hidden type="checkbox" checked="checked"
+               name="not_lesson_trainer" value='{{ trainers[i].id }}'>
+        {% endif %}
+        {% endfor %}
+
+    </div>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 </form>
 <script>
@@ -41,6 +49,7 @@
         lesson_trainer_button = document.getElementById("train " + i.toString());
         lesson_trainer_button.addEventListener("click", onLessonTrainButtonClick, false);
     }
+
 
 </script>
 {% endblock %}

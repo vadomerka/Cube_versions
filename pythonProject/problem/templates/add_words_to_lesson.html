@@ -28,13 +28,10 @@
         border-width: 5px;
     }
     .item_button{
-        min-width: 250px;
-
-        position: relative;
-        top: 50%;
-        left: 50%;
-        -ms-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 36px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .user-word-button {
         color: white;
@@ -44,11 +41,11 @@
     }
     .not-course-word {
         background-color: rgb(0, 123, 255);
-        min-width: 250px;
+        width: 250px;
     }
 
     .course-word {
-        min-width: 250px;
+        width: 250px;
         background-color: blue;
     }
 
@@ -119,7 +116,7 @@
             // alert(event.target.style.cssText);
             event.target.name = "not_lesson_item";
             event.target.style = '';
-            // event.target.style = 'min-width: 250px';
+            // event.target.style = 'width: 250px';
             bool_lesson_items[parseInt(event.target.value, 10)] = 0;
         } else {
             event.target.name = "lesson_item";
@@ -145,6 +142,8 @@
             item_button.addEventListener("click", itemButtonClick, false);
             item_button.classList.add("btn");
             item_button.classList.add("btn-primary");
+            item_button.classList.add("item_button");
+
             // item_button.classList.add("not-course-word");
             button_id = item_list[i][item_js_table["id"]];
             if (bool_course_items[button_id] == 1){
@@ -154,12 +153,12 @@
             }
             item_button.value = button_id;
             if (bool_lesson_items[button_id] == 1){
-            	item_button.style = "min-width: 250px; background-color: green";
+            	item_button.style = "width: 250px; background-color: green";
             	bool_lesson_items[button_id] = 1;
             	item_button.name = "lesson_item";
             } else {
-                if (bool_course_items[button_id] == 1){item_button.style = "min-width: 250px; background-color: blue";}
-                else{item_button.style = "min-width: 250px; background-color: rgb(0, 123, 255);";}
+                if (bool_course_items[button_id] == 1){item_button.style = "width: 250px; background-color: blue";}
+                else{item_button.style = "width: 250px; background-color: rgb(0, 123, 255);";}
             	item_button.name = "not_lesson_item";
             	bool_lesson_items[button_id] = 0;
             }
@@ -167,7 +166,7 @@
             // console.log(i, bool_lesson_items, bool_lesson_items[button_id]);
             item_button.classList.add("user-word-button");
             // item_button.href = "/dict_word/" + item_list[i][item_js_table["id"]];
-            // item_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
+            // item_button.style = "width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
             item_button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '
             + item_list[i][item_js_table["translation"]];
 

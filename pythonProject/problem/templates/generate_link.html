@@ -51,7 +51,7 @@
     link_input = document.getElementById("link_input");
     send_button = document.getElementById("send_button");
     send_button.addEventListener("click", async function(event){
-        const response = await fetch("http://127.0.0.1:5000/add_token_to_user/{{ user.id }}", {
+        const response = await fetch("/add_token_to_user/{{ user.id }}", {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -66,7 +66,7 @@
         response.json().then(data => {
           console.log(data);
           hash_token = data["hash_token"];
-          link_input.value = "http://127.0.0.1:5000/profile_change/" + hash_token;
+          link_input.value = "/profile_change/" + hash_token;
         });
     }, false)
 

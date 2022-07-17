@@ -15,9 +15,9 @@
         {% else %}
         <button style="width: 50px;
     height: 50px;
-    margin-top: 50px;" id="audio_but" class="c-button" name="task-field" >
+    margin-top: 50px;" id="audio_but" class="c-button" name="task-field">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-                <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;" />
+                <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
             </svg>
         </button>
         {% endif %}
@@ -26,11 +26,11 @@
         display: flex;
         justify-content: center;">
         {% if trainer.ans_side < 5 %}
-            {% for i in range(answer_button_number) %}
-            <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
-                <img name="{{ i }}" src=""/>  <!--value="myimage"-->
-            </button>
-            {% endfor %}
+        {% for i in range(answer_button_number) %}
+        <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+            <img name="{{ i }}" src=""/>  <!--value="myimage"-->
+        </button>
+        {% endfor %}
         {% endif %}
     </div>
     <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
@@ -51,6 +51,7 @@
     for (let i = 0; i < lesson.length; i += 1){
         lesson[i] = lesson[i].split(";");
     }
+    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
     var all_words = "{{ all_words }}";
     all_words = all_words.split(";;;");
     for (let i = 0; i < all_words.length; i += 1){
@@ -102,7 +103,7 @@
     }
 
     function audioButtonClick(event){
-        if (audio_playing){task_audio.pause();}
+        if (!task_audio.paused){task_audio.pause(); task_audio.currentTime = 0;}
         else {task_audio.play();}
         // alert(playing);
         audio_playing = !audio_playing;
@@ -233,6 +234,7 @@
     continue_button = document.getElementById("continue");
     continue_button.addEventListener("click", continueButtonClick, false);
     buttonsInit();
+
 
 </script>
 {% endblock %}

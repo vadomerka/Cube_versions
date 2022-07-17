@@ -20,7 +20,11 @@
         border-color: red;
         border-width: 5px;
     }
-
+    .item-button{
+        width: 250px;
+        height: 36px;
+        overflow: hidden;
+        text-overflow: ellipsis;
 </style>
 <h1>{{ lesson_data.name }}</h1>
 <div>
@@ -52,8 +56,8 @@
                     flex-wrap: wrap;
                     flex-direction: row;
                     justify-content: center;">
-            <a href="/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
-               class="btn btn-primary" style="min-width: 250px">
+            <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
+               class="btn btn-primary item-button" style="min-width: 250px">
                 {{ trainer.name }}
             </a>
             {% if current_user.teacher %}
@@ -102,6 +106,7 @@
             item_list[i][item_js_table["id"]];
             button.classList.add("btn");
             button.classList.add("btn-primary");
+            button.classList.add("item-button");
 
             // button.classList.add("user-word-button");
             button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '

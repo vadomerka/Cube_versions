@@ -890,8 +890,8 @@ def dict_word_view(word_id):
                            dict=all_words,
                            prev_button_visibility=prev_button_visibility,
                            next_button_visibility=next_button_visibility,
-                           prev_word_url="http://127.0.0.1:5000/" + "dict_word/" + str(prev_id),
-                           next_word_url="http://127.0.0.1:5000/" + "dict_word/" + str(next_id))
+                           prev_word_url="/dict_word/" + str(prev_id),
+                           next_word_url="/dict_word/" + str(next_id))
 
 
 @app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/word/<int:word_id>',
@@ -933,15 +933,15 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            dict=lesson_words,
                            prev_button_visibility=prev_button_visibility,
                            next_button_visibility=next_button_visibility,
-                           prev_word_url="http://127.0.0.1:5000/" + "courses/" + str(
+                           prev_word_url="/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
                                prev_id),
-                           next_word_url="http://127.0.0.1:5000/" + "courses/" + str(
+                           next_word_url="/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
                                next_id))
 
 
-@app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/trainer/<int:trainer_id>',
+@app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/trainer/<int:trainer_id>',
            methods=['GET', 'POST'])
 @login_required
 def lesson_trainer_view(course_id, lesson_id, trainer_id):

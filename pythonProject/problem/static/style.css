@@ -32,6 +32,8 @@ body {
     display: inline-block;
     vertical-align: top;
     color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .btn-primary:active {
   box-shadow: 0 5px #666;

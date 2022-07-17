@@ -242,9 +242,8 @@
     image = document.getElementById("up_output");
     phrase_audio.addEventListener("change", function(event){
         button = document.getElementById("phrase_audio_button");
-        val = phrase_audio.value;
-        // alert(val);
-        if (val != "" || is_phrase_audio){
+        image = document.getElementById("up_output");
+        if (phrase_audio.value != "" || is_phrase_audio){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
             image.style = "background-color: " + value_color;
         } else {
