@@ -30,6 +30,8 @@ class CourseResource(Resource):
         abort_if_not_found(course_id)
         session = db_session.create_session()
         course = session.query(Courses).get(course_id)
+        for lesson in course.lessons:
+            session.delete(lesson)
         session.delete(course)
         session.commit()
         return jsonify({'success': 'OK'})

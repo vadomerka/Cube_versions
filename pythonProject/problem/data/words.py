@@ -20,7 +20,7 @@ class Words(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
-    author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False)
+    author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=True)
 
     user = orm.relation('User')
     # courses =
@@ -36,3 +36,17 @@ class Words(SqlAlchemyBase, SerializerMixin):
     right_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     up_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     down_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+
+    learn_state = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+
+
+class WordsToUsers(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'WordsToUsers'
+    id = sqlalchemy.Column(sqlalchemy.Integer,
+                           primary_key=True, autoincrement=True)
+    words = sqlalchemy.Column(sqlalchemy.Integer,
+                              sqlalchemy.ForeignKey('words.id'))
+    users = sqlalchemy.Column(sqlalchemy.Integer,
+                              sqlalchemy.ForeignKey('users.id'))
+    learn_state = sqlalchemy.Column(sqlalchemy.Integer,
+                                    nullable=True, default=0)

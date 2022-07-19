@@ -6,7 +6,7 @@ from flask_restful import Api
 
 # tables
 from data import db_session
-from data.words import Words, words_to_lesson
+from data.words import Words, words_to_lesson, WordsToUsers
 from data.lessons import Lessons, lessons_to_course
 from data.courses import Courses, users_to_course
 from data.users import User
@@ -25,12 +25,14 @@ from resourses.lesson_resourses import LessonResource
 from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
 import requests
-
+from sqlalchemy import insert, create_engine
 import os
 import datetime as dt
 from PIL import Image
 import vlc
 
+
+engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -322,7 +324,8 @@ def delete_course(course_id):
     if ret == {'success': 'OK'}:
         return redirect("/courses")
     else:
-        return abort(404, message=f"Course {course_id} not found")
+        print("Couldn't delete course " + str(course_id))
+        return redirect("/courses")
 
 
 @app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
@@ -724,8 +727,8 @@ def add_word():
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
-        print(new_word.hieroglyph)
-        print(new_word.translation)
+        # print(new_word.hieroglyph)
+        # print(new_word.translation)
         front = request.files['front']
         left = request.files['left']
         right = request.files['right']
@@ -806,7 +809,34 @@ def add_word():
             new_word.left_side_audio = "undefined_translation_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
+        # stmt = insert(Courses).values(id=100, name='', about='')
+        # with engine.connect() as conn:
+        #     result = conn.execute(stmt)
+        #     conn.commit()
+        # print(new_word.id)
+        # stmt = insert(WordsToUsers).values(words=new_word.id, users=1, learn_state=0)
+        # print(stmt, new_word.id, user.id, 0)
+        # engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
+        # with engine.connect() as conn:
+        #     result = conn.execute(stmt)
+        #     conn.commit()
+        # print(stmt, new_word.id, user.id, 0)
+        # print(db_sess.query(WordsToUsers).all())
+        for user in db_sess.query(User).all():
+            db_sess.add(WordsToUsers(
+                words=new_word.id,
+                users=user.id,
+                learn_state=0
+            ))
+            # engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
+            # stmt = insert(WordsToUsers).values(words=new_word.id, users=user.id, learn_state=0)
+            # # print(stmt, new_word.id, user.id, 0)
+            # with engine.connect() as conn:
+            #     result = conn.execute(stmt)
+            #     conn.commit()
+            # print(stmt, new_word.id, user.id, 0)
         db_sess.commit()
+        # print(db_sess.query(WordsToUsers).all())
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, filename="tmp",
