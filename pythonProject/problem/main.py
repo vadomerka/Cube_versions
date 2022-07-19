@@ -198,6 +198,12 @@ def add_pupil():
         # user.set_password(form.password.data)
         user.creator = current_user.id
         db_sess.add(user)
+        for word in db_sess.query(Words).all():
+            db_sess.add(WordsToUsers(
+                words=word.id,
+                users=user.id,
+                learn_state=0
+            ))
         db_sess.commit()
         return redirect('/generate_link/' + str(user.id))
         # user = db_sess.query(User).filter(User.email == form.email.data).first()
@@ -809,34 +815,13 @@ def add_word():
             new_word.left_side_audio = "undefined_translation_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
-        # stmt = insert(Courses).values(id=100, name='', about='')
-        # with engine.connect() as conn:
-        #     result = conn.execute(stmt)
-        #     conn.commit()
-        # print(new_word.id)
-        # stmt = insert(WordsToUsers).values(words=new_word.id, users=1, learn_state=0)
-        # print(stmt, new_word.id, user.id, 0)
-        # engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
-        # with engine.connect() as conn:
-        #     result = conn.execute(stmt)
-        #     conn.commit()
-        # print(stmt, new_word.id, user.id, 0)
-        # print(db_sess.query(WordsToUsers).all())
         for user in db_sess.query(User).all():
             db_sess.add(WordsToUsers(
                 words=new_word.id,
                 users=user.id,
                 learn_state=0
             ))
-            # engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
-            # stmt = insert(WordsToUsers).values(words=new_word.id, users=user.id, learn_state=0)
-            # # print(stmt, new_word.id, user.id, 0)
-            # with engine.connect() as conn:
-            #     result = conn.execute(stmt)
-            #     conn.commit()
-            # print(stmt, new_word.id, user.id, 0)
         db_sess.commit()
-        # print(db_sess.query(WordsToUsers).all())
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, filename="tmp",
