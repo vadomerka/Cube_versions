@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 style="color: white;">Выберете правильный вариант ответа</h1>
+<div class="test">
+    <div class="task-box" style="position: relative; height: 150px;
+        display: flex;
+        justify-content: center;">
+        {% if test.check_side < 5 %}
+        <img src="" class="task-field" name="task-field" style="
+        position: absolute;
+        height: 150px;
+        width: 150px">
+        {% else %}
+        <button style="width: 50px;
+    height: 50px;
+    margin-top: 50px;" id="audio_but" class="c-button" name="task-field">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
+            </svg>
+        </button>
+        {% endif %}
+    </div>
+    <div class="answer-box" style="
+        display: flex;
+        justify-content: center;">
+        {% if test.ans_side < 5 %}
+        {% for i in range(answer_button_number) %}
+        <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+            <img name="{{ i }}" src=""/>  <!--value="myimage"-->
+        </button>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
+        <h3 id="left_word_number">start text</h3>
+        <a id="continue" class="btn btn-primary my-btn" hidden style="
+        color: white; right: 20%; position: absolute;">Продолжить</a>
+    </div>
+</div>
+<script>
+    // var test_word_number = 10;
+    var width = window.innerWidth
+    var height = window.innerHeight
+    var extra_size_ansbut = 50;
+    var img_size = 100;
+
+    var lesson = "{{ lesson_words }}";
+    lesson = lesson.split(";;;");
+    for (let i = 0; i < lesson.length; i += 1){
+        lesson[i] = lesson[i].split(";");
+    }
+    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
+    var all_words = "{{ all_words }}";
+    all_words = all_words.split(";;;");
+    for (let i = 0; i < all_words.length; i += 1){
+        all_words[i] = all_words[i].split(";");
+    }
+
+    var task_audio;
+    var audio_playing = false;
+    var results = [];
+    var unlearned = [];
+    for (let i = 0; i < lesson.length; i++) {
+        results.push(false);
+        unlearned.push(i);
+    }
+    var current_word = 0;
+    var check_side = {{ test.check_side }} + 1;
+    var ans_side = {{ test.ans_side }} + 1;
+
+    word_wrong_variants = [];
+    for (let i = 0; i < lesson.length; i++){
+        tmp_wrong_vars = []
+        for (let i = 0; i < all_words.length; i++) {
+            if (all_words[i][0] != lesson[current_word][0]){
+                tmp_wrong_vars.push(all_words[i][ans_side]);
+            }
+        }
+        shuffle(tmp_wrong_vars);
+        word_wrong_variants.push(tmp_wrong_vars);
+    }
+
+    function shuffle(array) {
+      let currentIndex = array.length,  randomIndex;
+      while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    function resultsCheck(array){
+        is_true = true;
+        for (let i = 0; i < array.length; i++){
+            if (!array[i]){
+                is_true = false;
+            }
+        }
+        return is_true;
+    }
+
+    function audioButtonClick(event){
+        if (!task_audio.paused){task_audio.pause(); task_audio.currentTime = 0;}
+        else {task_audio.play();}
+        // alert(playing);
+        audio_playing = !audio_playing;
+        // alert(audio_playing);
+    }
+
+    function ansButtonClick(event){
+        val = event.target.value;
+        unlearned = unlearned.slice(1, unlearned.length);  // удаляем первый элемент
+
+        if (val == lesson[current_word][ans_side]){
+            results[current_word] = true;
+            // alert("correct")
+            // если ответ верный ничего не делаем
+            if (event.target.type == undefined){
+                butId = parseInt(event.target.name);
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'green';
+                // ev_but.style.color = 'blue';
+            } else {
+                event.target.style.backgroundColor = 'green';
+                // event.target.style.color = 'blue';
+            }
+        } else {
+            //alert("incorrect")
+            ans_buttons = document.getElementsByClassName("ans-button");
+            for (let i = 0; i < ans_buttons.length; i += 1){
+                if (ans_buttons[i].value == lesson[current_word][ans_side]){
+                    right_answer_id = i;
+                    // alert(right_answer_id);
+                    break;
+                }
+                // alert("for");
+            }
+            // alert("incorrect")
+
+            // правильный ответ становится зеленым
+            butId = right_answer_id;
+            // alert(butId);
+            ev_but = document.getElementById(butId);
+            ev_but.style.backgroundColor = 'green';
+
+            // нажатая кнопка становится красной
+            if (event.target.type == undefined){  // если человек нажал на картинку
+                butId = parseInt(event.target.name);
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'salmon';
+                // ev_but.style.color = 'blue';
+            } else {  // если человек нажал на саму кнопку
+                event.target.style.backgroundColor = 'salmon';
+                // event.target.style.color = 'blue';
+            }
+            results[current_word] = true;
+            // если ответ неверный, добавляем элемент в конец unlearned
+            // unlearned.push(current_word);
+        }
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i += 1){
+            ans_buttons[i].disabled = true;
+        }
+        // alert(unlearned);
+        // берем следующий элемент unlearned
+        if (resultsCheck(results)){
+            // alert("finished");
+            continue_button = document.getElementById("continue");
+            continue_button.innerText = "Вернуться к уроку";
+            continue_button.href = "{{ back_url }}";
+            continue_button.removeEventListener("click", continueButtonClick, false);
+        } else {
+            current_word = unlearned[0];
+        }
+        document.getElementById("continue").hidden = false;
+        // buttonsInit();
+    }
+
+    function continueButtonClick(event){
+        document.getElementById("continue").hidden = true;
+        buttonsInit();
+    }
+
+    // alert(ans_buttons[0]);
+    function buttonsInit(){
+        // задаем задание
+        task_but = document.getElementsByName("task-field")[0];
+        task_but.src = "/static/" + lesson[current_word][check_side];
+        if ({{ test.check_side }} >= 5) {  // если задание - аудио файл - загружаем для него аудио
+            task_audio = new Audio(task_but.src);
+            // audioButtonClick
+            audio_but = document.getElementById("audio_but");
+            // alert(audio_but);
+            audio_but.addEventListener("click", audioButtonClick, false);
+        }
+        // task_but.style = "height: 150px; width: 150px";
+
+        wrong_variants =  word_wrong_variants[current_word]  // ff
+        var ans_variants = [lesson[current_word][ans_side]];
+        for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
+            ans_variants.push(wrong_variants[i]);
+        }
+        // alert(ans_variants.length);
+
+        shuffle(ans_variants);
+        // alert(ans_variants);
+
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i++) {
+            ans_buttons[i].addEventListener("click", ansButtonClick, false);
+            but_img = ans_buttons[i].getElementsByTagName("img")[0];
+            but_img.src = "/static/" + ans_variants[i];
+            // alert(but_img.src);
+            ans_buttons[i].value = ans_variants[i];
+            but_img.value = ans_variants[i];
+            but_img.style.width = (img_size).toString() + "px";
+            but_img.style.height = (img_size).toString() + "px";
+            ans_buttons[i].style.minWidth = (Number(but_img.style.width.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            ans_buttons[i].style.minHeight = (Number(but_img.style.height.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            ans_buttons[i].style.backgroundColor = 'white';
+            ans_buttons[i].disabled = false;
+        };
+        // сколько слов осталось
+        left_words_number_string = unlearned.length.toString();
+        document.getElementById("left_word_number").innerText = "Осталось слов: " +
+        left_words_number_string + "/" + lesson.length.toString();
+    }
+
+    continue_button = document.getElementById("continue");
+    continue_button.addEventListener("click", continueButtonClick, false);
+    buttonsInit();
+
+
+</script>
+{% endblock %}

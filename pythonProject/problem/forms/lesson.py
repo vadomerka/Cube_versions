@@ -17,3 +17,7 @@ class AddWordsToLessonForm(FlaskForm):
 
 class AddTrainersToLessonForm(FlaskForm):
     submit = SubmitField('Применить')
+
+
+class AddTestsToLessonForm(FlaskForm):
+    submit = SubmitField('Применить')

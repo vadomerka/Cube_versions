@@ -24,6 +24,8 @@ class LessonResource(Resource):
             [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
         ret["lesson"]["trainers"] = \
             [item.to_dict(only=('id', 'name')) for item in list(lesson.trainers)]
+        ret["lesson"]["tests"] = \
+            [item.to_dict(only=('id', 'name')) for item in list(lesson.tests)]
         # print(lesson.words)
         return jsonify(ret)
 

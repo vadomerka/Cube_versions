@@ -75,6 +75,33 @@
         </div>
         {% endif %}
     </div>
+    <div class="column">
+        <h2>Тесты урока</h2>
+        {% for test in lesson_data.tests %}
+        <div style="display: flex;
+                    direction: row;
+                    flex-wrap: wrap;
+                    flex-direction: row;
+                    justify-content: center;">
+            <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
+               class="btn btn-primary item-button" style="min-width: 250px">
+                {{ test.name }}
+            </a>
+            {% if current_user.teacher %}
+            <a href="/delete_test_from_lesson/{{ lesson_data.id }}/{{ test.id }}"
+               class="btn btn-danger">
+                Удалить из урока
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% if current_user.teacher %}
+        <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
+            <a class="btn btn-add" href="/add_tests_to_lesson/{{ lesson_data.id }}">Добавить
+                тесты</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
 <script>
     function javascriptList(list){
