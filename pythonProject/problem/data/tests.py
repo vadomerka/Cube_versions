@@ -31,6 +31,8 @@ class TestsToUsers(SqlAlchemyBase, SerializerMixin):
                            primary_key=True, autoincrement=True)
     test_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey('tests.id'))
+    course_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                  sqlalchemy.ForeignKey('lessons.id'))
     lesson_id = sqlalchemy.Column(sqlalchemy.Integer,
                                   sqlalchemy.ForeignKey('lessons.id'))
     user_id = sqlalchemy.Column(sqlalchemy.Integer,

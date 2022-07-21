@@ -11,7 +11,7 @@ from data.lessons import Lessons, lessons_to_course
 from data.courses import Courses, users_to_course
 from data.users import User
 from data.trainers import Trainers
-from data.tests import Tests
+from data.tests import Tests, TestsToUsers
 
 # forms
 from forms.user import MakeUserForm, MakePasswordForm, LoginForm
@@ -1086,6 +1086,40 @@ def lesson_test_view(course_id, lesson_id, test_id):
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
                            back_button_hidden="false", all_words=lesson_all_words)
+
+
+@app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/test/<int:test_id>/result',
+           methods=['GET', 'POST'])
+@login_required
+def test_result(course_id, lesson_id, test_id):
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    # print(request.json)
+    results = request.json["results"].split(".")
+    right_answer_count = len(list(filter(lambda x: x, [bool(int(i)) for i in results[:-1]])))
+    print(right_answer_count)
+    # cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
+    prev_result = db_sess.query(TestsToUsers).filter(TestsToUsers.test_id == test_id,
+                                                     TestsToUsers.course_id == course_id,
+                                                     TestsToUsers.lesson_id == lesson_id,
+                                                     TestsToUsers.user_id == current_user.id).first()
+    if prev_result:
+        prev_result.last_result = right_answer_count
+        prev_result.best_result = max(right_answer_count, prev_result.best_result)
+    else:
+        db_sess.add(TestsToUsers(
+            test_id=test_id,
+            course_id=course_id,
+            lesson_id=lesson_id,
+            user_id=current_user.id,
+            last_result=right_answer_count,
+            best_result=right_answer_count
+        ))
+    # db_sess.merge(user)
+    db_sess.commit()
+    # return redirect("/generate_link/" + str(user_id))
+    return {'success': "OK"}
 
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
