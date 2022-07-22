@@ -6,6 +6,15 @@
         float: left;
         width: 50%;
     }
+    .row {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+        justify-content: center;
+    }
     .row:after {
         content: "";
         display: table;
@@ -25,6 +34,9 @@
         height: 36px;
         overflow: hidden;
         text-overflow: ellipsis;
+
+
+
 
 </style>
 <h1>{{ lesson_data.name }}</h1>
@@ -81,18 +93,45 @@
         </div>
         {% endif %}
     </div>
+    <h2>Тесты урока</h2>
     <div class="column">
-        <h2>Тесты урока</h2>
-        {% for test in lesson_data.tests %}
+        <div class="row">
         <div style="display: flex;
                     direction: row;
+                    flex-direction: column;
+                    justify-content: space-evenly;
                     flex-wrap: wrap;
-                    flex-direction: row;
-                    justify-content: center;">
+                    align-content: center;">
+            {% for test in lesson_data.tests %}
+
             <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
                class="btn btn-primary item-button" style="min-width: 250px">
                 {{ test.name }}
             </a>
+
+            {% endfor %}
+        </div>
+        <div style="display: flex;
+                    direction: row;
+                    flex-direction: column;
+                    justify-content: space-evenly;
+                    flex-wrap: wrap;
+                    align-content: center;
+                    align-items: center;">
+            {% for test in lesson_data.tests %}
+
+            <h3 id="test result {{ test.id }}"> 0%</h3>
+
+            {% endfor %}
+        </div>
+        <div style="display: flex;
+                    direction: row;
+                    flex-direction: column;
+                    justify-content: space-evenly;
+                    flex-wrap: wrap;
+                    align-content: stretch;">
+            {% for test in lesson_data.tests %}
+
             {% if current_user.teacher %}
             <a href="/delete_test_from_lesson/{{ lesson_data.id }}/{{ test.id }}"
                class="btn btn-danger">
@@ -106,15 +145,18 @@
 
             <i class="bi bi-trash"></i>
             {% endif %}
+
+            {% endfor %}
         </div>
-        {% endfor %}
-        {% if current_user.teacher %}
-        <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
-            <a class="btn btn-add" href="/add_tests_to_lesson/{{ lesson_data.id }}">Добавить
-                тесты</a>
-        </div>
-        {% endif %}
+
     </div>
+    {% if current_user.teacher %}
+    <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
+        <a class="btn btn-add" href="/add_tests_to_lesson/{{ lesson_data.id }}">Добавить
+            тесты</a>
+    </div>
+    {% endif %}
+        </div>
 </div>
 <script>
     function javascriptList(list){
@@ -365,6 +407,18 @@
     }
 
     // document.getElementById("submit-button").addEventListener("click", onSubmitButtonClick, false);
+    test_results = {{ test_results }};
+    for (let i = 0; i < test_results.length; i++){
+        res = test_results[i];
+        // console.log(res);
+        console.log(res[2]);
+        // console.log(items_lists.length);
+        display = document.getElementById("test result " + res[0].toString());
+        percents = (Math.round((res[2] / items_lists[0].length) * 100)).toString() + "%";
+        display.innerText = percents;
+    }
+
+
 
 </script>
 {% endblock %}

@@ -420,6 +420,7 @@ def lesson_words_js_list(array):
 def lesson_view(course_id, lesson_id):
     lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
+    db_sess = db_session.create_session()
     # print(lesson['words'])
     column_number = 1
     items_in_column_number = 13
@@ -427,10 +428,16 @@ def lesson_view(course_id, lesson_id):
         # column_number = 2
         items_in_column_number = 26
     lesson_words_js = lesson_words_js_list(lesson['words'])
+    test_results = db_sess.query(TestsToUsers).filter(TestsToUsers.course_id == course_id,
+                                                      TestsToUsers.lesson_id == lesson_id,
+                                                      TestsToUsers.user_id == current_user.id).all()
+    test_results = [[res.test_id, res.id, res.last_result, res.best_result] for res in test_results]
+    print(test_results)
     return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
                            back_button_hidden='false', back_url=f"/courses/{course_id}",
                            lesson_words_js=lesson_words_js, column_number=column_number,
-                           items_in_column_number=items_in_column_number)
+                           items_in_column_number=items_in_column_number, test_results=test_results,
+                           len_test_results=len(test_results))
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
@@ -587,13 +594,24 @@ def add_words_to_lesson(lesson_id):
         # print(str_arr)
         ans_arr = [int(item) for item in str_arr.split(",")]
         # print(ans_arr)
+        # old_list = lesson.words
+        removed_word = False
         for i in range(len(ans_arr)):
             word = db_sess.query(Words).get(i)
             if ans_arr[i] == 0:
                 if word and word in lesson.words:
                     lesson.words.remove(word)
+                    removed_word = True
             else:
                 lesson.words.append(word)
+        if removed_word:
+            test_results = db_sess.query(TestsToUsers).filter(
+                TestsToUsers.course_id == current_course.id,
+                TestsToUsers.lesson_id == lesson_id,
+                TestsToUsers.user_id == current_user.id).all()
+            for test in test_results:
+                db_sess.delete(test)
+                # db_sess.merge(current_course)
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()
@@ -653,13 +671,21 @@ def delete_word_from_lesson(lesson_id, word_id):
     # words = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
     word = db_sess.query(Words).get(word_id)
     if word in lesson.words:
-        lesson.words.remove(word)
-        db_sess.merge(lesson)
-        db_sess.commit()
         current_course = 0
         for c in db_sess.query(User).get(current_user.id).courses:
             if lesson in c.lessons:
                 current_course = c
+        print(current_course)
+        lesson.words.remove(word)
+        test_results = db_sess.query(TestsToUsers).filter(
+            TestsToUsers.course_id == current_course.id,
+            TestsToUsers.lesson_id == lesson_id,
+            TestsToUsers.user_id == current_user.id).all()
+        for test in test_results:
+            db_sess.delete(test)
+        db_sess.merge(lesson)
+        db_sess.commit()
+
         return redirect('/courses/' + str(current_course.id) + "/lesson/" + str(lesson_id))
     return abort(404, message=f"Word {word_id} not found")
 
