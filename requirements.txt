@@ -1,6 +1,5 @@
 asn1crypto==0.24.0
 httplib2==0.14.0
-language-selector==0.1
 launchpadlib==1.10.13
 oauth==1.0.1
 oauthlib==3.1.0
