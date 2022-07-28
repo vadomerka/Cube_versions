@@ -14,5 +14,4 @@ requests==2.22.0
 requests-unixsocket==0.2.0
 simplejson==3.16.0
 systemd-python==234
-ubuntu-drivers-common==0.0.0
 urllib3==1.25.8
