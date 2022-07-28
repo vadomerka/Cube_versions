@@ -45,6 +45,7 @@ api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
 login_manager = LoginManager()
 login_manager.init_app(app)
+root = "http://localhost:5000"
 
 
 def list_to_javascript(array):
@@ -81,6 +82,11 @@ def db_list_to_javascript(array):
                                   word.left_side_audio]))
     array_js = ";;;".join(array_js)
     return array_js
+
+
+@app.route("/style_loader")
+def style_loader():
+    return
 
 
 @app.route("/")
@@ -242,7 +248,7 @@ def add_token_to_user(user_id):
 @app.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def delete_user(user_id):
-    ret = delete("http://localhost:5000/rest_user/" + str(user_id)).json()
+    ret = delete(root + "/rest_user/" + str(user_id)).json()
     if ret == {'success': 'OK'}:
         return redirect("/pupils")
     else:
@@ -252,7 +258,7 @@ def delete_user(user_id):
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
 def courses():
-    user_courses = get('http://localhost:5000/rest_courses/' + str(current_user.id)).json()[
+    user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()[
         "courses"]
     return render_template('courses.html', courses=user_courses, new_id=len(user_courses) + 1,
                            back_button_hidden='true', back_url='/dictionary')
@@ -281,7 +287,7 @@ def make_course():
 def add_users_to_course(course_id):
     form = AddUsersToCourseForm()
     db_sess = db_session.create_session()
-    users = get("http://localhost:5000/rest_users").json()['users']
+    users = get(root + "/rest_users").json()['users']
     course = db_sess.query(Courses).get(course_id)
     all_pupils = []
     course_pupils = []
@@ -318,7 +324,7 @@ def add_users_to_course(course_id):
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 def delete_course(course_id):
-    ret = delete("http://localhost:5000/rest_course/" + str(course_id)).json()
+    ret = delete(root + "/rest_course/" + str(course_id)).json()
     if ret == {'success': 'OK'}:
         return redirect("/courses")
     else:
@@ -329,7 +335,7 @@ def delete_course(course_id):
 @app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 def course_view(course_id):
-    course = get('http://localhost:5000/rest_course/' + str(course_id)
+    course = get(root + '/rest_course/' + str(course_id)
                  ).json()["course"]
 
     course_about = '&lt;br&lt;'.join(course["about"].split("\r\n"))
@@ -407,7 +413,7 @@ def lesson_words_js_list(array):
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def lesson_view(course_id, lesson_id):
-    lesson = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
+    lesson = get(root + '/rest_lessons/' + str(lesson_id)
                  ).json()["lesson"]
     db_sess = db_session.create_session()
 
@@ -629,7 +635,7 @@ def change_lesson(lesson_id):
 @app.route('/courses/<int:course_id>/lesson_delete/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def delete_lesson(course_id, lesson_id):
-    ret = delete("http://localhost:5000/rest_lessons/" + str(lesson_id)).json()
+    ret = delete(root + "/rest_lessons/" + str(lesson_id)).json()
     if ret == {'success': 'OK'}:
         return redirect("/courses/" + str(course_id))
     else:
@@ -716,7 +722,7 @@ def delete_pupil_from_course(course_id, pupil_id):
 @app.route('/dictionary', methods=['GET', 'POST'])
 @login_required
 def dict_view():
-    all_words = get("http://localhost:5000/rest_dict").json()["words"]
+    all_words = get(root + "/rest_dict").json()["words"]
     my_words = []
     rest_words = []
     for word in all_words:
@@ -867,7 +873,7 @@ def add_words(number):
                 "up_side_audio": "undefined_phrase_audio.mp3",
                 "down_side_audio": "undefined_trans_audio.mp3"}
         for i in range(number):
-            ret = post("http://localhost:5000/rest_dict", json=data, params=data)
+            ret = post(root + "/rest_dict", json=data, params=data)
 
         return redirect("/dictionary")
     return redirect("/dictionary")
@@ -876,7 +882,7 @@ def add_words(number):
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
 def delete_word(word_id):
-    ret = delete("http://localhost:5000/rest_word/" + str(word_id)).json()
+    ret = delete(root + "/rest_word/" + str(word_id)).json()
 
     if ret == {'success': 'OK'}:
         return redirect("/dictionary")
@@ -887,9 +893,9 @@ def delete_word(word_id):
 @app.route('/dict_word/<int:word_id>', methods=['GET', 'POST'])
 @login_required
 def dict_word_view(word_id):
-    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
+    word = get(root + '/rest_word/' + str(word_id)).json()["word"]
 
-    all_words = get("http://localhost:5000/rest_dict").json()["words"]
+    all_words = get(root + "/rest_dict").json()["words"]
     prev_id = 1
     next_id = 1
     prev_button_visibility = "visible"
@@ -906,6 +912,7 @@ def dict_word_view(word_id):
             else:
                 next_id = all_words[i + 1]["id"]
             break
+    # print(url_for("user_data", filename=word["front_side"]))  # not working  ???
     return render_template('word_view.html',
                            front_img=url_for("static", filename=word["front_side"]),
                            left_img=url_for("static", filename=word["left_side"]),
@@ -929,8 +936,8 @@ def dict_word_view(word_id):
            methods=['GET', 'POST'])
 @login_required
 def lesson_word_view(course_id, lesson_id, word_id):
-    word = get('http://localhost:5000/rest_word/' + str(word_id)).json()["word"]
-    lesson_words = get('http://localhost:5000/rest_lessons/' + str(lesson_id)
+    word = get(root + '/rest_word/' + str(word_id)).json()["word"]
+    lesson_words = get(root + '/rest_lessons/' + str(lesson_id)
                        ).json()["lesson"]["words"]
 
     prev_id = 1
