@@ -8,7 +8,6 @@ pipreqs==0.4.11
 pyOpenSSL==19.0.0
 PyQt5==5.14.1
 python-dateutil==2.7.3
-python-debian===0.1.36ubuntu1
 PyYAML==5.3.1
 reportlab==3.5.34
 requests==2.22.0
