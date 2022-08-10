@@ -54,11 +54,11 @@
 
         back_button = document.getElementById("back_button")
         back_button.hidden = {{ back_button_hidden }};
-        if ('{{ back_button_backspace }}' != 'false')
         document.addEventListener("keydown", function(event) {
-            if (event.key == "Backspace") {
+            if (event.key == "Backspace" && document.activeElement.nodeName != "INPUT" && document.activeElement.nodeName != "TEXTAREA") {
             location.href = '{{ back_url }}';
             }
+            // console.log(document.activeElement.nodeName);
         })
     </script>
     {% block content %}{% endblock %}

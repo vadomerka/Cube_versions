@@ -40,6 +40,12 @@
         -ms-transform: translate(-50%, -50%);
         transform: translate(-50%, -50%);
     }
+    .item_button{
+        width: 250px;
+        height: 36px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     .user-word-button {
         height: 36px;
         overflow: hidden;
@@ -47,14 +53,30 @@
         margin-left: 5px;
         position: relative;
     }
+
+
 </style>
 <div style="display: flex;">
     {% if current_user.teacher %}
     <a href="/add_word" class="btn btn-success">Добавить слово</a>
     <button id="sorting_button" class="btn btn-add">Показать только свои слова</button>
     {% endif %}
-    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{ len_all_words }}</h2>
+    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{
+        len_all_words }}</h2>
 </div>
+<div class="input-group mb-3" style="width: 45%;">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+             width="30" height="30"
+             viewBox="0 0 30 30"
+             style=" fill:#000000;">
+            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+        </svg></span>
+    </div>
+    <input type="text" class="form-control" placeholder="Поиск" aria-label="Поиск"
+           aria-describedby="basic-addon1" style="height: 44px;" id="translation search field" value="">
+</div>
+
 <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
 <div class="row" id="word_row">
     {% for i in range(30) %}
@@ -65,43 +87,58 @@
 <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
     <div class="pages-row" id="pages-row">
 
-</div>
+    </div>
 </div>
 
 <script>
-    function sortingButtonClick(event){
-        if (sorting_button_state == 0){
-            sorting_button.innerText = "Показать только чужие слова";
-            current_word_list = my_words;
-        } else if (sorting_button_state == 1){
-            sorting_button.innerText = "Показать все слова";
-            current_word_list = rest_words;
-        } else if (sorting_button_state == 2){
-            sorting_button.innerText = "Показать только свои слова";
-            current_word_list = all_words;
+    function searchArrayFilter(item_list){
+        search_field = document.getElementById("translation search field");
+        val = search_field.value;
+        search_field = document.getElementById("translation search field");
+        val = search_field.value;
+        console.log(val);
+        ret_array = []
+        if (val != ""){
+            // console.log("translation search field");
+            for (var i = 0; i < item_list.length; i++) {
+                if (item_list[i][item_js_table["translation"]].includes(val)){
+                    // console.log(item_list[i][item_js_table["translation"]]);
+                    ret_array.push(item_list[i]);
+                }
+                
+            }
+        } else {
+            ret_array = item_list;
         }
-        current_page_max_number = Math.floor(current_word_list.length / 30) + 1;
-        current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-        if ((current_page_word_list[0] == "")){
-            current_page_word_list = [];
-        }
-        // console.log();
-        // alert(current_page_word_list.length == 0);
-        // alert(current_page > current_page_max_number);
-        if (current_page_word_list.length == 0 && current_page > current_page_max_number) {
-            // window.location.href = "/dictionary/" + current_page_max_number;
-            current_page = current_page_max_number;
-            current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-            // alert(current_page);
-        }
-        // alert(current_page_word_list.length == 0);
-        // alert(current_page);
-        // alert(current_page_max_number);
-        // console.log(current_page_word_list);
+        return ret_array;
+    }
+    // alert("full update");
 
-        createWordButtons(current_page_word_list);
+    function showButtons(){
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        current_page_max_number = page_numbers[sorting_button_state];
+        // current_page_max_number = Math.floor(current_word_list.length / 30) + 1;
+        // current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+
+        if ((current_page_item_list[0] == "")){
+            current_page_item_list = [];
+        }
+        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
+            current_page = current_page_max_number;
+            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        }
+        // alert(current_page_max_number);
+        // alert(current_page);
+        createitemButtons(current_page_item_list);
         createPageButtons();
-        sorting_button_state = (sorting_button_state + 1) % 3;
+    }
+
+
+    function sortingButtonClick(event){
+        sorting_button_state = (sorting_button_state + 1) % items_lists.length;
+        sorting_button.innerText = sorting_button_innerTexts[sorting_button_state];
+        current_item_list = searchArrayFilter(items_lists[sorting_button_state]);
+        showButtons();
     }
 
     function javascriptList(list){
@@ -113,47 +150,50 @@
         return list;
     }
 
-    function createWordButtons(word_list){
+    function createitemButtons(item_list){
         // delete previous buttons
         for (let i = 0; i < 30; i += 1){
-            prev_but = document.getElementById("word_button " + i.toString())
+            prev_but = document.getElementById("item_button " + i.toString())
             if (prev_but != null){prev_but.remove();}
             prev_but = document.getElementById("change_but " + i.toString())
             if (prev_but != null){prev_but.remove();}
             prev_but = document.getElementById("delete_but " + i.toString())
             if (prev_but != null){prev_but.remove();}
         }
-        // create new buttons
-        // if (word_list.length == 0) {return;}
-        // console.log("word_list len " + word_list.length.toString())
-        for (let i = 0; i < word_list.length; i += 1){
-            // console.log(i);
-            column = document.getElementById("column " + i.toString());
-            word_button = document.createElement("a");
-            word_button.id = "word_button " + i.toString();
 
-            word_button.classList.add("btn");
-            word_button.classList.add("btn-primary");
-            word_button.href = "/dict_word/" + word_list[i][word_js_table["id"]];
-            // word_button.style = "min-width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
-            word_button.innerText = word_list[i][word_js_table["hieroglyph"]] +
-            " " + word_list[i][word_js_table["translation"]];  // (page - 1) * 30 + i  + 1
-            word_button.style = "width: 250px";
-            word_button.classList.add("user-word-button");
-            column.appendChild(word_button);
+        for (let i = 0; i < item_list.length; i += 1){
+            column = document.getElementById("column " + (i).toString());
+            column.style = "flex: " + (100 / {{ column_number }}).toString() + "%";
+            item_button = document.createElement("a");
+            item_button.id = "item_button " + i.toString();
+            // item_button.type = "button";
+            item_button.href = "/dict_word/" + item_list[i][item_js_table["id"]];
+            item_button.classList.add("btn");
+            item_button.classList.add("btn-primary");
+            item_button.classList.add("item_button");
 
-            if ({{ current_user.id }} == word_list[i][word_js_table["author"]]){
+            // item_button.classList.add("not-course-word");
+            button_id = item_list[i][item_js_table["id"]];
+            item_button.classList.add("user-word-button");
+            // item_button.href = "/dict_word/" + item_list[i][item_js_table["id"]];
+            // item_button.style = "width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
+            item_button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '
+            + item_list[i][item_js_table["translation"]];
+
+            column.appendChild(item_button);
+            // console.log(item_list[i][item_js_table["author"]]);
+            if ({{ current_user.id }} == item_list[i][item_js_table["author"]]){
                 change_but = document.createElement("a");
                 delete_but = document.createElement("a");
                 change_but.id = "change_but " + i.toString();
                 delete_but.id = "delete_but " + i.toString();
-                change_but.href = "/change_word/" + word_list[i][word_js_table["id"]];
+                change_but.href = "/change_word/" + item_list[i][item_js_table["id"]];
                 change_but.classList.add("btn");
                 change_but.classList.add("btn-warning");
                 change_but.classList.add("user-word-button");
                 change_but.innerText = "Изменить";
 
-                delete_but.href = "/delete_word/" + word_list[i][word_js_table["id"]];
+                delete_but.href = "/delete_word/" + item_list[i][item_js_table["id"]];
                 delete_but.classList.add("btn");
                 delete_but.classList.add("btn-danger");
                 delete_but.classList.add("user-word-button");
@@ -163,7 +203,6 @@
             }
         }
     }
-
 
 
     function createOnePageButton(row, text, onClickFunction){
@@ -189,7 +228,7 @@
         prev_but = document.getElementById("page_button <");
         if (prev_but != null){prev_but.remove();}
 
-        for (let i = 1; i < all_page_number + 1; i++){
+        for (let i = 1; i < page_numbers[0] + 1; i++){
             prev_but = document.getElementById("page_button " + i.toString());
             if (prev_but != null){prev_but.remove();}
         }
@@ -202,10 +241,12 @@
 
     function pageButtonNumberFunction(event){
         // alert(event.target.innerText);
+        // alert("pageButtonNumberFunction -1");
         current_page = parseInt(event.target.innerText, 10);
-        // alert(current_page);
-        current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-        createWordButtons(current_page_word_list);
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        // alert("createitemButtons 1")
+        createitemButtons(current_page_item_list);
+        // alert("createitemButtons 2")
         if (current_page_max_number > 1){  // f
             // alert("creating page buttons");
             createPageButtons();
@@ -216,10 +257,9 @@
         if (button_text == "<<"){
             return function(event){
                 current_page = 1;
-                current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-                createWordButtons(current_page_word_list);
+                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                createitemButtons(current_page_item_list);
                 if (current_page_max_number > 1){  // f
-                    // alert("creating page buttons");
                     createPageButtons();
                 }
             };
@@ -227,20 +267,17 @@
             return function(event){
                 if (current_page != 1) {
                     current_page -= 1;
-                    current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-                    createWordButtons(current_page_word_list);
-                    if (current_page_max_number > 1){  // f
-                        // alert("creating page buttons");
-                        createPageButtons();
-                    }
+                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                    createitemButtons(current_page_item_list);
+                    if (current_page_max_number > 1){createPageButtons();}
                 }
             };
         } else if (button_text == ">"){
             return function(event) {
                 if (current_page != current_page_max_number) {
                     current_page += 1;
-                    current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-                    createWordButtons(current_page_word_list);
+                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                    createitemButtons(current_page_item_list);
                     if (current_page_max_number > 1){  // f
                         // alert("creating page buttons");
                         createPageButtons();
@@ -250,8 +287,8 @@
         } else if (button_text == ">>"){
             return function(event){
                 current_page = current_page_max_number;
-                current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
-                createWordButtons(current_page_word_list);
+                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+                createitemButtons(current_page_item_list);
                 if (current_page_max_number > 1){  // f
                     // alert("creating page buttons");
                     createPageButtons();
@@ -261,7 +298,6 @@
     }
 
     function createPageButtons(){
-<!--        <div class="column" id="column  i "></div>-->
         deletePageButtons();
         if (current_page_max_number > 1){
             pages_row = document.getElementById("pages-row");
@@ -295,6 +331,7 @@
                     }
                 }
             }
+            // alert()
             // for (let i = 0; i < current_page_max_number; i ++){
             //     createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
             // }
@@ -303,32 +340,51 @@
         }
     }
 
-
     sorting_button = document.getElementById("sorting_button");
     // alert(sorting_button);
     if (sorting_button != null){
         sorting_button.addEventListener("click", sortingButtonClick, false);
     }
+    sorting_button_innerTexts = ["Показать только свои слова",
+                                 "Показать только чужие слова",
+                                 "Показать все слова"];
+    sorting_button.innerText = sorting_button_innerTexts[0];
+
     var sorting_button_state = 0;
     var current_page = 1;
+    var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
 
-    all_words = javascriptList("{{ all_words_js }}");
-    my_words = javascriptList("{{ my_words_js }}");
-    rest_words = javascriptList("{{ rest_words_js }}");
 
-    all_page_number = Math.floor(all_words.length / 30) + 1
-    my_page_number = Math.floor(my_words.length / 30) + 1
-    rest_page_number = Math.floor(rest_words.length / 30) + 1
+    items_lists = [all_items = javascriptList("{{ all_items_js }}"),
+                   my_items = javascriptList("{{ my_items_js }}"),
+                   rest_items = javascriptList("{{ rest_items_js }}")];
 
-    my_page_words = my_words.slice(30 * (current_page - 1), 30 * current_page);
-    rest_page_words = rest_words.slice(30 * (current_page - 1), 30 * current_page);
-    all_page_words = all_words.slice(30 * (current_page - 1), 30 * current_page);
+    console.log(items_lists);
+    for (let i = 0; i < items_lists.length; i++){
+        if (items_lists[i][0] == ''){
+            items_lists[i] = [];
+        }
+        // console.log(items_lists[i]);
+    }
 
-    current_word_list = all_words;
-    current_page_word_list = all_page_words;
-    current_page_max_number = all_page_number;
+    page_numbers = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
+        page_numbers.push(page_number);
+        // console.log(page_numbers[i]);
+    }
+    page_lists = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+        max_items_number_on_one_page * current_page);
+        page_lists.push(page_items);
+    }
 
-    word_js_table = {
+    var current_item_list = searchArrayFilter(items_lists[sorting_button_state]);
+    current_page_item_list = page_lists[sorting_button_state];
+    current_page_max_number = page_numbers[sorting_button_state];
+
+    item_js_table = {
     "id": 0,
     "hieroglyph": 1,
     "translation": 2,
@@ -342,11 +398,22 @@
     "left_side_audio": 10,
     "author": 11
     };
-    createWordButtons(current_page_word_list);
-    if (current_page_max_number > 1){  // f
-        // alert("creating page buttons");
+
+    createitemButtons(current_page_item_list);
+    if (current_page_max_number > 1){
         createPageButtons();
     }
+
+    function onSearchChange(event){
+        if (event.key != "Control"){
+            // console.log(event.key);
+            current_item_list = searchArrayFilter(items_lists[sorting_button_state]);
+            showButtons();
+        }
+    }
+
+    search_field = document.getElementById("translation search field");
+    search_field.addEventListener("keyup", onSearchChange, false);
 
 </script>
 {% endblock %}
