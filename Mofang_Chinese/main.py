@@ -220,7 +220,6 @@ def add_pupil():
         db_sess.commit()
         return redirect('/generate_link/' + str(user.id))
     return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
-                           back_button_backspace='false',
                            form=form)
 
 
@@ -278,8 +277,7 @@ def make_course():
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, function="Добавить курс",
-                           back_button_hidden='false', back_url="/courses",
-                           back_button_backspace='false')
+                           back_button_hidden='false', back_url="/courses")
 
 
 @app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
@@ -319,6 +317,8 @@ def add_users_to_course(course_id):
                            course_pupils=course_pupils,
                            back_button_hidden='false', back_url="/courses",
                            len_pupils=len(all_pupils))
+# /home/rad/PycharmProjects/venv/lib/python3.6/site-packages/pip/_internal/cli/cmdoptions.py
+# стандартная библеотека логов питона
 
 
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
@@ -732,14 +732,15 @@ def dict_view():
             rest_words.append(word)
     len_all_words = len(all_words)
 
-    my_words_js = list_to_javascript(my_words)
-    rest_words_js = list_to_javascript(rest_words)
-    all_words_js = list_to_javascript(all_words)
+    my_items_js = list_to_javascript(my_words)
+    rest_items_js = list_to_javascript(rest_words)
+    all_items_js = list_to_javascript(all_words)
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
-                           my_words_js=my_words_js, rest_words_js=rest_words_js,
-                           all_words_js=all_words_js, back_button_hidden="true")
+                           my_items_js=my_items_js, rest_items_js=rest_items_js,
+                           all_items_js=all_items_js, back_button_hidden="true",
+                           column_number=2, items_in_column_number=15)
 
 
 @app.route('/add_word', methods=['GET', 'POST'])
@@ -852,7 +853,8 @@ def add_word():
                            left_start_preview=left_start_preview,
                            right_start_preview=right_start_preview,
                            up_start_preview=up_start_preview,
-                           down_start_preview=down_start_preview)
+                           down_start_preview=down_start_preview,
+                           back_button_hidden="false", back_url="/dictionary")
 
 
 @app.route('/add_words/<int:number>', methods=['GET', 'POST'])
