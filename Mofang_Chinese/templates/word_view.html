@@ -412,6 +412,92 @@
             // debug();
         }
 
+        function cubeSideText(text){
+            const cv = document.createElement( 'canvas' );
+            cube_width = 1000
+            cv.width = cube_width //  3 * 512
+            cv.height = cube_width;
+            const ctx = cv.getContext( '2d' );
+            ctx.fillStyle = '#fefefe'; 
+            ctx.fillRect( 0, 0, cv.width, cv.height );
+            ctx.fillStyle = '#129912';
+            ctx.textAlign = "center";
+            // ctx.textJustify = "center";
+            ctx.textBaseline = "top";
+                        // https://unicode.org/emoji/charts/full-emoji-list.html#1f642 (mark and copy - column Browser)
+            text_words = text.split(" ");
+            average_line_len = 9;
+            console.log(text_words)
+            // if (text_words[0] == '') {text_words = text_words.slice(1, text_words.length);}
+            i = 0;
+            while (i < (text_words.length - 1)){
+                if (text_words[i] == '') {text_words.splice(i, 1);}
+                console.log(text_words, i)
+                if (i == 0){
+                    if ((text_words[i + 1].length + text_words[i].length + 1) < average_line_len) {
+                        text_words[i] = text_words[i] + ' ' + text_words[i + 1];
+                        text_words.splice(i + 1, 1);
+                        i--;
+                    } 
+                } else {
+                    if ((text_words[i - 1].length + text_words[i].length + 1) < average_line_len || 
+                        (text_words[i + 1].length + text_words[i].length + 1) < average_line_len){
+                        if (text_words[i - 1].length < text_words[i + 1].length) {
+                            text_words[i] = text_words[i - 1] + ' ' + text_words[i]
+                            text_words.splice(i - 1, 1);
+                            // console.log(text_words, i);
+                            i--;
+                        } else {
+                            text_words[i] = text_words[i] + ' ' + text_words[i + 1];
+                            // console.log(text_words)
+                            text_words.splice(i + 1, 1);
+                            // console.log(text_words, i);
+                            i--;
+                        }
+                    }}
+                i++;
+            }
+            console.log(text_words);
+            max_word_len = 0;
+            for (var i = 0; i < text_words.length; i++) {
+                if (max_word_len < text_words[i].length) {
+                    max_word_len = text_words[i].length;
+                }
+            }
+            // font_size = 150;
+            max_line_len = max_word_len;
+            symbol_size_const = 0.6;
+            // max_line_len = 1000 / (font_size * symbol_size_const);
+            font_size = Math.round(1000 / ((max_word_len + 1) * symbol_size_const));
+            max_font_size = 350
+            if (font_size > max_font_size) {font_size = max_font_size;}
+            lines_number = (1000 / (font_size * symbol_size_const * 2)).toString().split(".")[0];
+            
+            up_little_bit = (-max_font_size + font_size) * (-1/8);
+            // max_letter
+            // 150 11   90,9
+            // 100 16.6 60,24
+
+            if (lines_number % 2 != text_words.length % 2) {lines_number = parseInt(lines_number) + 1;}
+            console.log(font_size);
+            console.log(max_word_len);
+            console.log(lines_number);
+            ctx.font = 'bold ' + font_size + 'px Monospace';
+            for (var i = 0; i < text_words.length; i++) {
+                line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
+                ctx.fillText(text_words[i], cube_width / 2, (line_num) * cv.height + up_little_bit);
+            }
+            // ctx.fillText( line_1, cube_width / 2, (0 / 6) * cv.height - up_little_bit);
+            // ctx.fillText( line_2, cube_width / 2, (1 / 6) * cv.height - up_little_bit);
+            // ctx.fillText( line_3, cube_width / 2, (2 / 6) * cv.height - up_little_bit);
+            // ctx.fillText( line_4, cube_width / 2, (3 / 6) * cv.height - up_little_bit);
+            // ctx.fillText( line_5, cube_width / 2, (4 / 6) * cv.height - up_little_bit);
+            // ctx.fillText( line_6, cube_width / 2, (5 / 6) * cv.height - up_little_bit);
+            const cvTexture = new THREE.Texture( cv );
+            cvTexture.needsUpdate = true; // otherwise all black only
+            return cvTexture;
+        }
+
         document.addEventListener('mousedown', mouseListener);
 
     	var scene = new THREE.Scene();
@@ -429,7 +515,6 @@
         var back_img = "{{ back_img }}";
         var left_img = "{{ left_img }}";
         var right_img = "{{ right_img }}";
-
         var up_img = "{{ up_img }}";
         var start_up_img = "{{ up_img }}";
         up_img = up_img.split(".");
@@ -440,12 +525,13 @@
         down_img = down_img.split(".");
         down_img[down_img.length - 2] = down_img[down_img.length - 2] + "_0";
         down_img = (down_img).join(".");
+
         materials = [
             new THREE.MeshBasicMaterial({map: loader.load(right_img)}), // right
             new THREE.MeshBasicMaterial({map: loader.load(left_img)}),  // left
             new THREE.MeshBasicMaterial({map: loader.load(up_img)}),    // up
             new THREE.MeshBasicMaterial({map: loader.load(down_img)}),  // down
-            new THREE.MeshBasicMaterial({map: loader.load(front_img)}), // front
+            new THREE.MeshBasicMaterial({map: cubeSideText("Конец переводачика в жс 2")}),             // front
             new THREE.MeshBasicMaterial({map: loader.load(back_img)}),  // back
         ];
         cube = new THREE.Mesh(geometry, materials);
