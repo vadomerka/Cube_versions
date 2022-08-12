@@ -20,6 +20,8 @@
     .side-image {
         padding: 5px;
     }
+
+
 </style>
 <form method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
@@ -39,132 +41,91 @@
         {{ error }}
     </p>
     {% endfor %}
-    <div class="form-group" style="display: flex;
-                                   align-items: center;
-                                   justify-content: center;">
-        <div style="height: 600px; width: 750px">
-            <div class="row">
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column">
-                    <input type="file" accept="audio/*"
-                           class="form-control-file" id="phrase_audio" name="phrase_audio"
-                           value='{{ phrase_audio_file }}' hidden>
-                    <label id="phrase_audio_button" for="phrase_audio" style="min-width: 75px; min-height: 75px"
-                           class="c-button">
-                        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-                            <polygon points="67,57 67,157, 157,107"
-                                     style="fill:lime;fill-rule:evenodd;"/>
-                        </svg>
-                    </label>
-                </div>
-                <div class="column"></div>
-                <div class="column"></div>
-            </div>
-            <div class="row">
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column">
-                    <input type="file" accept="image/*" onchange="fileLoaders[0](event)"
-                           class="form-control-file"
-                           id="up" name="up" value="{{ up_file }}" hidden>
-                    <label class="btn-primary" for="up">
-                        <img class="side-image" id="up_output" width="100%" height="100%" style="padding: 10px;"
-                             src="{{ up_start_preview }}">
-                    </label>
-                </div>
-                <div class="column"></div>
-                <div class="column"></div>
-            </div>
-
-            <div class="row">
-                <div class="column">
-                    <input type="file" accept="audio/*"
-                           class="form-control-file" id="translation_audio" name="translation_audio"
-                           value='{{ translation_audio_file }}' hidden>
-                    <label id="translation_audio_button" for="translation_audio" style="min-width: 75px; min-height: 75px"
-                           class="c-button">
-                        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-                            <polygon points="67,57 67,157, 157,107"
-                                     style="fill:lime;fill-rule:evenodd;"/>
-                        </svg>
-                    </label>
-                </div>
-                <div class="column">
-                    <input type="file" accept="image/*" onchange="fileLoaders[1](event)"
-                           class="form-control-file" id="left" name="left" value="{{ left_file }}"
-                           hidden>
-                    <label class="btn-primary" for="left">
-                        <img class="side-image" id="left_output" width="100%" height="100%" style="padding: 10px;"
-                             src="{{ left_start_preview }}">
-                    </label>
-                </div>
-                <div class="column">
-                    <input type="file" accept="image/*" onchange="fileLoaders[2](event)"
-                           class="form-control-file" id="front" name="front" value="{{ front_file }}"
-                           hidden>
-                    <label class="btn-primary" for="front">
-                        <img class="side-image" id="front_output" width="100%" height="100%" style="padding: 10px;"
-                             src="{{ front_start_preview }}">
-                    </label>
-                </div>
-                <div class="column">
-                    <input type="file" accept="image/*" onchange="fileLoaders[3](event)"
-                           class="form-control-file" id="right" name="right" value="{{ right_file }}"
-                           hidden>
-                    <label class="btn-primary" for="right">
-                        <img class="side-image" id="right_output" width="100%" height="100%" style="padding: 10px;"
-                             src="{{ right_start_preview }}">
-                    </label>
-                </div>
-                <div class="column"></div>
-            </div>
-            <div class="row">
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column">
-                    <input type="file" accept="image/*" onchange="fileLoaders[4](event)"
-                           class="form-control-file" id="down" name="down" value="{{ down_file }}"
-                           hidden>
-                    <label class="btn-primary" for="down">
-                        <img class="side-image" id="down_output" width="100%" height="100%" style="padding: 10px;"
-                             src="{{ down_start_preview }}">
-                    </label>
-                </div>
-                <div class="column">
-                    <input type="file" accept="audio/*"
-                           class="form-control-file" id="transcription_audio"
-                           name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
-                    <label id="transcription_audio_button" for="transcription_audio" style="min-width: 75px; min-height: 75px"
-                           class="c-button">
-                        <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-                            <polygon points="67,57 67,157, 157,107"
-                                     style="fill:lime;fill-rule:evenodd;"/>
-                        </svg>
-                    </label>
-                </div>
-                <div class="column"></div>
-            </div>
-        </div>
+    <p>
+        {{ form.transcription.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.transcription(class="form-control", id="transcription") }}<br>
+        {% for error in form.transcription.errors %}
+    <p content="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    <p>
+        {{ form.phrase_ch.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.phrase_ch(class="form-control", id="phrase_ch") }}<br>
+        {% for error in form.phrase_ch.errors %}
+    <p content="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    <p>
+        {{ form.phrase_ru.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.phrase_ru(class="form-control", id="phrase_ru") }}<br>
+        {% for error in form.phrase_ru.errors %}
+    <p content="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    <div class="column">
+        <input type="file" accept="audio/*"
+               class="form-control-file" id="phrase_audio" name="phrase_audio"
+               value='{{ phrase_audio_file }}' hidden>
+        <label id="phrase_audio_button" for="phrase_audio" style="min-width: 75px; min-height: 75px"
+               class="c-button">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                <polygon points="67,57 67,157, 157,107"
+                         style="fill:lime;fill-rule:evenodd;"/>
+            </svg>
+        </label>
     </div>
-
+    <div class="column">
+        <input type="file" accept="audio/*"
+               class="form-control-file" id="translation_audio" name="translation_audio"
+               value='{{ translation_audio_file }}' hidden>
+        <label id="translation_audio_button" for="translation_audio"
+               style="min-width: 75px; min-height: 75px"
+               class="c-button">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                <polygon points="67,57 67,157, 157,107"
+                         style="fill:lime;fill-rule:evenodd;"/>
+            </svg>
+        </label>
+    </div>
+    <div class="column">
+        <input type="file" accept="audio/*"
+               class="form-control-file" id="transcription_audio"
+               name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
+        <label id="transcription_audio_button" for="transcription_audio"
+               style="min-width: 75px; min-height: 75px"
+               class="c-button">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                <polygon points="67,57 67,157, 157,107"
+                         style="fill:lime;fill-rule:evenodd;"/>
+            </svg>
+        </label>
+    </div>
+    <div class="column">
+        <input type="file" accept="image/*" onchange="fileLoader(event)"
+               class="form-control-file"
+               id="image" name="image" value="{{ image_file }}" hidden>
+        <label class="btn-primary" for="image">
+            <img class="side-image" id="image_output" width="100%" height="100%" style="padding: 10px;"
+                 src="{{ image_start_preview }}">
+        </label>
+    </div>
     {{ form.submit(type="submit", class="btn btn-primary") }}
 </form>
 <script>
-    fileLoaders = [0, 0, 0, 0, 0, 0, 0, 0]
+    // fileLoaders = [0, 0, 0, 0, 0, 0, 0, 0]
     id_list = ['up_output', "left_output", "front_output", "right_output", "down_output",
                "transcription_audio_output", "phrase_audio_output"]
     start_values = []
-    for (let i = 0; i < 5; i += 1){
-        var tmp_loader = function(event) {
-            var output = document.getElementById(id_list[i]);
-            output.src = URL.createObjectURL(event.target.files[0]);
-            output.onload = function() {
-                URL.revokeObjectURL(output.src) // free memory
-            }
-        };
-        fileLoaders[i] = tmp_loader;
-    }
+    var fileLoader = function(event) {
+        var output = document.getElementById("image_output");
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function() {
+            URL.revokeObjectURL(output.src) // free memory
+        }
+    };
 
     translation_input = document.getElementById("hieroglyph");
     translation_input.value = "{{ prev_hieroglyph }}";
@@ -188,29 +149,17 @@
         // alert(val);
         if (val != ""){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-            image1.style = "background-color: " + value_color;
-            image2.style = "background-color: " + value_color;
-            image3.style = "background-color: " + value_color;
             // alert("green");
         } else {
             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-            image1.style = "background-color: " + no_value_color;
-            image2.style = "background-color: " + no_value_color;
-            image3.style = "background-color: " + no_value_color;
             // alert("red");
         }
     }, false);
     button = document.getElementById("transcription_audio_button");
     if ( ((transcription_audio.value != "") || (is_transcription_audio)) == 'true' ){
         button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-        image1.style = "background-color: " + value_color;
-        image2.style = "background-color: " + value_color;
-        image3.style = "background-color: " + value_color;
     } else {
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-        image1.style = "background-color: " + no_value_color;
-        image2.style = "background-color: " + no_value_color;
-        image3.style = "background-color: " + no_value_color;
     }
 
 
@@ -221,20 +170,16 @@
         image = document.getElementById("left_output");
         if (val != ""){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-            image.style = "background-color: " + value_color;
         } else {
             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-            image.style = "background-color: " + no_value_color;
         }
     }, false);
     button = document.getElementById("translation_audio_button");
     image = document.getElementById("left_output");
     if (((translation_audio.value != "")  || (is_translation_audio)) == 'true'){
         button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-        image.style = "background-color: " + value_color;
     } else {
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-        image.style = "background-color: " + no_value_color;
     }
 
 
@@ -245,39 +190,18 @@
         image = document.getElementById("up_output");
         if (phrase_audio.value != "" || is_phrase_audio){
             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-            image.style = "background-color: " + value_color;
         } else {
             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-            image.style = "background-color: red" + no_value_color;
         }
     }, false);
     button = document.getElementById("phrase_audio_button");
     image = document.getElementById("up_output");
-    // alert(phrase_audio.value);
     if (((phrase_audio.value != "")  || (is_phrase_audio)) == 'true'){
         button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-        image.style = "background-color: " + value_color;
     } else {
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-        image.style = "background-color: " + no_value_color;
     }
-    // audioColorChange("translation_audio")
-    // audioColorChange("transcription_audio");
-    // audioColorChange("phrase_audio");
-    // alert("{{ down_start_preview }}".indexOf("tutorial")); // /static/-1192877985595636362_up.png
-                                     // /static/tutorial_up.png  // /static/tutorial_down.png
-    // down_img = document.getElementById("down_output");
-    // down_img.addEventListener("", function(event){
-        // alert("button_change");
-        // button = document.getElementById("phrase_audio_button");
-        // val = phrase_audio.value;
-        // alert(val);
-        // if (val != "" || is_phrase_audio){
-        //             button.style = "min-width: 75px; min-height: 75px; background-color: green;";
-        //         } else {
-        //             button.style = "min-width: 75px; min-height: 75px; background-color: red;";
-        //         }
-        // }, false);
+
 
 </script>
 {% endblock %}

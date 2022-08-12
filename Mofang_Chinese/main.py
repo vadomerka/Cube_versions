@@ -55,11 +55,10 @@ def list_to_javascript(array):
         array_js.append(";".join([str(word["id"]),
                                   word["hieroglyph"],
                                   word["translation"],
-                                  word["front_side"],  # иероглиф
-                                  word["left_side"],  # перевод
-                                  word["right_side"],  # транскрипция
-                                  word["down_side"],  # картинка
-                                  word["up_side"],  # словосочетание
+                                  word["transcription"],  # иероглиф
+                                  word["phrase_ch"],  # перевод
+                                  word["phrase_ru"],  # транскрипция
+                                  word["image"],  # картинка  # словосочетание
                                   word["front_side_audio"],
                                   word["up_side_audio"],
                                   word["left_side_audio"],
@@ -72,11 +71,11 @@ def db_list_to_javascript(array):
     array_js = []
     for i in range(len(array)):
         word = lesson.words[i]
-        array_js.append(";".join([word.front_side,  # иероглиф
-                                  word.left_side,  # перевод
-                                  word.right_side,  # транскрипция
-                                  word.down_side,  # картинка
-                                  word.up_side,  # свосочетание
+        array_js.append(";".join([word.hieroglyph,  # иероглиф
+                                  word.translation,  # перевод
+                                  word.transcription,  # транскрипция
+                                  word.phrase_ch,  # картинка
+                                  word.phrase_ru,  # свосочетание
                                   word.front_side_audio,
                                   word.up_side_audio,
                                   word.left_side_audio]))
@@ -735,6 +734,9 @@ def dict_view():
     my_items_js = list_to_javascript(my_words)
     rest_items_js = list_to_javascript(rest_words)
     all_items_js = list_to_javascript(all_words)
+    print(my_items_js)
+    print(rest_items_js)
+    print(all_items_js)
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
@@ -748,22 +750,31 @@ def dict_view():
 def add_word():
     form = WordsForm()
     db_sess = db_session.create_session()
-    front_start_preview = "/static/tutorial_front.png"
-    left_start_preview = "/static/tutorial_left.png"
-    right_start_preview = "/static/tutorial_right.png"
-    up_start_preview = "/static/tutorial_up.png"
-    down_start_preview = "/static/tutorial_down.png"
+    image_start_preview = "/static/tutorial_down.png"
+    # left_start_preview = "/static/tutorial_left.png"
+    # right_start_preview = "/static/tutorial_right.png"
+    # up_start_preview = "/static/tutorial_up.png"
+    # down_start_preview = "/static/tutorial_down.png"
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
-
-        front = request.files['front']
-        left = request.files['left']
-        right = request.files['right']
-        up = request.files['up']
-        down = request.files['down']
+        new_word.transcription = form.transcription.data
+        new_word.phrase_ch = form.phrase_ch.data
+        new_word.phrase_ru = form.phrase_ru.data
+        # print(1, new_word.author)
+        # print(2, new_word.hieroglyph)
+        # print(3, new_word.translation)
+        # print(4, new_word.transcription)
+        # print(5, new_word.phrase_ch)
+        # print(6, new_word.phrase_ru)
+        # print(request.files)
+        image = request.files['image']
+        # left = request.files['left']
+        # right = request.files['right']
+        # up = request.files['up']
+        # down = request.files['down']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
         translation_audio = request.files['translation_audio']
@@ -772,49 +783,12 @@ def add_word():
         save_name = str(hash(
             str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
         filepath = os.path.join(full_path, "static", save_name)
-        if front:
-            front.save(filepath + "_front.png")
-            new_word.front_side = save_name + "_front.png"
+        if image:
+            image.save(filepath + "_image.png")
+            new_word.image = save_name + "_image.png"
+            # print(7, new_word.image)
         else:
-            new_word.front_side = "undefined_image.png"
-        if left:
-            left.save(filepath + "_left.png")
-            new_word.left_side = save_name + "_left.png"
-        else:
-            new_word.left_side = "undefined_image.png"
-        if right:
-            right.save(filepath + "_right.png")
-            new_word.right_side = save_name + "_right.png"
-        else:
-            new_word.right_side = "undefined_image.png"
-        if up:
-            up.save(filepath + "_up.png")
-            new_word.up_side = save_name + "_up.png"
-            im = Image.open(filepath + "_up.png")
-            im.save(filepath + "_up_0.png")
-            im = Image.open(filepath + "_up_0.png")
-            im = im.transpose(Image.ROTATE_90)
-            im.save(filepath + "_up_90.png")
-            im = im.transpose(Image.ROTATE_90)
-            im.save(filepath + "_up_180.png")
-            im = im.transpose(Image.ROTATE_90)
-            im.save(filepath + "_up_270.png")
-        else:
-            new_word.up_side = "undefined_image_up.png"
-        if down:
-            down.save(filepath + "_down.png")
-            new_word.down_side = save_name + "_down.png"
-            im = Image.open(filepath + "_down.png")
-            im.save(filepath + "_down_0.png")
-            im = Image.open(filepath + "_down_0.png")
-            im = im.transpose(Image.ROTATE_270)
-            im.save(filepath + "_down_90.png")
-            im = im.transpose(Image.ROTATE_270)
-            im.save(filepath + "_down_180.png")
-            im = im.transpose(Image.ROTATE_270)
-            im.save(filepath + "_down_270.png")
-        else:
-            new_word.down_side = "undefined_image_down.png"
+            new_word.image = "undefined_image.png"
 
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
@@ -849,11 +823,11 @@ def add_word():
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, filename="tmp",
-                           front_start_preview=front_start_preview,
-                           left_start_preview=left_start_preview,
-                           right_start_preview=right_start_preview,
-                           up_start_preview=up_start_preview,
-                           down_start_preview=down_start_preview,
+                           image_start_preview=image_start_preview,
+                           # left_start_preview=left_start_preview,
+                           # right_start_preview=right_start_preview,
+                           # up_start_preview=up_start_preview,
+                           # down_start_preview=down_start_preview,
                            back_button_hidden="false", back_url="/dictionary")
 
 
@@ -916,11 +890,12 @@ def dict_word_view(word_id):
             break
     # print(url_for("user_data", filename=word["front_side"]))  # not working  ???
     return render_template('word_view.html',
-                           front_img=url_for("static", filename=word["front_side"]),
-                           left_img=url_for("static", filename=word["left_side"]),
-                           right_img=url_for("static", filename=word["right_side"]),
-                           up_img=url_for("static", filename=word["up_side"]),
-                           down_img=url_for("static", filename=word["down_side"]),
+                           hieroglyph=word["hieroglyph"],
+                           translation=word["translation"],
+                           transcription=word["transcription"],
+                           phrase_ch=word["phrase_ch"],
+                           phrase_ru=word["phrase_ru"],
+                           image=word["image"],
                            front_audio=url_for("static", filename=word["front_side_audio"]),
                            left_audio=url_for("static", filename=word["left_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
