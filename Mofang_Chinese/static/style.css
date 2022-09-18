@@ -3,11 +3,8 @@ body {
 
     font-size: 15px;
     color: #33;
-    background:
-    url('background_paint.jpg');
-    -webkit-background-size: cover;
-    background-size: cover;
 }
+
 .header {
     width: 100%;
 
@@ -17,16 +14,18 @@ body {
     z-index: 1000;
 }
 .navbar-brand {
-    color: #fff;
+    color: #9c1313;
     position: relative;
 }
 
 .navbar-brand:hover {
-    color: #082567;
+    color: white;
+    background-color: #9c1313;
 }
 .btn {
     margin: 0 10px;
     margin-bottom: 10px;
+    width: 155px;
 }
 .btn-primary {
     display: inline-block;
@@ -34,13 +33,55 @@ body {
     color: white;
     overflow: hidden;
     text-overflow: ellipsis;
+    background-color: #9c1313;
+    border: solid 3px white;
+    border-radius: 10px;
 }
+.btn-white:hover {
+    color: white;
+    background-color: #9c1313;
+}
+.btn-white {
+    display: inline-block;
+    vertical-align: top;
+    color: #9c1313;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: white;
+    border: solid 3px #9c1313;
+    border-radius: 10px;
+}
+
+.btn-primary:focus {
+    display: inline-block;
+    vertical-align: top;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: #9c1313;
+    border: solid 3px white;
+    border-radius: 10px;
+}
+.btn-white:focus {
+    display: inline-block;
+    vertical-align: top;
+    color: #9c1313;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: white;
+    border: solid 3px #9c1313;
+    border-radius: 10px;
+}
+
 .btn-primary:active {
   box-shadow: 0 5px #666;
   transform: translateY(4px);
 }
+
 .btn-primary:hover {
-    background-color: #082567;
+    background-color: white;
+    color: #9c1313;
+    border: solid 3px #9c1313;
 }
 .btn-success {
     color: #fce38a;
@@ -52,6 +93,11 @@ body {
     border: none;
     color: white;
 }
+.btn-delete{
+    width: 45px;
+    border: 3px white solid;
+    border-radius: 10px;
+}
 .course-card {
     width: auto;
     height: auto;
@@ -61,6 +107,7 @@ body {
 
 .card-body{
     background-color: white;
+    border: solid 3px #9c1313;
 }
 .card-title{
     width: 260px;
@@ -78,7 +125,7 @@ body {
     height: 90px;
 
     border-style: solid;
-    border-color: black;
+    border-color: #9c1313;
     margin: 10px 10px 10px 10px;
     background-color: white;
     display: flex;

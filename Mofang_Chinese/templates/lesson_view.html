@@ -31,12 +31,9 @@
     }
     .item-button{
         width: 250px;
-        height: 36px;
+        height: 43px;
         overflow: hidden;
         text-overflow: ellipsis;
-
-
-
 
 </style>
 <h1>{{ lesson_data.name }}</h1>
@@ -75,7 +72,7 @@
             </a>
             {% if current_user.teacher %}
             <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}"
-               class="btn btn-danger">
+               class="btn btn-danger btn-delete">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                      class="bi bi-trash" viewBox="0 0 16 16">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -134,7 +131,7 @@
 
             {% if current_user.teacher %}
             <a href="/delete_test_from_lesson/{{ lesson_data.id }}/{{ test.id }}"
-               class="btn btn-danger">
+               class="btn btn-danger btn-delete">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                      class="bi bi-trash" viewBox="0 0 16 16">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -203,6 +200,7 @@
                 delete_but.href = "/delete_word_from_lesson/{{ lesson_data['id'] }}" + "/" + item_list[i][item_js_table["id"]];
                 delete_but.classList.add("btn");
                 delete_but.classList.add("btn-danger");
+                delete_but.classList.add("btn-delete");
                 // delete_but.classList.add("user-word-button");
                 // trash_icon = document.createElement("svg");
                 trash_icon = document.createElementNS('http://www.w3.org/2000/svg',"svg");

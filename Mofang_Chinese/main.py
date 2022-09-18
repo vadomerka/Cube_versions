@@ -70,12 +70,13 @@ def list_to_javascript(array):
 def db_list_to_javascript(array):
     array_js = []
     for i in range(len(array)):
-        word = lesson.words[i]
+        word = array[i]
         array_js.append(";".join([word.hieroglyph,  # иероглиф
                                   word.translation,  # перевод
                                   word.transcription,  # транскрипция
                                   word.phrase_ch,  # картинка
                                   word.phrase_ru,  # свосочетание
+                                  word.image,
                                   word.front_side_audio,
                                   word.up_side_audio,
                                   word.left_side_audio]))
@@ -734,9 +735,6 @@ def dict_view():
     my_items_js = list_to_javascript(my_words)
     rest_items_js = list_to_javascript(rest_words)
     all_items_js = list_to_javascript(all_words)
-    print(my_items_js)
-    print(rest_items_js)
-    print(all_items_js)
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
@@ -794,23 +792,21 @@ def add_word():
             transcription_audio.save(filepath + "_trans_audio.mp3")
             new_word.front_side_audio = save_name + "_trans_audio.mp3"
             new_word.right_side_audio = save_name + "_trans_audio.mp3"
-            new_word.down_side_audio = save_name + "_trans_audio.mp3"
-
         else:
-
             new_word.front_side_audio = "undefined_trans_audio.mp3"
             new_word.right_side_audio = "undefined_trans_audio.mp3"
-            new_word.down_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
+            new_word.left_side_audio = save_name + "_phrase_audio.mp3"
         else:
             new_word.up_side_audio = "undefined_phrase_audio.mp3"
+            new_word.left_side_audio = "undefined_phrase_audio.mp3"
         if translation_audio:
             translation_audio.save(filepath + "_translation_audio.mp3")
-            new_word.left_side_audio = save_name + "_translation_audio.mp3"
+            new_word.down_side_audio = save_name + "_translation_audio.mp3"
         else:
-            new_word.left_side_audio = "undefined_translation_audio.mp3"
+            new_word.down_side_audio = "undefined_translation_audio.mp3"
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         for user in db_sess.query(User).all():
@@ -895,7 +891,7 @@ def dict_word_view(word_id):
                            transcription=word["transcription"],
                            phrase_ch=word["phrase_ch"],
                            phrase_ru=word["phrase_ru"],
-                           image=word["image"],
+                           image_name=url_for("static", filename=word["image"]),
                            front_audio=url_for("static", filename=word["front_side_audio"]),
                            left_audio=url_for("static", filename=word["left_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),
@@ -934,11 +930,12 @@ def lesson_word_view(course_id, lesson_id, word_id):
                 next_id = lesson_words[i + 1]["id"]
             break
     return render_template('word_view.html',
-                           front_img=url_for("static", filename=word["front_side"]),
-                           left_img=url_for("static", filename=word["left_side"]),
-                           right_img=url_for("static", filename=word["right_side"]),
-                           up_img=url_for("static", filename=word["up_side"]),
-                           down_img=url_for("static", filename=word["down_side"]),
+                           hieroglyph=word["hieroglyph"],
+                           translation=word["translation"],
+                           transcription=word["transcription"],
+                           phrase_ch=word["phrase_ch"],
+                           phrase_ru=word["phrase_ru"],
+                           image_name=url_for("static", filename=word["image"]),
                            front_audio=url_for("static", filename=word["front_side_audio"]),
                            left_audio=url_for("static", filename=word["left_side_audio"]),
                            right_audio=url_for("static", filename=word["right_side_audio"]),

@@ -20,17 +20,17 @@
         <div class="header_inner">
             <nav>
                 {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="/profile/{{ current_user.id }}" style="color: white;">
+                <a class="navbar-brand" href="/profile/{{ current_user.id }}">
                     {{ current_user.name}}</a>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <div class="nav" id="up buttons">
-                    <a id="nav button 1" class="btn btn-primary" href="/courses" style="color: white;">Мои Курсы</a>
-                    <a id="nav button 2" class="btn btn-primary" href="/dictionary" style="color: white;">Словарь</a>
+                    <a id="nav button 1" class="btn btn-white" href="/courses">Мои Курсы</a>
+                    <a id="nav button 2" class="btn btn-white" href="/dictionary">Словарь</a>
                     {% if current_user.teacher %}
-                    <a id="nav button 3" class="btn btn-primary" href="/pupils" style="color: white;">Мои ученики</a>
+                    <a id="nav button 3" class="btn btn-white" href="/pupils">Мои ученики</a>
                     {% endif %}
-                    <a class="btn btn-primary" id="back_button" style="color: white;"
+                    <a class="btn btn-primary" id="back_button"
                        href="{{ back_url }}" hidden>Назад</a>
                 </div>
                 {% endif %}
@@ -43,11 +43,10 @@
     <script>
         for (let i = 1; i < 4; i++){
             nav_button = document.getElementById("nav button " + i.toString());
-            // alert(i);
             if (nav_button != null){
                 if (location.href == nav_button.href){
-                    // alert("nav button " + i.toString());
-                    nav_button.style = "background-color: darkblue";
+                    nav_button.classList.remove("btn-white");
+                    nav_button.classList.add("btn-primary");
                 }
             }
         }
