@@ -18,15 +18,26 @@
     }
 
     .page_button {
-        margin: 5px 5px 5px 5px;
+        border: solid 3px #9c1313;
+        color: #9c1313;
+        background-color: white;
+        width: 43px;
+        height: 43px;
+    }
+    .page_button:hover {
+        border: solid 3px white;
         color: white;
+        background-color: #9c1313;
+        width: 43px;
+        height: 43px;
     }
 
     .current_page_button {
-        margin: 0px 0px 0px 0px;
-        border-style: solid;
-        border-color: red;
-        border-width: 5px;
+        border: solid 3px white;
+        color: white;
+        background-color: #9c1313;
+        width: 43px;
+        height: 43px;
     }
     .word_button{
         width: 250px;
@@ -42,12 +53,12 @@
     }
     .item_button{
         width: 250px;
-        height: 36px;
+        height: 43px;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     .user-word-button {
-        height: 36px;
+        height: 43px;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-left: 5px;
@@ -73,8 +84,10 @@
             <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
         </svg></span>
     </div>
-    <input type="text" class="form-control" placeholder="Поиск" aria-label="Поиск"
+    <input type="text" class="form-control" placeholder="Поиск по переводу" aria-label="Поиск"
            aria-describedby="basic-addon1" style="height: 44px;" id="translation search field" value="">
+    <input type="text" class="form-control" placeholder="Поиск по иероглифу" aria-label="Поиск"
+           aria-describedby="basic-addon1" style="height: 44px;" id="hieroglyph search field" value="">	
 </div>
 
 <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
@@ -91,25 +104,27 @@
 </div>
 
 <script>
+	console.log("logs");
     function searchArrayFilter(item_list){
-        search_field = document.getElementById("translation search field");
-        val = search_field.value;
-        search_field = document.getElementById("translation search field");
-        val = search_field.value;
-        console.log(val);
-        ret_array = []
-        if (val != ""){
-            // console.log("translation search field");
+        translation_search_field = document.getElementById("translation search field");
+        hieroglyph_search_field = document.getElementById("hieroglyph search field");
+        val1 = translation_search_field.value;
+        val2 = hieroglyph_search_field.value;
+        console.log(val1, val2);
+        name_vals = ["translation", "hieroglyph"];
+        ret_array = [];
+        if (val1 != "" || val2 != ""){
             for (var i = 0; i < item_list.length; i++) {
-                if (item_list[i][item_js_table["translation"]].includes(val)){
-                    // console.log(item_list[i][item_js_table["translation"]]);
+                if ( (val1 == "" || item_list[i][item_js_table["translation"]].includes(val1) ) && 
+                	(val2 == "" || item_list[i][item_js_table["hieroglyph"]].includes(val2)) ){
+                	console.log(val1 == "", item_list[i][item_js_table["translation"]].includes(val1), val2 == "", item_list[i][item_js_table["hieroglyph"]].includes(val2));
                     ret_array.push(item_list[i]);
                 }
-                
             }
         } else {
             ret_array = item_list;
         }
+        // console.log(ret_array);
         return ret_array;
     }
     // alert("full update");
@@ -196,8 +211,22 @@
                 delete_but.href = "/delete_word/" + item_list[i][item_js_table["id"]];
                 delete_but.classList.add("btn");
                 delete_but.classList.add("btn-danger");
-                delete_but.classList.add("user-word-button");
-                delete_but.innerText = "Удалить";
+                // delete_but.classList.add("user-word-button");
+                delete_but.classList.add("btn-delete");
+                trash_icon = document.createElementNS('http://www.w3.org/2000/svg',"svg");
+                trash_icon.setAttributeNS(null, "width", "16");
+                trash_icon.setAttributeNS(null, "fill", "currentColor");
+                trash_icon.setAttributeNS(null, "class", "bi bi-trash");
+                trash_icon.setAttributeNS(null, "viewBox", "0 0 16 16");
+                newpath1 = document.createElementNS('http://www.w3.org/2000/svg',"path");
+                newpath2 = document.createElementNS('http://www.w3.org/2000/svg',"path");
+                newpath1.setAttributeNS(null, "d", "M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z");
+                newpath2.setAttributeNS(null, "fill-rule", "evenodd");
+                newpath2.setAttributeNS(null, "d", "M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z");
+                trash_icon.appendChild(newpath1);
+                trash_icon.appendChild(newpath2);
+                delete_but.appendChild(trash_icon);
+
                 column.appendChild(change_but);
                 column.appendChild(delete_but);
             }
@@ -209,7 +238,7 @@
         page_button = document.createElement("button");
         page_button.onclick = onClickFunction;
         page_button.id = "page_button " + text;
-        page_button.classList.add("btn");
+        // page_button.classList.add("btn");
         page_button.classList.add("btn-primary");
         // alert(text);
         // alert(current_page);
@@ -411,8 +440,10 @@
         }
     }
 
-    search_field = document.getElementById("translation search field");
-    search_field.addEventListener("keyup", onSearchChange, false);
+    translation_search_field = document.getElementById("translation search field");
+    hieroglyph_search_field = document.getElementById("hieroglyph search field");
+    translation_search_field.addEventListener("keyup", onSearchChange, false);
+    hieroglyph_search_field.addEventListener("keyup", onSearchChange, false);
 
 </script>
 {% endblock %}

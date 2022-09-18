@@ -6,29 +6,45 @@
 <div class="trainer">
     <div class="task-box" style="position: relative; height: 150px;
         display: flex;
-        justify-content: center;">
-        {% if trainer.check_side < 5 %}
-        <img src="" class="task-field" name="task-field" style="
-        position: absolute;
-        height: 150px;
-        width: 150px">
+        justify-content: center;
+        margin-bottom: 10px;">
+        {% if trainer.check_side < 6 %}
+        {% if trainer.check_side == 5 %}
+        <img src="" class="task-field-image" id="task-field-image" name="task-field-image" style="
+                    position: absolute;
+                    height: 150px;
+                    width: 150px">
+        {% else %}
+        <canvas src="" id="task-field-canvas" name="task-field-canvas" style="
+                    position: absolute;
+                    height: 150px;
+                    width: 150px;
+                    margain-bottom: 10px;
+                    border: solid 3px #9c1313;"></canvas>
+        {% endif %}
+
         {% else %}
         <button style="width: 50px;
-    height: 50px;
-    margin-top: 50px;" id="audio_but" class="c-button" name="task-field">
+                       height: 50px;
+                       margin-top: 50px;" id="audio_but" class="c-button" name="task-field">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
                 <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
             </svg>
         </button>
         {% endif %}
     </div>
+    
     <div class="answer-box" style="
         display: flex;
         justify-content: center;">
-        {% if trainer.ans_side < 5 %}
+        {% if trainer.ans_side < 6 %}
         {% for i in range(answer_button_number) %}
         <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
-            <img name="{{ i }}" src=""/>  <!--value="myimage"-->
+            {% if trainer.ans_side == 5 %}
+            <img name="{{ i }}" src="" id="id {{ i }}"/>  <!--value="myimage"-->
+            {% else %}
+            <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
+            {% endif %}
         </button>
         {% endfor %}
         {% endif %}
@@ -40,7 +56,6 @@
     </div>
 </div>
 <script>
-    // var test_word_number = 10;
     var width = window.innerWidth
     var height = window.innerHeight
     var extra_size_ansbut = 50;
@@ -119,7 +134,7 @@
             // alert("correct")
             // если ответ верный ничего не делаем
             if (event.target.type == undefined){
-                butId = parseInt(event.target.name);
+                butId = parseInt(event.target.id.split(" ")[1]);
                 // alert(butId);
                 ev_but = document.getElementById(butId);
                 ev_but.style.backgroundColor = 'green';
@@ -149,7 +164,7 @@
 
             // нажатая кнопка становится красной
             if (event.target.type == undefined){  // если человек нажал на картинку
-                butId = parseInt(event.target.name);
+                butId = parseInt(event.target.id.split(" ")[1]);
                 // alert(butId);
                 ev_but = document.getElementById(butId);
                 ev_but.style.backgroundColor = 'salmon';
@@ -186,35 +201,112 @@
         buttonsInit();
     }
 
+    function task_text(canvas_to_change, text, cv_width){
+        // const cv = document.createElement( 'canvas' );
+        const cv = canvas_to_change;
+        console.log(text);
+        text_size = 150;
+        cube_width = cv_width;
+        cv.width = cv_width //  3 * 512
+        cv.height = cv_width;
+        
+        const ctx = cv.getContext( '2d' );
+
+        ctx.fillStyle = '#fefefe'; 
+        ctx.fillRect( 0, 0, cv.width, cv.height );
+        ctx.fillStyle = '#129912';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        text_words = text.split(" ");
+        average_line_len = 9;
+        i = 0;
+        while (i < (text_words.length - 1)){
+            if (text_words[i] == '') {text_words.splice(i, 1);}
+            // console.log(text_words, i)
+            if (i == 0){
+                if ((text_words[i + 1].length + text_words[i].length + 1) < average_line_len) {
+                    text_words[i] = text_words[i] + ' ' + text_words[i + 1];
+                    text_words.splice(i + 1, 1);
+                    i--;
+                } 
+            } else {
+                if ((text_words[i - 1].length + text_words[i].length + 1) < average_line_len || 
+                    (text_words[i + 1].length + text_words[i].length + 1) < average_line_len){
+                    if (text_words[i - 1].length < text_words[i + 1].length) {
+                        text_words[i] = text_words[i - 1] + ' ' + text_words[i]
+                        text_words.splice(i - 1, 1);
+                        // console.log(text_words, i);
+                        i--;
+                    } else {
+                        text_words[i] = text_words[i] + ' ' + text_words[i + 1];
+                        // console.log(text_words)
+                        text_words.splice(i + 1, 1);
+                        // console.log(text_words, i);
+                        i--;
+                    }
+                }}
+            i++;
+        }
+        max_word_len = 0;
+        for (var i = 0; i < text_words.length; i++) {
+            if (max_word_len < text_words[i].length) {
+                max_word_len = text_words[i].length;
+            }
+        }
+        max_line_len = max_word_len;
+        symbol_size_const = 0.6;
+        font_size = Math.round(cube_width / ((max_word_len + 1) * symbol_size_const));
+        max_font_size = 350
+
+        if (font_size > max_font_size) {font_size = max_font_size;}
+        // console.log(font_size);
+        lines_number = (cube_width / (font_size * symbol_size_const * 2)).toString().split(".")[0];
+        koef = -1.5  // костыль
+        up_little_bit = (koef*max_font_size + font_size) * (-1/8);
+        if (lines_number % 2 != text_words.length % 2) {lines_number = parseInt(lines_number) + 1;}
+        ctx.font = 'bold ' + font_size + 'px Monospace';
+        for (var i = 0; i < text_words.length; i++) {
+            line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
+            ctx.fillText(text_words[i], cube_width / 2, (line_num) * cv.height + up_little_bit);
+        }
+        return cv;
+    }
     // alert(ans_buttons[0]);
     function buttonsInit(){
         // задаем задание
-        task_but = document.getElementsByName("task-field")[0];
-        task_but.src = "/static/" + lesson[current_word][check_side];
-        if ({{ trainer.check_side }} >= 5) {  // если задание - аудио файл - загружаем для него аудио
-            task_audio = new Audio(task_but.src);
+        // task_but = document.getElementsByName("task-field")[0];
+        // task_but.src = "/static/" + lesson[current_word][check_side];
+        if (check_side < 5) {
+            task_but = task_text(document.getElementById("task-field-canvas"), lesson[current_word][check_side], 1000);
+        } else if (check_side == 5) {
+            task_but = document.getElementById("task-field-image");
+            task_but.src = "/static/" + lesson[current_word][check_side];
+        } else {
+            task_audio = new Audio("/static/" + lesson[current_word][check_side]);
             // audioButtonClick
             audio_but = document.getElementById("audio_but");
             // alert(audio_but);
             audio_but.addEventListener("click", audioButtonClick, false);
         }
-        // task_but.style = "height: 150px; width: 150px";
 
         wrong_variants =  word_wrong_variants[current_word]  // ff
         var ans_variants = [lesson[current_word][ans_side]];
         for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
             ans_variants.push(wrong_variants[i]);
         }
-        // alert(ans_variants.length);
-
         shuffle(ans_variants);
-        // alert(ans_variants);
 
         ans_buttons = document.getElementsByClassName("ans-button");
         for (let i = 0; i < ans_buttons.length; i++) {
             ans_buttons[i].addEventListener("click", ansButtonClick, false);
-            but_img = ans_buttons[i].getElementsByTagName("img")[0];
-            but_img.src = "/static/" + ans_variants[i];
+            if (ans_side == 5) {
+                but_img = ans_buttons[i].getElementsByTagName("img")[0];
+                but_img.src = "/static/" + ans_variants[i];
+            } else {
+                but_img = task_text(ans_buttons[i].getElementsByTagName("canvas")[0], ans_variants[i], 1000);
+            }
+            // console.log('result: ', but_img);
+            
             // alert(but_img.src);
             ans_buttons[i].value = ans_variants[i];
             but_img.value = ans_variants[i];
