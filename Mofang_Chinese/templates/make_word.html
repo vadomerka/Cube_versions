@@ -33,14 +33,16 @@
         {{ error }}
     </p>
     {% endfor %}
+    
     <p>
-        {{ form.translation.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
-        {{ form.translation(class="form-control", id="translation") }}<br>
-        {% for error in form.translation.errors %}
+    {{ form.translation.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+    {{ form.translation(class="form-control", id="translation") }}<br>
+    {% for error in form.translation.errors %}
     <p content="alert alert-danger" role="alert">
         {{ error }}
     </p>
     {% endfor %}
+
     <p>
         {{ form.transcription.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
         {{ form.transcription(class="form-control", id="transcription") }}<br>
@@ -65,7 +67,9 @@
         {{ error }}
     </p>
     {% endfor %}
+    <div class="row">
     <div class="column">
+        <h2>Добавьте файл озвучки словосочетания</h2>
         <input type="file" accept="audio/*"
                class="form-control-file" id="phrase_audio" name="phrase_audio"
                value='{{ phrase_audio_file }}' hidden>
@@ -78,6 +82,7 @@
         </label>
     </div>
     <div class="column">
+        <h2>Добавьте файл озвучки перевода</h2>
         <input type="file" accept="audio/*"
                class="form-control-file" id="translation_audio" name="translation_audio"
                value='{{ translation_audio_file }}' hidden>
@@ -91,6 +96,7 @@
         </label>
     </div>
     <div class="column">
+        <h2>Добавьте файл озвучки транскрипции</h2>
         <input type="file" accept="audio/*"
                class="form-control-file" id="transcription_audio"
                name="transcription_audio" value='{{ transcription_audio_file }}' hidden>
@@ -103,6 +109,7 @@
             </svg>
         </label>
     </div>
+        </div>
     <div class="column">
         <input type="file" accept="image/*" onchange="fileLoader(event)"
                class="form-control-file"

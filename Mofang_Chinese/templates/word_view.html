@@ -52,6 +52,10 @@
     </svg>
 </button>
 
+<div style="display: none;">
+	<img id="right_side_image" src="{{ image_name }}">
+</div>
+
 <div id="prev_url" style="visibility: {{ prev_button_visibility }};">
     <a href="{{ prev_word_url }}" class="btn btn-primary my-btn"
        style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
@@ -60,9 +64,12 @@
     <a href="{{ next_word_url }}" class="btn btn-primary my-btn" style="top: 50px; right: 0px">
         Следующее слово </a>
 </div>
+<!-- <canvas id="myCanvas" width="240" height="297" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas> -->
 <script src="js/three.js"></script>
 <script>
-    	var speed_of_rotation_x = speed_of_rotation_y = 0.1;
+        var speed_of_rotation_x = speed_of_rotation_y = 0.1;
         var angle_of_rotation_x = 0;  // на сколько нужно повернуться по x
         var angle_of_rotation_y = 0;  // на сколько нужно повернуться по y
         var main_sound = "none";
@@ -73,7 +80,7 @@
         var start_of_scene_z = 0.1;
         var end_of_scene_z = 5;
         var half_cube_size = Math.round((height * size_coef) / 2);
-    	var cube_screen_cords = {"up left": [Math.round(width / 2) - half_cube_size, Math.round(height / 2) - half_cube_size],
+        var cube_screen_cords = {"up left": [Math.round(width / 2) - half_cube_size, Math.round(height / 2) - half_cube_size],
                                 "up right": [Math.round(width / 2) + half_cube_size, Math.round(height / 2) - half_cube_size],
                                 "down left": [Math.round(width / 2) - half_cube_size, Math.round(height / 2) + half_cube_size],
                                 "down right": [Math.round(width / 2) + half_cube_size, Math.round(height / 2) + half_cube_size]};
@@ -138,7 +145,7 @@
             const loader = new THREE.TextureLoader();
             var filepath = "images/";
             if (side == "up") {
-            	if (text_ang == 90) {text_ang = 270;}
+                if (text_ang == 90) {text_ang = 270;}
                 else if (text_ang == 270) {text_ang = 90;}  // иначе слова вверх ногами
                 materials[2] = new THREE.MeshBasicMaterial({map: cubeSideText(up_text, text_ang)});
             }
@@ -475,9 +482,9 @@
             lines_number = (cube_width / (font_size * symbol_size_const * 2)).toString().split(".")[0];
             koef = -1.5  // костыль
             up_little_bit = (koef*max_font_size + font_size) * (-1/8);
-            console.log(text_words);
-            console.log(font_size);
-            console.log(lines_number);
+            // console.log(text_words);
+            // console.log(font_size);
+            // console.log(lines_number);
             if (lines_number % 2 != text_words.length % 2) {lines_number = parseInt(lines_number) + 1;}
             ctx.font = 'bold ' + font_size + 'px Monospace';
             for (var i = 0; i < text_words.length; i++) {
@@ -490,75 +497,77 @@
             return cvTexture;
         }
 
-        function imageSideText(text, image_name){
-        	const cv = document.createElement( 'canvas' );
+        function imageSideText(text){
+            const cv = document.createElement( 'canvas' );
+            // real_cv = document.getElementById("myCanvas");
             cube_width = 1000
             cv.width = cube_width;
             cv.height = cube_width;
             const ctx = cv.getContext( '2d' );
-            const loader = new THREE.ImageLoader();
-            image = loader.load('static/2_left.png'); // image_name
-            const canvas = document.createElement( 'canvas' );
-			// const context = canvas.getContext( '2d' );
-			ctx.fillStyle = '#fefefe';
+            ctx.fillStyle = '#fefefe';
             ctx.fillRect( 0, 0, cv.width, cv.height );
-            ctx.drawImage( image, 1000, 1000 );
+            
             ctx.fillStyle = '#129912';
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
 
             symbol_size_const = 0.6;
             font_size = Math.round(cube_width / ((text.length + 1) * symbol_size_const));
-            max_font_size = 350
+            max_font_size = 150;
             if (font_size > max_font_size) {font_size = max_font_size;}
-            // lines_number = (cube_width / (font_size * symbol_size_const * 2)).toString().split(".")[0];
-            // koef = -1.5  // костыль
-            // up_little_bit = (koef*max_font_size + font_size) * (-1/8);
-
-            // if (lines_number % 2 != text_words.length % 2) {lines_number = parseInt(lines_number) + 1;}
             ctx.font = 'bold ' + font_size + 'px Monospace';
-            // for (var i = 0; i < text_words.length; i++) {
-            //     line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
-            ctx.fillText(text, cube_width / 2, 0.8 * cube_width);
-            // }
-            const cvTexture = new THREE.Texture( cv );
-            cvTexture.needsUpdate = true; // otherwise all black only
-            return cvTexture;
+            // // for (var i = 0; i < text_words.length; i++) {
+            // //     line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
+            ctx.fillText(text, cube_width / 2, 0.825 * cube_width);
+
+            new_image = document.getElementById("right_side_image");
+            console.log(new_image);
+            up_indent = 0.1 * cube_width
+            down_indent = 0.2 * cube_width
+            left_indent = 0.15 * cube_width
+            right_indent = 0.15 * cube_width
+            console.log(up_indent); // 100
+            console.log(left_indent); // 150
+			console.log(cube_width - down_indent - up_indent); // 800
+			console.log(cube_width - right_indent - left_indent); // 850
+            ctx.drawImage( new_image, 
+            			   left_indent, 
+            			   up_indent, 
+            			   cube_width - right_indent - left_indent, 
+            			   cube_width - down_indent - up_indent);
+            
+            const cvTexture1 = new THREE.Texture( cv );
+            cvTexture1.needsUpdate = true; // otherwise all black only
+            return cvTexture1;
         }
 
         document.addEventListener('mousedown', mouseListener);
 
-    	var scene = new THREE.Scene();
+        var scene = new THREE.Scene();
         size_of_scene = 90;
-		var camera = new THREE.PerspectiveCamera( size_of_scene, window.innerWidth / window.innerHeight, start_of_scene_z, end_of_scene_z );  // camera perspective
+        var camera = new THREE.PerspectiveCamera( size_of_scene, window.innerWidth / window.innerHeight, start_of_scene_z, end_of_scene_z );  // camera perspective
         camera.position.z = 2;
 
-		var renderer = new THREE.WebGLRenderer();
-		renderer.setSize( window.innerWidth, window.innerHeight);  //cube lesson size on the screen
-		document.body.appendChild( renderer.domElement);
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight);  //cube lesson size on the screen
+        document.body.appendChild( renderer.domElement);
 
-		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-		const loader = new THREE.TextureLoader();
+        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        const loader = new THREE.TextureLoader();
+        const img_loader = new THREE.ImageLoader();
         var front_text = "{{ hieroglyph }}";
         var left_text = "{{ phrase_ch }}";
         var right_text = "{{ transcription }}";
         var up_text = "{{ phrase_ru }}";
         var down_text = "{{ translation }}";
         var back_text = "";
-        var image = "{{ image }}";
-
-        // var start_up_img = "{{ up_img }}";
-        // up_img = up_img.split(".");
-        // up_img[up_img.length - 2] = up_img[up_img.length - 2] + "_0";
-        // up_img = (up_img).join(".");
-        // var down_img = "{{ down_img }}";
-        // var start_down_img = "{{ down_img }}";
-        // down_img = down_img.split(".");
-        // down_img[down_img.length - 2] = down_img[down_img.length - 2] + "_0";
-        // down_img = (down_img).join(".");
-
+        // var image = "{{ image }}";
+        // const img = document.createElement("img");
+		// img.src = "/static/" +  image;
+		// document.body.appendChild(img);
+        // console.log(img);
         materials = [
-            new THREE.MeshBasicMaterial({map: imageSideText(right_text, image)}),  // right
+            new THREE.MeshBasicMaterial({map: imageSideText(right_text)}),  // right
             new THREE.MeshBasicMaterial({map: cubeSideText(left_text,  0)}),  // left
             new THREE.MeshBasicMaterial({map: cubeSideText(up_text,    0)}),  // up
             new THREE.MeshBasicMaterial({map: cubeSideText(down_text,  0)}),  // down
@@ -623,7 +632,7 @@
         );
         main_sound = front_audio;
         changeAudio("front");
-  		render();
+        render();
         
 
 </script>
