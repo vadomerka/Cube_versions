@@ -67,23 +67,6 @@ def list_to_javascript(array):
     return array_js
 
 
-def db_list_to_javascript(array):
-    array_js = []
-    for i in range(len(array)):
-        word = array[i]
-        array_js.append(";".join([word.hieroglyph,  # иероглиф
-                                  word.translation,  # перевод
-                                  word.transcription,  # транскрипция
-                                  word.phrase_ch,  # картинка
-                                  word.phrase_ru,  # свосочетание
-                                  word.image,
-                                  word.front_side_audio,
-                                  word.up_side_audio,
-                                  word.left_side_audio]))
-    array_js = ";;;".join(array_js)
-    return array_js
-
-
 @app.route("/style_loader")
 def style_loader():
     return
@@ -317,6 +300,8 @@ def add_users_to_course(course_id):
                            course_pupils=course_pupils,
                            back_button_hidden='false', back_url="/courses",
                            len_pupils=len(all_pupils))
+
+
 # /home/rad/PycharmProjects/venv/lib/python3.6/site-packages/pip/_internal/cli/cmdoptions.py
 # стандартная библеотека логов питона
 
@@ -807,6 +792,8 @@ def add_word():
             new_word.down_side_audio = save_name + "_translation_audio.mp3"
         else:
             new_word.down_side_audio = "undefined_translation_audio.mp3"
+        new_word.time = dt.datetime.now()
+        print(new_word.time)
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         for user in db_sess.query(User).all():
@@ -951,6 +938,23 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            next_word_url="/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
                                next_id))
+
+
+def db_list_to_javascript(array):
+    array_js = []
+    for i in range(len(array)):
+        word = array[i]
+        array_js.append(";".join([word.hieroglyph,  # иероглиф
+                                  word.translation,  # перевод
+                                  word.transcription,  # транскрипция
+                                  word.phrase_ch,  # картинка
+                                  word.phrase_ru,  # свосочетание
+                                  word.image,
+                                  word.front_side_audio,
+                                  word.up_side_audio,
+                                  word.left_side_audio]))
+    array_js = ";;;".join(array_js)
+    return array_js
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/trainer/<int:trainer_id>',
@@ -1128,6 +1132,7 @@ def change_word(word_id):
         if translation_audio:
             translation_audio.save(filepath + "_translation_audio.mp3")
             new_word.left_side_audio = save_name + "_translation_audio.mp3"
+        new_word.time = (dt.datetime.now() - datetime.datetime(2020, 1, 1)).total_seconds()
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         db_sess.commit()

@@ -35,8 +35,8 @@ class Words(SqlAlchemyBase, SerializerMixin):
     right_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     up_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     down_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
     learn_state = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    time = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
 
 class WordsToUsers(SqlAlchemyBase, SerializerMixin):

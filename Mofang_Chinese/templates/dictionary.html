@@ -66,28 +66,52 @@
     }
 
 
+
 </style>
 <div style="display: flex;">
     {% if current_user.teacher %}
     <a href="/add_word" class="btn btn-success">Добавить слово</a>
-    <button id="sorting_button" class="btn btn-add">Показать только свои слова</button>
+    <button id="filter_button" class="btn btn-add">Показать только свои слова</button>
     {% endif %}
     <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{
         len_all_words }}</h2>
 </div>
 <div class="input-group mb-3" style="width: 45%;">
     <div class="input-group-prepend">
-        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-             width="30" height="30"
-             viewBox="0 0 30 30"
-             style=" fill:#000000;">
+        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+                                                              x="0px" y="0px"
+                                                              width="30" height="30"
+                                                              viewBox="0 0 30 30"
+                                                              style=" fill:#000000;">
             <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
         </svg></span>
     </div>
     <input type="text" class="form-control" placeholder="Поиск по переводу" aria-label="Поиск"
-           aria-describedby="basic-addon1" style="height: 44px;" id="translation search field" value="">
+           aria-describedby="basic-addon1" style="height: 44px;" id="translation search field"
+           value="">
     <input type="text" class="form-control" placeholder="Поиск по иероглифу" aria-label="Поиск"
-           aria-describedby="basic-addon1" style="height: 44px;" id="hieroglyph search field" value="">	
+           aria-describedby="basic-addon1" style="height: 44px;" id="hieroglyph search field"
+           value="">
+</div>
+<div class="sort-button-group" style="width: 45%;">
+    <button id="alphabet_translation-sort-button" class="btn-primary alphabet-sort-button"> 
+        а↑
+    </button>
+    <button id="rev_alphabet_translation-sort-button" class="btn-primary alphabet-sort-button">
+        а↓
+    </button>
+    <button id="alphabet_hieroglyph-sort-button" class="btn-primary alphabet-sort-button"> 
+        信↑
+    </button>
+    <button id="rev_alphabet_hieroglyph-sort-button" class="btn-primary alphabet-sort-button">
+        信↓
+    </button>
+    <button id="time-sort-button" class="btn-primary alphabet-sort-button">
+        🕔↓
+    </button>
+    <button id="rev_time-sort-button" class="btn-primary alphabet-sort-button">
+        🕔↓
+    </button>
 </div>
 
 <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
@@ -104,20 +128,18 @@
 </div>
 
 <script>
-	console.log("logs");
     function searchArrayFilter(item_list){
         translation_search_field = document.getElementById("translation search field");
         hieroglyph_search_field = document.getElementById("hieroglyph search field");
         val1 = translation_search_field.value;
         val2 = hieroglyph_search_field.value;
-        console.log(val1, val2);
+        // console.log(val1, val2);
         name_vals = ["translation", "hieroglyph"];
         ret_array = [];
         if (val1 != "" || val2 != ""){
             for (var i = 0; i < item_list.length; i++) {
-                if ( (val1 == "" || item_list[i][item_js_table["translation"]].includes(val1) ) && 
-                	(val2 == "" || item_list[i][item_js_table["hieroglyph"]].includes(val2)) ){
-                	console.log(val1 == "", item_list[i][item_js_table["translation"]].includes(val1), val2 == "", item_list[i][item_js_table["hieroglyph"]].includes(val2));
+                if ( (val1 == "" || item_list[i].translation.includes(val1) ) && 
+                	(val2 == "" || item_list[i].hieroglyph.includes(val2)) ){
                     ret_array.push(item_list[i]);
                 }
             }
@@ -129,11 +151,12 @@
     }
     // alert("full update");
 
+
+
     function showButtons(){
-        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-        current_page_max_number = page_numbers[sorting_button_state];
-        // current_page_max_number = Math.floor(current_word_list.length / 30) + 1;
-        // current_page_word_list = current_word_list.slice(30 * (current_page - 1), 30 * current_page);
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
+        	max_items_number_on_one_page * current_page);
+        current_page_max_number = page_numbers[filter_button_state];
 
         if ((current_page_item_list[0] == "")){
             current_page_item_list = [];
@@ -147,12 +170,65 @@
         createitemButtons(current_page_item_list);
         createPageButtons();
     }
+	
+    function sortButtonClick(event){
+    	button_type = event.target.id;
+    	if (button_type == "alphabet_translation-sort-button"){
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord.translation.toUpperCase(); // ignore upper and lowercase
+				  const translation2 = secondWord.translation.toUpperCase(); // ignore upper and lowercase
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+	    } else if (button_type == "rev_alphabet_translation-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord.translation.toUpperCase(); // ignore upper and lowercase
+				  const translation2 = secondWord.translation.toUpperCase(); // ignore upper and lowercase
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		} else if (button_type == "alphabet_hieroglyph-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
+				  const translation2 = secondWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+		} else if (button_type == "rev_alphabet_hieroglyph-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
+				  const translation2 = secondWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		} else if (button_type == "time-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = parseInt(firstWord.id); // ignore upper and lowercase
+				  const translation2 = parseInt(secondWord.id); // ignore upper and lowercase
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+		} else if (button_type == "rev_time-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = parseInt(firstWord.id); // ignore upper and lowercase
+				  const translation2 = parseInt(secondWord.id); // ignore upper and lowercase
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		}
+        showButtons();
+    }
 
-
-    function sortingButtonClick(event){
-        sorting_button_state = (sorting_button_state + 1) % items_lists.length;
-        sorting_button.innerText = sorting_button_innerTexts[sorting_button_state];
-        current_item_list = searchArrayFilter(items_lists[sorting_button_state]);
+    function filterButtonClick(event){
+        filter_button_state = (filter_button_state + 1) % items_lists.length;
+        filter_button.innerText = filter_button_innerTexts[filter_button_state];
+        current_item_list = searchArrayFilter(items_lists[filter_button_state]);
         showButtons();
     }
 
@@ -160,7 +236,19 @@
         // alert(list);
         list = list.split(";;;");
         for (let i = 0; i < list.length; i += 1){
-            list[i] = list[i].split(";");
+        	list_word = list[i].split(";");
+            list[i] = { id: list_word[0],
+                        hieroglyph: list_word[1],
+                        translation: list_word[2],
+                        transcription: list_word[3],
+                        phrase_ch: list_word[4],
+                        phrase_ru: list_word[5],
+                        image: list_word[6],
+                        front_side_audio: list_word[7],
+                        up_side_audio: list_word[8],
+                        left_side_audio: list_word[9],
+                        author: list_word[10]
+                      };
         }
         return list;
     }
@@ -182,33 +270,33 @@
             item_button = document.createElement("a");
             item_button.id = "item_button " + i.toString();
             // item_button.type = "button";
-            item_button.href = "/dict_word/" + item_list[i][item_js_table["id"]];
+            item_button.href = "/dict_word/" + item_list[i].id;
             item_button.classList.add("btn");
             item_button.classList.add("btn-primary");
             item_button.classList.add("item_button");
 
             // item_button.classList.add("not-course-word");
-            button_id = item_list[i][item_js_table["id"]];
+            button_id = item_list[i].id;
             item_button.classList.add("user-word-button");
-            // item_button.href = "/dict_word/" + item_list[i][item_js_table["id"]];
+            // item_button.href = "/dict_word/" + item_list[i].id;
             // item_button.style = "width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
-            item_button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '
-            + item_list[i][item_js_table["translation"]];
+            item_button.innerText = item_list[i].hieroglyph + ' '
+            + item_list[i].translation;
 
             column.appendChild(item_button);
-            // console.log(item_list[i][item_js_table["author"]]);
-            if ({{ current_user.id }} == item_list[i][item_js_table["author"]]){
+            // console.log(item_list[i].author);
+            if ({{ current_user.id }} == item_list[i].author){
                 change_but = document.createElement("a");
                 delete_but = document.createElement("a");
                 change_but.id = "change_but " + i.toString();
                 delete_but.id = "delete_but " + i.toString();
-                change_but.href = "/change_word/" + item_list[i][item_js_table["id"]];
+                change_but.href = "/change_word/" + item_list[i].id;
                 change_but.classList.add("btn");
                 change_but.classList.add("btn-warning");
                 change_but.classList.add("user-word-button");
                 change_but.innerText = "Изменить";
 
-                delete_but.href = "/delete_word/" + item_list[i][item_js_table["id"]];
+                delete_but.href = "/delete_word/" + item_list[i].id;
                 delete_but.classList.add("btn");
                 delete_but.classList.add("btn-danger");
                 // delete_but.classList.add("user-word-button");
@@ -368,18 +456,39 @@
             createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
         }
     }
-
-    sorting_button = document.getElementById("sorting_button");
-    // alert(sorting_button);
-    if (sorting_button != null){
-        sorting_button.addEventListener("click", sortingButtonClick, false);
+    // alphabet_sort_button = document.getElementById();
+    // if (alphabet_sort_button != null){
+    //     alphabet_sort_button.addEventListener("click", sortButtonClick, false);
+    // }
+    // rev_alphabet_sort_button = document.getElementById("rev_alphabet-sort-button");
+    // if (rev_alphabet_sort_button != null){
+    //     rev_alphabet_sort_button.addEventListener("click", sortButtonClick, false);
+    // }
+    sort_buttons_id =  ["alphabet_translation-sort-button", 
+					    "rev_alphabet_translation-sort-button", 
+					    "alphabet_hieroglyph-sort-button", 
+					    "rev_alphabet_hieroglyph-sort-button",
+					    "time-sort-button",
+					    "rev_time-sort-button"];
+    for (var i = 0; i < sort_buttons_id.length; i++) {
+    	sort_button = document.getElementById(sort_buttons_id[i]);
+    	if (sort_button != null){
+    		sort_button.addEventListener("click", sortButtonClick, false);
+    	}
     }
-    sorting_button_innerTexts = ["Показать только свои слова",
+
+
+    filter_button = document.getElementById("filter_button");
+    // alert(filter_button);
+    if (filter_button != null){
+        filter_button.addEventListener("click", filterButtonClick, false);
+    }
+    filter_button_innerTexts = ["Показать только свои слова",
                                  "Показать только чужие слова",
                                  "Показать все слова"];
-    sorting_button.innerText = sorting_button_innerTexts[0];
+    filter_button.innerText = filter_button_innerTexts[0];
 
-    var sorting_button_state = 0;
+    var filter_button_state = 0;
     var current_page = 1;
     var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
 
@@ -409,12 +518,11 @@
         page_lists.push(page_items);
     }
 
-    var current_item_list = searchArrayFilter(items_lists[sorting_button_state]);
-    current_page_item_list = page_lists[sorting_button_state];
-    current_page_max_number = page_numbers[sorting_button_state];
+    var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+    current_page_item_list = page_lists[filter_button_state];
+    current_page_max_number = page_numbers[filter_button_state];
 
-    item_js_table = {
-    "id": 0,
+    item_js_table = {  "id": 0,
     "hieroglyph": 1,
     "translation": 2,
     "transcription": 3,
@@ -435,7 +543,7 @@
     function onSearchChange(event){
         if (event.key != "Control"){
             // console.log(event.key);
-            current_item_list = searchArrayFilter(items_lists[sorting_button_state]);
+            current_item_list = searchArrayFilter(items_lists[filter_button_state]);
             showButtons();
         }
     }
@@ -444,6 +552,7 @@
     hieroglyph_search_field = document.getElementById("hieroglyph search field");
     translation_search_field.addEventListener("keyup", onSearchChange, false);
     hieroglyph_search_field.addEventListener("keyup", onSearchChange, false);
+
 
 </script>
 {% endblock %}

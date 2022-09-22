@@ -45,7 +45,7 @@
             {% else %}
             <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
             {% endif %}
-        </button>
+        </button>d
         {% endfor %}
         {% endif %}
     </div>
@@ -289,7 +289,7 @@
             audio_but.addEventListener("click", audioButtonClick, false);
         }
 
-        wrong_variants =  word_wrong_variants[current_word]  // ff
+        wrong_variants =  word_wrong_variants[current_word]
         var ans_variants = [lesson[current_word][ans_side]];
         for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
             ans_variants.push(wrong_variants[i]);
