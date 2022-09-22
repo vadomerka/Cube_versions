@@ -110,7 +110,7 @@
         🕔↓
     </button>
     <button id="rev_time-sort-button" class="btn-primary alphabet-sort-button">
-        🕔↓
+        🕔↑
     </button>
 </div>
 
@@ -149,11 +149,9 @@
         // console.log(ret_array);
         return ret_array;
     }
-    // alert("full update");
-
-
 
     function showButtons(){
+    	current_item_list = searchArrayFilter(items_lists[filter_button_state]);
         current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
         	max_items_number_on_one_page * current_page);
         current_page_max_number = page_numbers[filter_button_state];
@@ -163,12 +161,13 @@
         }
         if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
             current_page = current_page_max_number;
-            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
+            	max_items_number_on_one_page * current_page);
         }
-        // alert(current_page_max_number);
-        // alert(current_page);
         createitemButtons(current_page_item_list);
-        createPageButtons();
+        if (current_page_max_number > 1){  // f
+            createPageButtons();
+        }
     }
 	
     function sortButtonClick(event){
@@ -228,7 +227,6 @@
     function filterButtonClick(event){
         filter_button_state = (filter_button_state + 1) % items_lists.length;
         filter_button.innerText = filter_button_innerTexts[filter_button_state];
-        current_item_list = searchArrayFilter(items_lists[filter_button_state]);
         showButtons();
     }
 
@@ -321,7 +319,6 @@
         }
     }
 
-
     function createOnePageButton(row, text, onClickFunction){
         page_button = document.createElement("button");
         page_button.onclick = onClickFunction;
@@ -357,17 +354,8 @@
     }
 
     function pageButtonNumberFunction(event){
-        // alert(event.target.innerText);
-        // alert("pageButtonNumberFunction -1");
         current_page = parseInt(event.target.innerText, 10);
-        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-        // alert("createitemButtons 1")
-        createitemButtons(current_page_item_list);
-        // alert("createitemButtons 2")
-        if (current_page_max_number > 1){  // f
-            // alert("creating page buttons");
-            createPageButtons();
-        }
+        showButtons();
     }
 
     function pageButtonFunctions(button_text){
@@ -456,14 +444,6 @@
             createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
         }
     }
-    // alphabet_sort_button = document.getElementById();
-    // if (alphabet_sort_button != null){
-    //     alphabet_sort_button.addEventListener("click", sortButtonClick, false);
-    // }
-    // rev_alphabet_sort_button = document.getElementById("rev_alphabet-sort-button");
-    // if (rev_alphabet_sort_button != null){
-    //     rev_alphabet_sort_button.addEventListener("click", sortButtonClick, false);
-    // }
     sort_buttons_id =  ["alphabet_translation-sort-button", 
 					    "rev_alphabet_translation-sort-button", 
 					    "alphabet_hieroglyph-sort-button", 
@@ -522,19 +502,6 @@
     current_page_item_list = page_lists[filter_button_state];
     current_page_max_number = page_numbers[filter_button_state];
 
-    item_js_table = {  "id": 0,
-    "hieroglyph": 1,
-    "translation": 2,
-    "transcription": 3,
-    "phrase_ch": 4,
-    "phrase_ru": 5,
-    "image": 6,
-    "front_side_audio": 7,
-    "up_side_audio": 8,
-    "left_side_audio": 9,
-    "author": 10
-    };
-
     createitemButtons(current_page_item_list);
     if (current_page_max_number > 1){
         createPageButtons();
@@ -542,7 +509,6 @@
 
     function onSearchChange(event){
         if (event.key != "Control"){
-            // console.log(event.key);
             current_item_list = searchArrayFilter(items_lists[filter_button_state]);
             showButtons();
         }
