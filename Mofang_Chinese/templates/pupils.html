@@ -83,11 +83,7 @@
 <script>
     function searchArrayFilter(item_list){
         email_search_field = document.getElementById("email search field");
-        // hieroglyph_search_field = document.getElementById("hieroglyph search field");
         val1 = email_search_field.value;
-        // val2 = hieroglyph_search_field.value;
-        // console.log(val1, val2);
-        // name_vals = [button_texts[text_button_state]];
         ret_array = [];
         if (val1 != ""){
             for (var i = 0; i < item_list.length; i++) {
@@ -98,7 +94,6 @@
         } else {
             ret_array = item_list;
         }
-        // console.log(ret_array);
         return ret_array;
     }
 
