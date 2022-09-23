@@ -367,7 +367,6 @@ def course_pupils_view(course_id):
         str_arr = pupils_js[0]
 
         ans_arr = [int(item) for item in str_arr.split(",")]
-
         for pupil_js in all_pupils:
             if ans_arr[pupil_js.id]:
                 pupil = db_sess.query(User).get(int(pupil_js.id))

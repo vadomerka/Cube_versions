@@ -218,14 +218,6 @@
             event.target.style = event.target.style.cssText + "background-color: green";
             bool_course_items[parseInt(event.target.value, 10)] = 1;
         }
-
-        form_res = document.getElementById("form-res");
-    	for (let i = 0; i < bool_course_items.length; i++){
-    	    // console.log(bool_course_items[i]);
-    	    if (bool_course_items[i] != 1) bool_course_items[i] = 0;
-    	}
-    	form_res.value = bool_course_items;
-        // alert(bool_course_items.length);
     }
 
     function createItemButtons(item_list){
@@ -245,7 +237,7 @@
             item_button.addEventListener("click", itemButtonClick, false);
             item_button.classList.add("btn");
             item_button.classList.add("btn-primary");
-            button_id = item_list[i][item_js_table["id"]];
+            button_id = item_list[i]["id"];
             item_button.value = button_id;
             if (bool_course_items[button_id] == 1){
             	item_button.style = "min-width: 250px; background-color: green";
@@ -402,12 +394,12 @@
     }
 
     function onSubmitButtonClick(event){
-    	form_res = document.getElementById("form-res");
-    	// alert("submit");
-    	for (let i = 0; i < bool_course_items.length(); i++){
-    	    // alert(bool_course_items[i]);
-    	    if (bool_course_items[i] != 1) bool_course_items[i] = 0;
-    	}
+        form_res = document.getElementById("form-res");
+        for (let i = 0; i < bool_course_items.length; i++){
+            if (bool_course_items[i] != 0 && bool_course_items[i] != 1) {
+                bool_course_items[i] = 0;
+            }
+        }
     	form_res.value = bool_course_items;
     }
 
@@ -456,9 +448,10 @@
     	bool_course_items.push(0);
     }
     for (let i = 0; i < items_lists[3].length; i++) {
-    	bool_course_items[parseInt(items_lists[3][i][0])] = 1;
+        // console.log(items_lists[3][i]["id"]);
+    	bool_course_items[parseInt(items_lists[3][i]["id"])] = 1;
     }
-
+    // console.log(bool_course_items);
     page_numbers = []
     for (let i = 0; i < items_lists.length; i++){
         page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
@@ -507,12 +500,12 @@
 
     submit_button = document.getElementById("submit-button");
     submit_button.addEventListener("click", onSubmitButtonClick, false);
-    form_res = document.getElementById("form-res");
-    for (let i = 0; i < bool_course_items.length; i++){
-        // console.log(bool_course_items[i]);
-        if (bool_course_items[i] != 1) bool_course_items[i] = 0;
-    }
-    form_res.value = bool_course_items;
+    // form_res = document.getElementById("form-res");
+    // for (let i = 0; i < bool_course_items.length; i++){
+    //     // console.log(bool_course_items[i]);
+    //     if (bool_course_items[i] != 1) bool_course_items[i] = 0;
+    // }
+    // form_res.value = bool_course_items;
     // alert(submit_button.id);
 </script>
 {% endblock %}
