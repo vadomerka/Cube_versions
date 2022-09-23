@@ -158,8 +158,9 @@ body {
   background: #1d49aa;
 }
 
-.my-btn {
-
+.search-group{
+    width: 45%;
+    display: flex;
 }
 
 © 2022 GitHub, Inc.

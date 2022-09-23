@@ -15,10 +15,10 @@ def abort_if_not_found(id):
 
 
 class UserResource(Resource):
-    def get(self, id):
-        abort_if_not_found(id)
+    def get(self, user_id):
+        abort_if_not_found(user_id)
         session = db_session.create_session()
-        user = session.query(User).get(id)
+        user = session.query(User).get(user_id)
         ret = {'user': user.to_dict(only=('id',
                                           'name',
                                           'email',

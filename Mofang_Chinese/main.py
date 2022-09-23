@@ -167,7 +167,16 @@ def pupils():
     all_users = db_sess.query(User).all()
     for user in all_users:
         if user.creator == current_user.id:
+            one_user = get(root + "/rest_user/" + str(user.id)).json()["user"]
+            user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()
+            user_courses = user.courses
+            # {'about': 'teacher', 'courses': [], 'email': 'teacher@gmail.com'
+            # 'id': 7, 'name': 'teacher', 'teacher': True, 'words': [{'hieroglyph': '忙', 'id': 49, 'translation': 'занят'}]}
+            # {'about': '', 'courses': [], 'email': 'alesha_sobaka@gmail.com',
+            # 'id': 8, 'name': 'alesha_sobaka', 'teacher': True, 'words': []}
+            # print(user.id, user_courses, one_user)
             users_pupils.append(user)
+
     users_pupils_js = pupil_js_list(users_pupils)
     return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",
                            users_pupils_js=users_pupils_js, items_in_column_number=13,
@@ -263,43 +272,43 @@ def make_course():
                            back_button_hidden='false', back_url="/courses")
 
 
-@app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
-@login_required
-def add_users_to_course(course_id):
-    form = AddUsersToCourseForm()
-    db_sess = db_session.create_session()
-    users = get(root + "/rest_users").json()['users']
-    course = db_sess.query(Courses).get(course_id)
-    all_pupils = []
-    course_pupils = []
-    for user in users:
-        if not user['teacher']:
-            pupil = db_sess.query(User).get(user['id'])
-            if pupil in course.users:
-                course_pupils.append(pupil)
-            all_pupils.append(pupil)
-    if form.validate_on_submit():
-        all_pupils = request.form.getlist('lesson_pupil')
-        for pupils_id in list(all_pupils):
-            pupil = db_sess.query(User).get(int(pupils_id))
-            pupil.courses.append(course)
-
-            db_sess.merge(pupil)
-        not_lesson_pupils = request.form.getlist('not_lesson_pupil')
-        for pupils_id in list(not_lesson_pupils):
-            pupil = db_sess.query(User).get(int(pupils_id))
-            if course in pupil.courses:
-                pupil.courses.remove(course)
-
-            db_sess.merge(pupil)
-        db_sess.commit()
-
-        return redirect('/courses/' + str(course_id))
-
-    return render_template('add_users_to_course.html', form=form, pupils=all_pupils,
-                           course_pupils=course_pupils,
-                           back_button_hidden='false', back_url="/courses",
-                           len_pupils=len(all_pupils))
+# @app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
+# @login_required
+# def add_users_to_course(course_id):
+#     form = AddUsersToCourseForm()
+#     db_sess = db_session.create_session()
+#     users = get(root + "/rest_users").json()['users']
+#     course = db_sess.query(Courses).get(course_id)
+#     all_pupils = []
+#     course_pupils = []
+#     for user in users:
+#         if not user['teacher']:
+#             pupil = db_sess.query(User).get(user['id'])
+#             if pupil in course.users:
+#                 course_pupils.append(pupil)
+#             all_pupils.append(pupil)
+#     if form.validate_on_submit():
+#         all_pupils = request.form.getlist('lesson_pupil')
+#         for pupils_id in list(all_pupils):
+#             pupil = db_sess.query(User).get(int(pupils_id))
+#             pupil.courses.append(course)
+#
+#             db_sess.merge(pupil)
+#         not_lesson_pupils = request.form.getlist('not_lesson_pupil')
+#         for pupils_id in list(not_lesson_pupils):
+#             pupil = db_sess.query(User).get(int(pupils_id))
+#             if course in pupil.courses:
+#                 pupil.courses.remove(course)
+#
+#             db_sess.merge(pupil)
+#         db_sess.commit()
+#
+#         return redirect('/courses/' + str(course_id))
+#
+#     return render_template('add_users_to_course.html', form=form, pupils=all_pupils,
+#                            course_pupils=course_pupils,
+#                            back_button_hidden='false', back_url="/courses",
+#                            len_pupils=len(all_pupils))
 
 
 # /home/rad/PycharmProjects/venv/lib/python3.6/site-packages/pip/_internal/cli/cmdoptions.py
@@ -341,6 +350,7 @@ def course_pupils_view(course_id):
     not_course_pupils = []
     my_pupils = []
     rest_pupils = []
+    db_sess.query(User).all()
     for user in db_sess.query(User).all():
         if not user.teacher:
             all_pupils.append(user)
@@ -377,12 +387,12 @@ def course_pupils_view(course_id):
     rest_pupils_js = pupil_js_list(rest_pupils)
     course_pupils_js = pupil_js_list(course_pupils)
     not_course_pupils_js = pupil_js_list(not_course_pupils)
-    return render_template('course_pupils.html', course=course, course_pupils=all_pupils,
+    return render_template('course_pupils.html', course=course, course_items=all_pupils,
                            back_button_hidden='false', back_url="/courses/" + str(course_id),
-                           pupils_in_column_number=13, column_number=4, all_pupils_js=all_pupils_js,
-                           my_pupils_js=my_pupils_js, rest_pupils_js=rest_pupils_js,
-                           course_pupils_js=course_pupils_js,
-                           not_course_pupils_js=not_course_pupils_js,
+                           items_in_column_number=13, column_number=4, all_items_js=all_pupils_js,
+                           my_items_js=my_pupils_js, rest_items_js=rest_pupils_js,
+                           course_items_js=course_pupils_js,
+                           not_course_items_js=not_course_pupils_js,
                            form=form)
 
 

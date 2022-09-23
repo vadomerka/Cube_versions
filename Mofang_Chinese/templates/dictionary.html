@@ -459,14 +459,14 @@
 
 
     filter_button = document.getElementById("filter_button");
-    // alert(filter_button);
-    if (filter_button != null){
-        filter_button.addEventListener("click", filterButtonClick, false);
-    }
     filter_button_innerTexts = ["Показать только свои слова",
                                  "Показать только чужие слова",
                                  "Показать все слова"];
-    filter_button.innerText = filter_button_innerTexts[0];
+    // alert(filter_button);
+    if (filter_button != null){
+        filter_button.addEventListener("click", filterButtonClick, false);
+    	filter_button.innerText = filter_button_innerTexts[0];
+    }
 
     var filter_button_state = 0;
     var current_page = 1;
@@ -477,12 +477,10 @@
                    my_items = javascriptList("{{ my_items_js }}"),
                    rest_items = javascriptList("{{ rest_items_js }}")];
 
-    console.log(items_lists);
     for (let i = 0; i < items_lists.length; i++){
         if (items_lists[i][0] == ''){
             items_lists[i] = [];
         }
-        // console.log(items_lists[i]);
     }
 
     page_numbers = []
@@ -518,7 +516,5 @@
     hieroglyph_search_field = document.getElementById("hieroglyph search field");
     translation_search_field.addEventListener("keyup", onSearchChange, false);
     hieroglyph_search_field.addEventListener("keyup", onSearchChange, false);
-
-
 </script>
 {% endblock %}

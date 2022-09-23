@@ -33,7 +33,43 @@
                 учеников</a>
         </div>
     {% endif %}
-
+	<div style="display: flex;
+			    flex-direction: row;
+			    flex-wrap: wrap;
+			    align-content: center;
+			    justify-content: flex-start;
+			    align-items: center;
+			    margin-bottom: 1rem!important;">
+	<div style="width: 45%;" class="search-group">
+	    <div class="input-group-prepend">
+	        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+	                                                              x="0px" y="0px"
+	                                                              width="30" height="30"
+	                                                              viewBox="0 0 30 30"
+	                                                              style=" fill:#000000;">
+	            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+	        </svg></span>
+	    </div>
+	    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
+	           aria-describedby="basic-addon1" style="height: 44px;" id="email search field"
+	           value="">
+	</div>
+	<button id="text change button" type="button" class="btn-primary">Включить просмотр почт</button>
+	</div>
+	<div class="sort-button-group" style="width: 45%;">
+	    <button id="alphabet-sort-button" class="btn-primary alphabet-sort-button"> 
+	        а↑
+	    </button>
+	    <button id="rev_alphabet-sort-button" class="btn-primary alphabet-sort-button">
+	        а↓
+	    </button>
+	    <button id="time-sort-button" class="btn-primary alphabet-sort-button">
+	        🕔↓
+	    </button>
+	    <button id="rev_time-sort-button" class="btn-primary alphabet-sort-button">
+	        🕔↑
+	    </button>
+	</div>
     <div class="row" id="item_row">
         {% for i in range(column_number) %}
         <div class="column" id="column {{ i }}"></div>
@@ -45,11 +81,101 @@
         </div>
 </div>
 <script>
+    function searchArrayFilter(item_list){
+        email_search_field = document.getElementById("email search field");
+        // hieroglyph_search_field = document.getElementById("hieroglyph search field");
+        val1 = email_search_field.value;
+        // val2 = hieroglyph_search_field.value;
+        // console.log(val1, val2);
+        // name_vals = [button_texts[text_button_state]];
+        ret_array = [];
+        if (val1 != ""){
+            for (var i = 0; i < item_list.length; i++) {
+                if (item_list[i][button_texts[text_button_state]].includes(val1)){
+                    ret_array.push(item_list[i]);
+                }
+            }
+        } else {
+            ret_array = item_list;
+        }
+        // console.log(ret_array);
+        return ret_array;
+    }
+
+    function showButtons(){
+    	current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
+        	max_items_number_on_one_page * current_page);
+        current_page_max_number = page_numbers[filter_button_state];
+
+        if ((current_page_item_list[0] == "")){
+            current_page_item_list = [];
+        }
+        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
+            current_page = current_page_max_number;
+            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
+            	max_items_number_on_one_page * current_page);
+        }
+        createItemButtons(current_page_item_list);
+        if (current_page_max_number > 1){  // f
+            createPageButtons();
+        }
+    }
+	
+    function sortButtonClick(event){
+    	button_type = event.target.id;
+    	if (button_type == "alphabet_translation-sort-button"){
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
+				  const translation2 = secondWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+	    } else if (button_type == "rev_alphabet_translation-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
+				  const translation2 = secondWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		} else if (button_type == "time-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = parseInt(firstWord["id"]); // ignore upper and lowercase
+				  const translation2 = parseInt(secondWord["id"]); // ignore upper and lowercase
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+		} else if (button_type == "rev_time-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = parseInt(firstWord["id"]); // ignore upper and lowercase
+				  const translation2 = parseInt(secondWord["id"]); // ignore upper and lowercase
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		}
+        showButtons();
+    }
+
+    function filterButtonClick(event){
+        filter_button_state = (filter_button_state + 1) % items_lists.length;
+        filter_button.innerText = filter_button_innerTexts[filter_button_state];
+        showButtons();
+    }
+
     function javascriptList(list){
         // alert(list);
         list = list.split(";;;");
         for (let i = 0; i < list.length; i += 1){
-            list[i] = list[i].split(";");
+        	list_word = list[i].split(";");
+            list[i] = { "id": list_word[0],
+                        "name": list_word[1],
+                        "email": list_word[2],
+                        "creator": list_word[3],
+                      };
         }
         return list;
     }
@@ -70,25 +196,16 @@
             button.id = "button " + i.toString();
             button.type = "button";
             // button.addEventListener("click", wordButtonClick, false);
-            button.href = "/profile/" + item_list[i][item_js_table["id"]];
+            button.href = "/profile/" + item_list[i]["id"];
             // console.log(button.id);
             button.classList.add("btn");
             button.classList.add("btn-primary");
             button.classList.add("pupil-button");
 
             // button.classList.add("user-word-button");
-            button.innerText = item_list[i][item_js_table["email"]];
-            column.appendChild(button);
 
-            // if ({{ current_user.id }} == item_list[i][item_js_table["creator"]]){
-            //     delete_but = document.createElement("a");
-            //     delete_but.href = "/delete_user/" + item_list[i][item_js_table["id"]];
-            //     delete_but.classList.add("btn");
-            //     delete_but.classList.add("btn-danger");
-            //     // delete_but.classList.add("user-word-button");
-            //     delete_but.innerText = "Удалить";
-            //     column.appendChild(delete_but);
-            // }
+            button.innerText = item_list[i][button_texts[text_button_state]];
+            column.appendChild(button);
         }
     }
 
@@ -220,16 +337,25 @@
                     }
                 }
             }
-            // alert()
-            // for (let i = 0; i < current_page_max_number; i ++){
-            //     createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-            // }
             createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
             createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
         }
     }
 
-    var sorting_button_state = 0;
+    sort_buttons_id =  ["alphabet-sort-button", 
+					    "rev_alphabet-sort-button", 
+					    "time-sort-button",
+					    "rev_time-sort-button"];
+    for (var i = 0; i < sort_buttons_id.length; i++) {
+    	sort_button = document.getElementById(sort_buttons_id[i]);
+    	if (sort_button != null){
+    		sort_button.addEventListener("click", sortButtonClick, false);
+    	}
+    }
+
+    var filter_button_state = 0;
+    var text_button_state = 0;
+    var button_texts = ["name", "email"];
     var current_page = 1;
     var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
 
@@ -238,7 +364,6 @@
         if (items_lists[i][0] == ''){
             items_lists[i] = [];
         }
-        // console.log(items_lists[i]);
     }
 
     page_numbers = []
@@ -254,9 +379,9 @@
         page_lists.push(page_items);
     }
 
-    current_item_list = items_lists[sorting_button_state];
-    current_page_item_list = page_lists[sorting_button_state];
-    current_page_max_number = page_numbers[sorting_button_state];
+    var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+    current_page_item_list = page_lists[filter_button_state];
+    current_page_max_number = page_numbers[filter_button_state];
 
     item_js_table = {
     "id": 0,
@@ -269,6 +394,22 @@
         createPageButtons();
     }
 
-    // document.getElementById("submit-button").addEventListener("click", onSubmitButtonClick, false);
+    function onSearchChange(event){
+        if (event.key != "Control"){
+            current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+            showButtons();
+        }
+    }
+
+    function onTextChangeButtonClick(event){
+        text_button_state = (text_button_state + 1) % button_texts.length;
+        event.target.innerText = ["Включить просмотр почт", "Включить просмотр имен"][text_button_state];
+        showButtons();
+    }
+
+    email_search_field = document.getElementById("email search field");
+    email_search_field.addEventListener("keyup", onSearchChange, false);
+    text_change_button = document.getElementById("text change button");
+    text_change_button.addEventListener("click", onTextChangeButtonClick, false);
 </script>
 {% endblock %}
