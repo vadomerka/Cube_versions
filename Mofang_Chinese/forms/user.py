@@ -16,9 +16,14 @@ class MakeUserForm(FlaskForm):
 
 
 class MakePasswordForm(FlaskForm):
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[Length(min=6, max=32), DataRequired()])
+    password_again = PasswordField('Повторите пароль', validators=[Length(min=6, max=32), DataRequired()])
     submit = SubmitField('Сохранить пароль')
+    
+
+class ForgotPasswordForm(FlaskForm):
+    email = EmailField('Почта', validators=[DataRequired("Пожалуйста, введите вашу почту")])
+    submit = SubmitField('Отправить письмо')
 
 
 class LoginForm(FlaskForm):

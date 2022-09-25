@@ -66,7 +66,7 @@
         response.json().then(data => {
           console.log(data);
           hash_token = data["hash_token"];
-          link_input.value = "/profile_change/" + hash_token;
+          link_input.value = "{{ root }}" + "/profile_change/" + hash_token;
         });
     }, false)
 

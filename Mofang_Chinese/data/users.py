@@ -20,6 +20,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     teacher = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     creator = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    confirmed = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     courses = orm.relation("Courses",
                            secondary="users_to_course",
                            backref="users")

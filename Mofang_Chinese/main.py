@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash
 from flask import request, make_response, session, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
+from flask_mail import Mail, Message
 
 # tables
 from data import db_session
@@ -13,7 +14,7 @@ from data.trainers import Trainers
 from data.tests import Tests, TestsToUsers
 
 # forms
-from forms.user import MakeUserForm, MakePasswordForm, LoginForm
+from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm
 from forms.course import CoursesForm, AddUsersToCourseForm
 from forms.lesson import LessonsForm, AddWordsToLessonForm, AddTrainersToLessonForm, \
     AddTestsToLessonForm
@@ -31,11 +32,25 @@ import os
 import datetime as dt
 from PIL import Image
 import vlc
+from itsdangerous import URLSafeTimedSerializer
 
 engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
 app = Flask(__name__)
 api = Api(app)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['SECRET_KEY'] = 'mofang_chinese_secret_key'
+app.config['SECURITY_PASSWORD_SALT'] = 'mofang_chinese_secret_password_key'
+mail_settings = {
+    "MAIL_SERVER": 'smtp.yandex.ru',
+    "MAIL_PORT": 465,
+    "MAIL_USE_TLS": False,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME": 'pradomiri@yandex.ru',
+    "MAIL_PASSWORD": 'pr220677'
+}
+
+app.config.update(mail_settings)
+mail = Mail(app)
+
 api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
@@ -102,8 +117,12 @@ def login():
         if user and user.hashed_password and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
+        elif user and user.hashed_password and not user.check_password(form.password.data):
+            return render_template('login.html',
+                                   message="Неправильный пароль",
+                                   form=form)
         return render_template('login.html',
-                               message="Неправильный логин или пароль",
+                               message="Пользователя с такой почтой не существует",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
@@ -148,6 +167,80 @@ def change_password(user_id):
         db_sess.commit()
         return redirect('/')
     return render_template("change_password.html", user=user, form=form)
+
+
+def send_email(to, subject, template):
+    msg = Message(
+        subject=subject,
+        recipients=[to],
+        html=template,
+        sender=app.config.get("MAIL_USERNAME")
+    )
+    mail.send(msg)
+
+
+@app.route('/password_reset', methods=['GET', 'POST'])
+def password_reset_email_send():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user_email = form.email.data
+        with app.app_context():
+            token = generate_confirmation_token(user_email)
+            confirm_url = url_for('password_reset', token=token, _external=True)
+            html = render_template('activate.html', confirm_url=confirm_url)
+            subject = "Сброс пароля Mofang Chinese"
+            send_email(user_email, subject, html)
+        return redirect('/')
+    return render_template("password_reset.html", form=form)
+
+
+def generate_confirmation_token(email):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+
+def confirm_token(token, expiration=3600):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(
+            token,
+            salt=app.config['SECURITY_PASSWORD_SALT'],
+            max_age=expiration
+        )
+    except:
+        return False
+    return email
+
+
+@app.route('/password_reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    db_sess = db_session.create_session()
+    email = ''
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+    try:
+        user_id = db_sess.query(User).filter(User.email == email).first().id
+    except:
+        return redirect("/")
+    user = db_sess.query(User).get(user_id)
+    user.hashed_password = None
+    login_user(user)
+    form = MakePasswordForm()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('change_password.html',
+                                   form=form,
+                                   user=user,
+                                   message="Пароли не совпадают",
+                                   forgot_password=True)
+        db_sess = db_session.create_session()
+        user.set_password(form.password.data)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template("change_password.html", user=user, form=form, forgot_password=True)
 
 
 def pupil_js_list(array):
@@ -221,7 +314,7 @@ def generate_link(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
     user.hash_token = 1
-    return render_template("generate_link.html", user=user)
+    return render_template("generate_link.html", user=user, root=root)
 
 
 @app.route('/add_token_to_user/<int:user_id>', methods=['GET', 'POST'])
@@ -241,7 +334,7 @@ def add_token_to_user(user_id):
 def delete_user(user_id):
     ret = delete(root + "/rest_user/" + str(user_id)).json()
     if ret == {'success': 'OK'}:
-        return redirect("/pupils")
+        return redirect("/")
     else:
         return ret
 
