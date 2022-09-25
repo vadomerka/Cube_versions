@@ -1048,12 +1048,11 @@ def change_word(word_id):
 
     prev_hieroglyph = new_word.hieroglyph
     prev_translation = new_word.translation
+    prev_transcription = new_word.transcription
+    prev_phrase_ch = new_word.phrase_ch
+    prev_phrase_ru = new_word.phrase_ru
 
-    front_file = Image.open(os.path.join(full_path, "static", new_word.front_side))
-    left_file = Image.open(os.path.join(full_path, "static", new_word.left_side))
-    right_file = Image.open(os.path.join(full_path, "static", new_word.right_side))
-    up_file = Image.open(os.path.join(full_path, "static", new_word.up_side))
-    down_file = Image.open(os.path.join(full_path, "static", new_word.down_side))
+    image_file = Image.open(os.path.join(full_path, "static", new_word.image))
 
     transcription_audio_file = vlc.MediaPlayer(os.path.join(
         full_path, "static", new_word.front_side_audio))
@@ -1074,20 +1073,16 @@ def change_word(word_id):
     else:
         is_translation_audio = "false"
 
-    front_start_preview = "/static/" + new_word.front_side
-    left_start_preview = "/static/" + new_word.left_side
-    right_start_preview = "/static/" + new_word.right_side
-    up_start_preview = "/static/" + new_word.up_side
-    down_start_preview = "/static/" + new_word.down_side
+    image_start_preview = "/static/" + new_word.image
     if form.validate_on_submit():
+        new_word = db_sess.query(Words).get(word_id)
         new_word.author = current_user.id
         new_word.hieroglyph = form.hieroglyph.data
         new_word.translation = form.translation.data
-        front = request.files['front']
-        left = request.files['left']
-        right = request.files['right']
-        up = request.files['up']
-        down = request.files['down']
+        new_word.transcription = form.transcription.data
+        new_word.phrase_ch = form.phrase_ch.data
+        new_word.phrase_ru = form.phrase_ru.data
+        image = request.files['image']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
         translation_audio = request.files['translation_audio']
@@ -1096,71 +1091,55 @@ def change_word(word_id):
         save_name = str(hash(
             str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
         filepath = os.path.join(full_path, "static", save_name)
-        if front:
-            front.save(filepath + "_front.png")
-            new_word.front_side = save_name + "_front.png"
-        if left:
-            left.save(filepath + "_left.png")
-            new_word.left_side = save_name + "_left.png"
-        if right:
-            right.save(filepath + "_right.png")
-            new_word.right_side = save_name + "_right.png"
-        if up:
-            up.save(filepath + "_up.png")
-            new_word.up_side = save_name + "_up.png"
-            im = Image.open(filepath + "_up.png")
-            im.save(filepath + "_up_0.png")
-            im = Image.open(filepath + "_up_0.png")
-            im = im.transpose(Image.ROTATE_90)
-            im.save(filepath + "_up_90.png")
-            im = im.transpose(Image.ROTATE_90)
-            im.save(filepath + "_up_180.png")
-            im = im.transpose(Image.ROTATE_90)
-            im.save(filepath + "_up_270.png")
-        if down:
-            down.save(filepath + "_down.png")
-            new_word.down_side = save_name + "_down.png"
-            im = Image.open(filepath + "_down.png")
-            im.save(filepath + "_down_0.png")
-            im = Image.open(filepath + "_down_0.png")
-            im = im.transpose(Image.ROTATE_270)
-            im.save(filepath + "_down_90.png")
-            im = im.transpose(Image.ROTATE_270)
-            im.save(filepath + "_down_180.png")
-            im = im.transpose(Image.ROTATE_270)
-            im.save(filepath + "_down_270.png")
+        if image:
+            image.save(filepath + "_image.png")
+            new_word.image = save_name + "_image.png"
+            # print(7, new_word.image)
+        else:
+            new_word.image = "undefined_image.png"
+
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
             new_word.front_side_audio = save_name + "_trans_audio.mp3"
             new_word.right_side_audio = save_name + "_trans_audio.mp3"
-            new_word.down_side_audio = save_name + "_trans_audio.mp3"
-
+        else:
+            new_word.front_side_audio = "undefined_trans_audio.mp3"
+            new_word.right_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
+            new_word.left_side_audio = save_name + "_phrase_audio.mp3"
+        else:
+            new_word.up_side_audio = "undefined_phrase_audio.mp3"
+            new_word.left_side_audio = "undefined_phrase_audio.mp3"
         if translation_audio:
             translation_audio.save(filepath + "_translation_audio.mp3")
-            new_word.left_side_audio = save_name + "_translation_audio.mp3"
-        new_word.time = (dt.datetime.now() - datetime.datetime(2020, 1, 1)).total_seconds()
+            new_word.down_side_audio = save_name + "_translation_audio.mp3"
+        else:
+            new_word.down_side_audio = "undefined_translation_audio.mp3"
+        new_word.time = dt.datetime.now()
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
+        for user in db_sess.query(User).all():
+            db_sess.add(WordsToUsers(
+                words=new_word.id,
+                users=user.id,
+                learn_state=0
+            ))
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, dictionary=all_words, filename="tmp",
                            prev_hieroglyph=prev_hieroglyph, prev_translation=prev_translation,
-                           front_file=front_file, left_file=left_file, right_file=right_file,
-                           up_file=up_file, down_file=down_file,
+                           prev_transcription=prev_transcription, prev_phrase_ch=prev_phrase_ch,
+                           prev_phrase_ru=prev_phrase_ru,
+                           image_file=image_file,
                            transcription_audio_file=transcription_audio_file,
                            is_transcription_audio=is_transcription_audio,
                            phrase_audio_file=phrase_audio_file, is_phrase_audio=is_phrase_audio,
                            translation_audio_file=translation_audio_file,
                            is_translation_audio=is_translation_audio,
-                           front_start_preview=front_start_preview,
-                           left_start_preview=left_start_preview,
-                           right_start_preview=right_start_preview,
-                           up_start_preview=up_start_preview,
-                           down_start_preview=down_start_preview)
+                           image_start_preview=image_start_preview)
 
 
 def main():

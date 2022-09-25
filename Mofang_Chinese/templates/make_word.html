@@ -122,10 +122,6 @@
     {{ form.submit(type="submit", class="btn btn-primary") }}
 </form>
 <script>
-    // fileLoaders = [0, 0, 0, 0, 0, 0, 0, 0]
-    id_list = ['up_output', "left_output", "front_output", "right_output", "down_output",
-               "transcription_audio_output", "phrase_audio_output"]
-    start_values = []
     var fileLoader = function(event) {
         var output = document.getElementById("image_output");
         output.src = URL.createObjectURL(event.target.files[0]);
@@ -134,12 +130,17 @@
         }
     };
 
-    translation_input = document.getElementById("hieroglyph");
-    translation_input.value = "{{ prev_hieroglyph }}";
-    translation_input = document.getElementById("translation");
-    translation_input.value = "{{ prev_translation }}";
+    input = document.getElementById("hieroglyph");
+    input.value = "{{ prev_hieroglyph }}";
+    input = document.getElementById("translation");
+    input.value = "{{ prev_translation }}";
+    input = document.getElementById("transcription");
+    input.value = "{{ prev_transcription }}";
+    input = document.getElementById("phrase_ch");
+    input.value = "{{ prev_phrase_ch }}";
+    input = document.getElementById("phrase_ru");
+    input.value = "{{ prev_phrase_ru }}";
 
-    // alert('{{ is_transcription_audio }}');
     is_transcription_audio = '{{ is_transcription_audio }}';
     is_phrase_audio = '{{ is_phrase_audio }}';
     is_translation_audio = '{{ is_translation_audio }}';
