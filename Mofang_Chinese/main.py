@@ -998,10 +998,13 @@ def dict_word_view(word_id):
            methods=['GET', 'POST'])
 @login_required
 def lesson_word_view(course_id, lesson_id, word_id):
+    db_sess = db_session.create_session()
     word = get(root + '/rest_word/' + str(word_id)).json()["word"]
     lesson_words = get(root + '/rest_lessons/' + str(lesson_id)
                        ).json()["lesson"]["words"]
-
+    word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == word["id"] and
+                                                          WordsToUsers.users == current_user.id)[0]
+    # print(word_result.words, word_result.users, word_result.learn_state)
     prev_id = 1
     next_id = 1
     prev_button_visibility = "visible"
@@ -1039,7 +1042,8 @@ def lesson_word_view(course_id, lesson_id, word_id):
                                prev_id),
                            next_word_url="/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
-                               next_id))
+                               next_id),
+                           word_learn_state=word_learn_state)
 
 
 def db_list_to_javascript(array):
