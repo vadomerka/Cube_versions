@@ -284,20 +284,25 @@
             }
         }
         max_line_len = max_word_len;
-        symbol_size_const = 0.6;
-        font_size = Math.round(cube_width / ((max_word_len + 1) * symbol_size_const));
-        max_font_size = 350
-
+        // считал отношением 1000 к количеству символов в monospace помещающихся при таком-то фонте
+        // например: 1000/6 = 166.6667 при font = 276, symbol_size_const = 0,603864734
+        //           1000/7 = 142.9 при font = 236, symbol_size_const = 0,605326877
+        symbol_width_coef = 0.6;
+        symbol_height_coef = 1.166;
+        font_size = Math.round(cube_width / ((max_word_len + 1) * symbol_width_coef));
+        max_font_size = 250
         if (font_size > max_font_size) {font_size = max_font_size;}
-        // console.log(font_size);
-        lines_number = (cube_width / (font_size * symbol_size_const * 2)).toString().split(".")[0];
-        koef = -1.5  // костыль
-        up_little_bit = (koef*max_font_size + font_size) * (-1/8);
-        if (lines_number % 2 != text_words.length % 2) {lines_number = parseInt(lines_number) + 1;}
+        symbol_height = font_size * symbol_height_coef;
+        lines_number = (cube_width / symbol_height).toString().split(".")[0];
+        prelines_px = (cube_width % symbol_height) / 2;
+        if (lines_number % 2 != text_words.length % 2) {
+            lines_number = parseInt(lines_number) + 1;
+            prelines_px -= symbol_height / 4; 
+        }
         ctx.font = 'bold ' + font_size + 'px Monospace';
         for (var i = 0; i < text_words.length; i++) {
             line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
-            ctx.fillText(text_words[i], cube_width / 2, (line_num) * cv.height + up_little_bit);
+            ctx.fillText(text_words[i], cube_width / 2, line_num * cube_width + prelines_px);
         }
         return cv;
     }
