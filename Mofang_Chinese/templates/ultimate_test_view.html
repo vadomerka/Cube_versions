@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 style="color: white;">Выберете правильный вариант ответа</h1>
+<div class="test">
+    <div id="task-box" class="task-box" style="position: relative; height: 150px;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;">
+        <button style="width: 50px;
+                       height: 50px;
+                       margin-top: 50px;" id="audio_but" class="c-button" name="task-field" hidden="True">
+             <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                 <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
+             </svg>
+         </button>
+    </div>
+    <div id="answer-box" class="answer-box" style="
+        display: flex;
+        justify-content: center;">
+        
+    </div>
+    <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
+        <h3 id="left_word_number">start text</h3>
+        <a id="continue" class="btn btn-primary my-btn" hidden style="
+        color: white; right: 20%; position: absolute;">Продолжить</a>
+    </div>
+</div>
+<script>
+    tests_list = "{{ tests_list }}".split("  ");
+    for (var i = 0; i < tests_list.length; i++) {
+        tests_list[i] = [parseInt(tests_list[i].split(" ")[0]), parseInt(tests_list[i].split(" ")[1])];
+    }
+    function generate_check_field(){
+        if (cur_check_side < 6) {
+            if (cur_check_side == 5) {
+                task_image = document.createElement("img");
+                task_image.classList.add("task-field-image");
+                task_image.id = "task-field-image";
+                task_image.src = "/static/" + lesson[current_word][cur_check_side];
+                document.getElementById("task-box").appendChild(task_image);
+            } else {
+                task_canvas = document.createElement("canvas");
+                task_canvas.classList.add("task-field-canvas");
+                task_canvas.id = "task-field-canvas";
+                task_canvas = task_text(task_canvas, lesson[current_word][cur_check_side], 1000);
+                document.getElementById("task-box").appendChild(task_canvas);
+            }
+        } else {
+            audio_but = document.getElementById("audio_but");
+            audio_but.hidden = false;
+            task_audio = new Audio("/static/" + lesson[current_word][cur_check_side]);
+            audio_but.addEventListener("click", audioButtonClick, false);
+        }
+    }
+    function generate_ans_fields(ans_vars){
+        if (cur_ans_side < 6) {
+            // console.log({{ answer_button_number }});
+            for (var i = 0; i < {{ answer_button_number }}; i++) {
+                ans_but = document.createElement("button");
+                ans_but.id = i.toString();
+                ans_but.classList.add("ans-button")
+                ans_but.addEventListener("click", ansButtonClick, false);
+                ans_but.value = ans_vars[i];
+                if (cur_ans_side == 5){
+                    but_image = document.createElement("img");
+                    but_image.name = i.toString();
+                    but_image.src = "/static/" + ans_vars[i];
+                    but_image.id = "id " + i.toString();
+                    but_image.value = ans_vars[i];
+                    but_image.style.width = (img_size).toString() + "px";
+                    but_image.style.height = (img_size).toString() + "px";
+                    ans_but.appendChild(but_image);
+                } else {
+                    but_canvas = document.createElement("canvas");
+                    but_canvas.src = "";
+                    but_canvas.name = i.toString();
+                    but_canvas.id = "id " + i.toString();
+                    but_canvas = task_text(but_canvas, ans_vars[i], 1000);
+                    but_canvas.value = ans_vars[i];
+                    but_canvas.style.width = (img_size).toString() + "px";
+                    but_canvas.style.height = (img_size).toString() + "px";
+                    ans_but.appendChild(but_canvas);
+                }
+                ans_but.style.minWidth = Number(img_size + extra_size_ansbut).toString() + "px";
+                ans_but.style.minHeight = Number(img_size + extra_size_ansbut).toString() + "px";
+                ans_but.style.backgroundColor = 'white';
+                ans_but.disabled = false;
+                document.getElementById("answer-box").appendChild(ans_but);
+            }
+        }
+    }
+    function buttonsInit(){
+        wrong_variants =  word_wrong_variants[current_word]
+        var ans_variants = [lesson[current_word][cur_ans_side]];
+        for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
+            ans_variants.push(wrong_variants[i]);
+        }
+        shuffle(ans_variants);
+        generate_check_field();
+        generate_ans_fields(ans_variants);
+
+        left_words_number_string = unlearned.length.toString();
+        document.getElementById("left_word_number").innerText = "Осталось слов: " +
+        left_words_number_string + "/" + lesson.length.toString();
+    }
+    
+    function buttonsDelete(){
+        prev_but = document.getElementById("task-field-canvas");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("audio_but");
+        if (prev_but != null){prev_but.hidden = true} // аудио кнопку удалять нельзя
+        for (var i = 0; i < {{ answer_button_number }}; i++) {
+            prev_but = document.getElementById(i.toString());
+            if (prev_but != null){prev_but.remove();}
+        }
+    }
+
+    var width = window.innerWidth
+    var height = window.innerHeight
+    var extra_size_ansbut = 50;
+    var img_size = 100;
+
+    var lesson = "{{ lesson_words }}";
+    // hieroglyph,translation;transcription;phrase;phrase_translation;image;trans_audio;phrase_audio;translation_audio;
+    lesson = lesson.split(";;;");
+    for (let i = 0; i < lesson.length; i += 1){
+        lesson[i] = lesson[i].split(";");
+    }
+    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
+    var all_words = "{{ all_words }}";
+    all_words = all_words.split(";;;");
+    for (let i = 0; i < all_words.length; i += 1){
+        all_words[i] = all_words[i].split(";");
+    }
+
+    var task_audio;
+    var audio_playing = false;
+    var results = [];
+    var unlearned = [];
+    for (let i = 0; i < lesson.length; i++) {
+        results.push(false);
+        unlearned.push(i);
+    }
+    var current_word = 0;
+    var cur_check_side = tests_list[current_word][0];
+    var cur_ans_side = tests_list[current_word][1];
+    var check_side = cur_check_side;
+    var ans_side = cur_ans_side;
+
+    word_wrong_variants = [];
+    for (let i = 0; i < lesson.length; i++){
+        tmp_wrong_vars = []
+        for (let j = 0; j < all_words.length; j++) {
+            if (all_words[j][0] != lesson[current_word][0]){
+                tmp_wrong_vars.push(all_words[j][tests_list[i][1]]);
+            }
+        }
+        shuffle(tmp_wrong_vars);
+        word_wrong_variants.push(tmp_wrong_vars);
+    }
+
+    buttonsInit();
+
+    function shuffle(array) {
+      let currentIndex = array.length,  randomIndex;
+      while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    function resultsCheck(array){
+        is_true = true;
+        for (let i = 0; i < array.length; i++){
+            if (!array[i]){
+                is_true = false;
+            }
+        }
+        return is_true;
+    }
+
+    function audioButtonClick(event){
+        if (!task_audio.paused){task_audio.pause(); task_audio.currentTime = 0;}
+        else {task_audio.play();}
+        // alert(playing);
+        audio_playing = !audio_playing;
+        // alert(audio_playing);
+    }
+
+    function ansButtonClick(event){
+        val = event.target.value;
+        unlearned = unlearned.slice(1, unlearned.length);  // удаляем первый элемент
+        // если ответ верный
+        if (val == lesson[current_word][cur_ans_side]){
+            results[current_word] = true;
+            //  ничего не делаем
+            if (event.target.type == undefined){ // если target - изображение/канвас
+                butId = parseInt(event.target.id.split(" ")[1]);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'green';
+            } else { // если target - сама кнопка
+                event.target.style.backgroundColor = 'green';
+            }
+        } else {  // если ответ не верный
+            // правильный ответ становится зеленым
+            ans_buttons = document.getElementsByClassName("ans-button");
+            for (let i = 0; i < ans_buttons.length; i += 1){
+                if (ans_buttons[i].value == lesson[current_word][cur_ans_side]){
+                    right_answer_id = i;
+                    break;
+                }
+            }
+            butId = right_answer_id;
+            ev_but = document.getElementById(butId);
+            ev_but.style.backgroundColor = 'green';
+
+            // нажатая кнопка становится красной
+            if (event.target.type == undefined){ // если target - изображение/канвас
+                butId = parseInt(event.target.id.split(" ")[1]);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'salmon';
+            } else { // если target - сама кнопка
+                event.target.style.backgroundColor = 'salmon';
+            }
+            results[current_word] = false;
+        }
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i += 1){
+            ans_buttons[i].disabled = true;
+        }
+        // берем следующий элемент unlearned
+        if (unlearned == ''){ // если тест пройден
+            continue_button = document.getElementById("continue");
+            continue_button.innerText = "Вернуться к уроку";
+            continue_button.href = "{{ back_url }}";
+            continue_button.removeEventListener("click", continueButtonClick, false);
+            // console.log(results);
+            json_results = ``;
+            for (let i = 0; i < results.length; i++){
+                if (results[i]){
+                    json_results += `1.`;
+                } else {
+                    json_results += `0.`;
+                }
+            }
+            // console.log(json_results);
+            continue_button.addEventListener("click", async function(event){
+                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: `{
+                   "id": "{{ test.id }}",
+                   "results": "` + json_results + `"
+                  }`,
+                });
+
+                response.json().then(data => {
+                  console.log(data);
+                });
+            }, false)
+        } else { // если тест еще не пройден
+            current_word = unlearned[0];
+            cur_check_side = tests_list[current_word][0];
+            cur_ans_side = tests_list[current_word][1];
+        }
+        document.getElementById("continue").hidden = false;
+    }
+
+    function continueButtonClick(event){
+        document.getElementById("continue").hidden = true;
+        buttonsDelete();
+        buttonsInit();
+    }
+
+    function task_text(canvas_to_change, text, cv_width){
+        // const cv = document.createElement( 'canvas' );
+        const cv = canvas_to_change;
+        console.log(text);
+        text_size = 150;
+        cube_width = cv_width;
+        cv.width = cv_width //  3 * 512
+        cv.height = cv_width;
+
+        const ctx = cv.getContext( '2d' );
+
+        ctx.fillStyle = '#fefefe';
+        ctx.fillRect( 0, 0, cv.width, cv.height );
+        ctx.fillStyle = '#129912';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        text_words = text.split(" ");
+        average_line_len = 9;
+        i = 0;
+        while (i < (text_words.length - 1)){
+            if (text_words[i] == '') {text_words.splice(i, 1);}
+            // console.log(text_words, i)
+            if (i == 0){
+                if ((text_words[i + 1].length + text_words[i].length + 1) < average_line_len) {
+                    text_words[i] = text_words[i] + ' ' + text_words[i + 1];
+                    text_words.splice(i + 1, 1);
+                    i--;
+                }
+            } else {
+                if ((text_words[i - 1].length + text_words[i].length + 1) < average_line_len ||
+                    (text_words[i + 1].length + text_words[i].length + 1) < average_line_len){
+                    if (text_words[i - 1].length < text_words[i + 1].length) {
+                        text_words[i] = text_words[i - 1] + ' ' + text_words[i]
+                        text_words.splice(i - 1, 1);
+                        // console.log(text_words, i);
+                        i--;
+                    } else {
+                        text_words[i] = text_words[i] + ' ' + text_words[i + 1];
+                        // console.log(text_words)
+                        text_words.splice(i + 1, 1);
+                        // console.log(text_words, i);
+                        i--;
+                    }
+                }}
+            i++;
+        }
+        max_word_len = 0;
+        for (var i = 0; i < text_words.length; i++) {
+            if (max_word_len < text_words[i].length) {
+                max_word_len = text_words[i].length;
+            }
+        }
+        max_line_len = max_word_len;
+        // считал отношением 1000 к количеству символов в monospace помещающихся при таком-то фонте
+        // например: 1000/6 = 166.6667 при font = 276, symbol_size_const = 0,603864734
+        //           1000/7 = 142.9 при font = 236, symbol_size_const = 0,605326877
+        symbol_width_coef = 0.6;
+        symbol_height_coef = 1.166;
+        font_size = Math.round(cube_width / ((max_word_len + 1) * symbol_width_coef));
+        max_font_size = 250
+        if (font_size > max_font_size) {font_size = max_font_size;}
+        symbol_height = font_size * symbol_height_coef;
+        lines_number = (cube_width / symbol_height).toString().split(".")[0];
+        prelines_px = (cube_width % symbol_height) / 2;
+        if (lines_number % 2 != text_words.length % 2) {
+            lines_number = parseInt(lines_number) + 1;
+            prelines_px -= symbol_height / 4;
+        }
+        ctx.font = 'bold ' + font_size + 'px Monospace';
+        for (var i = 0; i < text_words.length; i++) {
+            line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
+            ctx.fillText(text_words[i], cube_width / 2, line_num * cube_width + prelines_px);
+        }
+        return cv;
+    }
+
+    // alert(ans_buttons[0]);
+    
+
+    continue_button = document.getElementById("continue");
+    continue_button.addEventListener("click", continueButtonClick, false);
+    // buttonsInit();
+
+
+</script>
+{% endblock %}

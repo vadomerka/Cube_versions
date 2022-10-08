@@ -9,21 +9,16 @@ from sqlalchemy_serializer import SerializerMixin
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'users'
 
-    id = sqlalchemy.Column(sqlalchemy.Integer,
-                           primary_key=True, autoincrement=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     last_name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     patronymic = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    email = sqlalchemy.Column(sqlalchemy.String,
-                              index=True, unique=True, nullable=True)
+    email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=True)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     teacher = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     creator = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    confirmed = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
-    courses = orm.relation("Courses",
-                           secondary="users_to_course",
-                           backref="users")
+    courses = orm.relation("Courses", secondary="users_to_course", backref="users")
     words = orm.relation("Words", back_populates='user')
     hash_token = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, unique=True)
 

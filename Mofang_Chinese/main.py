@@ -16,14 +16,13 @@ from data.tests import Tests, TestsToUsers
 # forms
 from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm
 from forms.course import CoursesForm, AddUsersToCourseForm
-from forms.lesson import LessonsForm, AddWordsToLessonForm, AddTrainersToLessonForm, \
-    AddTestsToLessonForm
+from forms.lesson import LessonsForm, AddSomethingToLessonForm
 from forms.word import WordsForm
 
 # resourses
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse, WordResourse
-from resourses.lesson_resourses import LessonResource
+from resourses.lesson_resourses import LessonResource, LessonListResource
 from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
 import requests
@@ -55,7 +54,8 @@ api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
-api.add_resource(LessonResource, "/rest_lessons/<int:lesson_id>")
+api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
+api.add_resource(LessonListResource, "/rest_lessons/<int:course_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
 login_manager = LoginManager()
@@ -185,7 +185,7 @@ def password_reset_email_send():
     if form.validate_on_submit():
         user_email = form.email.data
         with app.app_context():
-            token = generate_confirmation_token(user_email)
+            token = generate_password_reset_token(user_email)
             confirm_url = url_for('password_reset', token=token, _external=True)
             html = render_template('activate.html', confirm_url=confirm_url)
             subject = "Сброс пароля Mofang Chinese"
@@ -194,12 +194,12 @@ def password_reset_email_send():
     return render_template("password_reset.html", form=form)
 
 
-def generate_confirmation_token(email):
+def generate_password_reset_token(email):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
-def confirm_token(token, expiration=3600):
+def confirm_password_reset_token(token, expiration=3600):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
@@ -217,7 +217,7 @@ def password_reset(token):
     db_sess = db_session.create_session()
     email = ''
     try:
-        email = confirm_token(token)
+        email = confirm_password_reset_token(token)
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
     try:
@@ -555,7 +555,7 @@ def make_lesson(course_id):
 @app.route('/add_trainers_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def add_trainers_to_lesson(lesson_id):
-    form = AddTrainersToLessonForm()
+    form = AddSomethingToLessonForm()
     db_sess = db_session.create_session()
     lesson = db_sess.query(Lessons).get(lesson_id)
     current_course = 0
@@ -586,7 +586,7 @@ def add_trainers_to_lesson(lesson_id):
 @app.route('/add_tests_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def add_tests_to_lesson(lesson_id):
-    form = AddTestsToLessonForm()
+    form = AddSomethingToLessonForm()
     db_sess = db_session.create_session()
     lesson = db_sess.query(Lessons).get(lesson_id)
     current_course = 0
@@ -626,7 +626,7 @@ def add_words_js_list(array):
 @app.route('/add_words_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def add_words_to_lesson(lesson_id):
-    form = AddWordsToLessonForm()
+    form = AddSomethingToLessonForm()
     db_sess = db_session.create_session()
     lesson = db_sess.query(Lessons).get(lesson_id)
     current_course = 0
@@ -894,8 +894,8 @@ def add_word():
             new_word.down_side_audio = save_name + "_translation_audio.mp3"
         else:
             new_word.down_side_audio = "undefined_translation_audio.mp3"
-        new_word.time = dt.datetime.now()
-        print(new_word.time)
+        new_word.creation_time = dt.datetime.now()
+        # print(new_word.creation_time)
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         for user in db_sess.query(User).all():
@@ -955,7 +955,6 @@ def delete_word(word_id):
 @login_required
 def dict_word_view(word_id):
     word = get(root + '/rest_word/' + str(word_id)).json()["word"]
-
     all_words = get(root + "/rest_dict").json()["words"]
     prev_id = 1
     next_id = 1
@@ -974,6 +973,8 @@ def dict_word_view(word_id):
                 next_id = all_words[i + 1]["id"]
             break
     # print(url_for("user_data", filename=word["front_side"]))  # not working  ???
+    db_sess = db_session.create_session()
+    # print(db_sess.query(Words).get(word["id"]).hieroglyph, db_sess.query(Words).get(word["id"]).user)
     return render_template('word_view.html',
                            hieroglyph=word["hieroglyph"],
                            translation=word["translation"],
@@ -1091,12 +1092,24 @@ def lesson_test_view(course_id, lesson_id, test_id):
     course = db_sess.query(Courses).get(course_id)
     lesson = db_sess.query(Lessons).get(lesson_id)
     test = db_sess.query(Tests).get(test_id)
+    all_tests = db_sess.query(Tests).all()
     all_words = db_sess.query(Words).all()
 
     lesson_words = db_list_to_javascript(lesson.words)
     lesson_all_words = db_list_to_javascript(all_words)
 
     answer_button_number = 6
+    tests_list = []
+    for i in range(len(lesson_word)):
+        rand_test = all_tests[random.randint(0, len(all_tests))]
+        tests_list.append(str(rand_test.check_side) + " " + str(rand_test.ans_side))
+    tests_list = "  ".join(tests_list)
+    if test.check_side == -1 and test.ans_side == -1:
+        return render_template('ultimate_test.html', course=course, lesson=lesson, test=test,
+                               lesson_words=lesson_words, answer_button_number=answer_button_number,
+                               back_url=f"/courses/{course_id}/lesson/{lesson_id}",
+                               back_button_hidden="false", all_words=lesson_all_words,
+                               tests_list=tests_list)
     return render_template('test_view.html', course=course, lesson=lesson, test=test,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
@@ -1214,7 +1227,7 @@ def change_word(word_id):
             new_word.down_side_audio = save_name + "_translation_audio.mp3"
         else:
             new_word.down_side_audio = "undefined_translation_audio.mp3"
-        new_word.time = dt.datetime.now()
+        new_word.creation_time = dt.datetime.now()
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
         for user in db_sess.query(User).all():

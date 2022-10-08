@@ -18,12 +18,9 @@ words_to_lesson = sqlalchemy.Table(
 class Words(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'words'
 
-    id = sqlalchemy.Column(sqlalchemy.Integer,
-                           primary_key=True, autoincrement=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=True)
-
     user = orm.relation('User')
-    # courses =
     hieroglyph = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     translation = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     transcription = sqlalchemy.Column(sqlalchemy.String, nullable=True)
@@ -36,7 +33,7 @@ class Words(SqlAlchemyBase, SerializerMixin):
     up_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     down_side_audio = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     learn_state = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    time = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    creation_time = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
 
 class WordsToUsers(SqlAlchemyBase, SerializerMixin):

@@ -24,6 +24,8 @@ class CourseResource(Resource):
                                     list(course.lessons)]
         ret["course"]["users"] = [item.to_dict(only=('id', 'name')) for item in
                                   list(course.users)]
+        ret["course"]["tests"] = [item.to_dict(only=('id', 'name')) for item in
+                                  list(course)]
         return jsonify(ret)
 
     def delete(self, course_id):
@@ -41,8 +43,10 @@ class CourseListResource(Resource):
     def get(self, user_id):
         session = db_session.create_session()
         cur_user = session.query(User).filter(User.id == user_id).first()
-        return jsonify({'courses': [item.to_dict(
-            only=('id', 'name', 'about')) for item in cur_user.courses]})
+        if cur_user:
+            return jsonify({'courses': [item.to_dict(
+                only=('id', 'name', 'about')) for item in cur_user.courses]})
+        return abort(404, message=f"User {user_id} not found")
 
     def post(self, user_id):
         if not request.json:

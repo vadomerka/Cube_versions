@@ -26,6 +26,8 @@ class LessonResource(Resource):
             [item.to_dict(only=('id', 'name')) for item in list(lesson.trainers)]
         ret["lesson"]["tests"] = \
             [item.to_dict(only=('id', 'name')) for item in list(lesson.tests)]
+        ret["lesson"]["course"] = \
+            [item.to_dict(only=('id', 'name')) for item in list(lesson.courses)][0]
         # print(lesson.words)
         return jsonify(ret)
 
@@ -39,7 +41,7 @@ class LessonResource(Resource):
 
 
 # not working
-class CourseLessonsResource(Resource):
+class LessonListResource(Resource):
     def get(self, user_id):
         session = db_session.create_session()
         cur_user = session.query(User).filter(User.id == user_id).first()
