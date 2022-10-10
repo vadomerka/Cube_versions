@@ -365,49 +365,6 @@ def make_course():
                            back_button_hidden='false', back_url="/courses")
 
 
-# @app.route('/add_users_to_course/<int:course_id>', methods=['GET', 'POST'])
-# @login_required
-# def add_users_to_course(course_id):
-#     form = AddUsersToCourseForm()
-#     db_sess = db_session.create_session()
-#     users = get(root + "/rest_users").json()['users']
-#     course = db_sess.query(Courses).get(course_id)
-#     all_pupils = []
-#     course_pupils = []
-#     for user in users:
-#         if not user['teacher']:
-#             pupil = db_sess.query(User).get(user['id'])
-#             if pupil in course.users:
-#                 course_pupils.append(pupil)
-#             all_pupils.append(pupil)
-#     if form.validate_on_submit():
-#         all_pupils = request.form.getlist('lesson_pupil')
-#         for pupils_id in list(all_pupils):
-#             pupil = db_sess.query(User).get(int(pupils_id))
-#             pupil.courses.append(course)
-#
-#             db_sess.merge(pupil)
-#         not_lesson_pupils = request.form.getlist('not_lesson_pupil')
-#         for pupils_id in list(not_lesson_pupils):
-#             pupil = db_sess.query(User).get(int(pupils_id))
-#             if course in pupil.courses:
-#                 pupil.courses.remove(course)
-#
-#             db_sess.merge(pupil)
-#         db_sess.commit()
-#
-#         return redirect('/courses/' + str(course_id))
-#
-#     return render_template('add_users_to_course.html', form=form, pupils=all_pupils,
-#                            course_pupils=course_pupils,
-#                            back_button_hidden='false', back_url="/courses",
-#                            len_pupils=len(all_pupils))
-
-
-# /home/rad/PycharmProjects/venv/lib/python3.6/site-packages/pip/_internal/cli/cmdoptions.py
-# стандартная библеотека логов питона
-
-
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 def delete_course(course_id):
