@@ -68,7 +68,7 @@ api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
 api.add_resource(LessonListResource, "/rest_lessons/<int:lesson_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
-api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/word_id')
+api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/<int:user_id>/<int:word_id>')
 login_manager = LoginManager()
 login_manager.init_app(app)
 root = "http://localhost:5000"
@@ -1003,6 +1003,7 @@ def lesson_word_view(course_id, lesson_id, word_id):
             else:
                 next_id = lesson_words[i + 1]["id"]
             break
+    ret = post(root + f"/rest_word_view_recording/{current_user.id}/{word_id}")
     return render_template('word_view.html',
                            hieroglyph=word["hieroglyph"],
                            translation=word["translation"],

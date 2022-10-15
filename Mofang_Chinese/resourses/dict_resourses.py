@@ -1,7 +1,7 @@
 from flask_restful import reqparse, abort, Api, Resource
 from flask import jsonify
 from data import db_session
-from data.words import Words
+from data.words import Words, WordsToUsers
 from resourses.parser import parserAddWord
 from data.courses import Courses, users_to_course
 from data.users import User
@@ -128,4 +128,18 @@ class WordResourse(Resource):
                 # print(f"The file {filename} does not exist")
         session.delete(word)
         session.commit()
+        return jsonify({'success': 'OK'})
+
+
+class WordViewRecordingResource(Resource):
+    def post(self, user_id, word_id):
+        session = db_session.create_session()
+        word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
+                                                          WordsToUsers.words == word_id).first()
+        if not word_to_user:
+            abort(404, message=f"User {user_id} or word {word_id} not found")
+        word_to_user.learn_state = 1
+        session.merge(word_to_user)
+        session.commit()
+        session.close()
         return jsonify({'success': 'OK'})
