@@ -119,7 +119,7 @@
     {% for i in range(30) %}
     <div class="column" id="column {{ i }}"></div>
     {% endfor %}
-    <h3 id="words-not-found-heading" hidden>Слова не найдены</h3>
+    <h3 id="items-not-found-heading" hidden>Слова не найдены</h3>
 </div>
 
 
@@ -283,10 +283,10 @@
         }
 
         if (item_list.length == 0){
-        	document.getElementById("words-not-found-heading").hidden = false;
+        	document.getElementById("items-not-found-heading").hidden = false;
         	return;
         } else {
-        	document.getElementById("words-not-found-heading").hidden = true;
+        	document.getElementById("items-not-found-heading").hidden = true;
         }
 
         for (let i = 0; i < item_list.length; i += 1){

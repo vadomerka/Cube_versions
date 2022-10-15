@@ -21,7 +21,7 @@ from forms.word import WordsForm
 
 # resourses
 from resourses.course_resourses import CourseListResource, CourseResource
-from resourses.dict_resourses import DictResourse, WordResourse
+from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource
 from resourses.lesson_resourses import LessonResource, LessonListResource
 from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
@@ -68,6 +68,7 @@ api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
 api.add_resource(LessonListResource, "/rest_lessons/<int:lesson_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
+api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/word_id')
 login_manager = LoginManager()
 login_manager.init_app(app)
 root = "http://localhost:5000"
@@ -159,6 +160,30 @@ def user_profile(user_id):
     return render_template('profile.html', user=profile_user, is_owner=0)
 
 
+# @app.route('/make_password', methods=['GET', 'POST'])
+# @login_required
+# def make_password(user_id):
+#     if current_user.is_authorised():
+#         db_sess = db_session.create_session()
+#         user = current_user
+#         form = MakePasswordForm()
+#         if form.validate_on_submit():
+#             if form.password.data != form.password_again.data:
+#                 return render_template('change_password.html',
+#                                        form=form,
+#                                        user=user,
+#                                        message="Пароли не совпадают")
+#             db_sess = db_session.create_session()
+#             user.set_password(form.password.data)
+#             db_sess.merge(user)
+#             db_sess.commit()
+#             return redirect('/')
+#         return render_template("change_password.html", user=user, form=form)
+#     return redirect('/')
+#
+#
+
+
 @app.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def change_password(user_id):
@@ -189,58 +214,56 @@ def send_email(to, subject, template):
     mail.send(msg)
 
 
-@app.route('/password_reset', methods=['GET', 'POST'])
-def password_reset_email_send():
-    form = ForgotPasswordForm()
-    if form.validate_on_submit():
-        user_email = form.email.data
-        with app.app_context():
-            token = generate_password_reset_token(user_email)
-            confirm_url = url_for('password_reset', token=token, _external=True)
-            html = render_template('activate.html', confirm_url=confirm_url)
-            subject = "Сброс пароля Mofang Chinese"
-            send_email(user_email, subject, html)
-        return redirect('/')
-    return render_template("password_reset.html", form=form)
-
-
-def generate_password_reset_token(email):
+def generate_reset_password_token(email):  # функция, создающая специальный токен
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
-def confirm_password_reset_token(token, expiration=3600):
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password_email_send():  # сценарий "пользователь забыл пароль"
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user_email = form.email.data  # пользователь вводит почту, на которую придет специальная ссылка
+        with app.app_context():
+            token = generate_reset_password_token(user_email)  # создаем спец токен на основе
+            confirm_url = url_for('reset_password', token=token, _external=True)  # ссылка вида root/reset_password/<token>
+            html = render_template('activate.html', confirm_url=confirm_url)  # тело письма
+            subject = "Сброс пароля Mofang Chinese"  # тема письма
+            send_email(user_email, subject, html)  # отправление письма
+        return redirect('/')
+    return render_template("reset_password.html", form=form)
+
+
+def confirm_reset_password_token(token, expiration=3600):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
-        email = serializer.loads(
+        email = serializer.loads(  # расшифровываем, если не прошло определенное время
             token,
             salt=app.config['SECURITY_PASSWORD_SALT'],
             max_age=expiration
         )
+        return email
     except:
         return False
-    return email
 
 
-@app.route('/password_reset/<token>', methods=['GET', 'POST'])
-def password_reset(token):
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):  # если пользователь получил ссылку для сброса пароля
     db_sess = db_session.create_session()
-    email = ''
-    try:
-        email = confirm_password_reset_token(token)
-    except:
-        flash('The confirmation link is invalid or has expired.', 'danger')
-    try:
-        user_id = db_sess.query(User).filter(User.email == email).first().id
-    except:
-        return redirect("/")
-    user = db_sess.query(User).get(user_id)
+    email = confirm_reset_password_token(token)
+    if not email:
+        message = 'Ссылка для восстановления пароля недействительна или срок ее действия истек.'
+        return render_template("make_password.html", message=message, user=None, form=None)
+    user = db_sess.query(User).filter(User.email == email).first()
+    if not user:
+        message = 'Пользователя с такой почтой не существует'
+        return render_template("make_password.html", message=message, user=None, form=None)
     user.hashed_password = None
     login_user(user)
     form = MakePasswordForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('change_password.html',
+            return render_template('make_password.html',
                                    form=form,
                                    user=user,
                                    message="Пароли не совпадают",
@@ -250,7 +273,7 @@ def password_reset(token):
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/')
-    return render_template("change_password.html", user=user, form=form, forgot_password=True)
+    return render_template("make_password.html", user=user, form=form)
 
 
 def pupil_js_list(array):
@@ -935,15 +958,16 @@ def dict_word_view(word_id):
                            phrase_ch=word["phrase_ch"],
                            phrase_ru=word["phrase_ru"],
                            image_name=url_for("static", filename="words_data/" + word["image"]),
-                           front_audio=url_for("/static/words_data",
-                                               filename=word["front_side_audio"]),
-                           left_audio=url_for("/static/words_data",
-                                              filename=word["left_side_audio"]),
-                           right_audio=url_for("/static/words_data",
-                                               filename=word["right_side_audio"]),
-                           up_audio=url_for("/static/words_data", filename=word["up_side_audio"]),
-                           down_audio=url_for("/static/words_data",
-                                              filename=word["down_side_audio"]),
+                           front_audio=url_for("static",
+                                               filename="/words_data/" + word["front_side_audio"]),
+                           left_audio=url_for("static",
+                                              filename="/words_data/" + word["left_side_audio"]),
+                           right_audio=url_for("static",
+                                               filename="/words_data/" + word["right_side_audio"]),
+                           up_audio=url_for("static",
+                                            filename="/words_data/" + word["up_side_audio"]),
+                           down_audio=url_for("static",
+                                              filename="/words_data/" + word["down_side_audio"]),
                            back_url="/dictionary",
                            dict=all_words,
                            prev_button_visibility=prev_button_visibility,
@@ -985,16 +1009,17 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            transcription=word["transcription"],
                            phrase_ch=word["phrase_ch"],
                            phrase_ru=word["phrase_ru"],
-                           image_name=url_for("/static/words_data", filename=word["image"]),
-                           front_audio=url_for("/static/words_data",
-                                               filename=word["front_side_audio"]),
-                           left_audio=url_for("/static/words_data",
-                                              filename=word["left_side_audio"]),
-                           right_audio=url_for("/static/words_data",
-                                               filename=word["right_side_audio"]),
-                           up_audio=url_for("/static/words_data", filename=word["up_side_audio"]),
-                           down_audio=url_for("/static/words_data",
-                                              filename=word["down_side_audio"]),
+                           image_name=url_for("static", filename="words_data/" + word["image"]),
+                           front_audio=url_for("static",
+                                               filename="/words_data/" + word["front_side_audio"]),
+                           left_audio=url_for("static",
+                                              filename="/words_data/" + word["left_side_audio"]),
+                           right_audio=url_for("static",
+                                               filename="/words_data/" + word["right_side_audio"]),
+                           up_audio=url_for("static",
+                                            filename="/words_data/" + word["up_side_audio"]),
+                           down_audio=url_for("static",
+                                              filename="/words_data/" + word["down_side_audio"]),
                            back_url="/courses/" + str(course_id) + "/lesson/" + str(lesson_id),
                            dict=lesson_words,
                            prev_button_visibility=prev_button_visibility,

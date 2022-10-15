@@ -74,6 +74,7 @@
         {% for i in range(column_number) %}
         <div class="column" id="column {{ i }}"></div>
         {% endfor %}
+        <h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
     </div>
         <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
             <div class="pages-row" id="pages-row">
@@ -162,7 +163,7 @@
     }
 
     function javascriptList(list){
-        // alert(list);
+        if (!list) {return [];}
         list = list.split(";;;");
         for (let i = 0; i < list.length; i += 1){
         	list_word = list[i].split(";");
@@ -182,6 +183,13 @@
             if (prev_but != null){prev_but.remove();}
             prev_but = document.getElementById("delete " + i.toString())
             if (prev_but != null){prev_but.remove();}
+        }
+
+        if (item_list.length == 0){
+        	document.getElementById("items-not-found-heading").hidden = false;
+        	return;
+        } else {
+        	document.getElementById("items-not-found-heading").hidden = true;
         }
 
         for (let i = 0; i < item_list.length; i += 1){

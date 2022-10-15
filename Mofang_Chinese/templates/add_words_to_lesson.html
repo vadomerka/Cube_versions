@@ -102,6 +102,7 @@
         {% for i in range(column_number) %}
         <div class="column" id="column {{ i }}"></div>
         {% endfor %}
+        <h3 id="items-not-found-heading" hidden>Слова не найдены</h3>
     </div>
 
     <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
@@ -145,6 +146,7 @@
 
     function sortButtonClick(event){
         button_type = event.target.id;
+        current_item_list = searchArrayFilter(items_lists[filter_button_state]);
         if (button_type == "alphabet_translation-sort-button"){
             current_item_list.sort((firstWord, secondWord) => {
                   const translation1 = firstWord.translation.toUpperCase(); // ignore upper and lowercase
@@ -194,7 +196,21 @@
                   return 0;
             });
         }
-        showButtons();
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
+            max_items_number_on_one_page * current_page);
+        current_page_max_number = page_numbers[filter_button_state];
+
+        if ((current_page_item_list[0] == "")){
+            current_page_item_list = [];
+        }
+        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
+            current_page = current_page_max_number;
+            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        }
+        createitemButtons(current_page_item_list);
+        if (current_page_max_number > 1){  // f
+            createPageButtons();
+        }
     }
 
     function showButtons(){
@@ -218,7 +234,7 @@
     
 
     function javascriptList(list){
-        // alert(list);
+        if (!list) {return [];}
         list = list.split(";;;");
         for (let i = 0; i < list.length; i += 1){
             list_word = list[i].split(";");
@@ -251,7 +267,12 @@
             prev_but = document.getElementById("item_button " + i.toString())
             if (prev_but != null){prev_but.remove();}
         }
-
+        if (item_list.length == 0){
+            document.getElementById("items-not-found-heading").hidden = false;
+            return;
+        } else {
+            document.getElementById("items-not-found-heading").hidden = true;
+        }
         for (let i = 0; i < item_list.length; i += 1){
             // console.log(i);
             column = document.getElementById("column " + (i % {{ column_number }}).toString());
