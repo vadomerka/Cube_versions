@@ -26,13 +26,23 @@ from resourses.lesson_resourses import LessonResource, LessonListResource
 from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
 import requests
+import json
 from sqlalchemy import insert, create_engine
 import os
 import datetime as dt
 from PIL import Image
 import vlc
 from itsdangerous import URLSafeTimedSerializer
+import logging
+import random
 
+logging.basicConfig(filename="log.txt", level=logging.DEBUG,
+                    format="%(asctime)s %(message)s", filemode="w")
+logging.debug("Logging test...")
+logging.info("The program is working as expected")
+logging.warning("The program may not function properly")
+logging.error("The program encountered an error")
+logging.critical("The program crashed")
 engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
 app = Flask(__name__)
 api = Api(app)
@@ -44,7 +54,7 @@ mail_settings = {
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": 'pradomiri@yandex.ru',
-    "MAIL_PASSWORD": 'pr220677'
+    "MAIL_PASSWORD": 'wsRuHhBwL2'
 }
 
 app.config.update(mail_settings)
@@ -55,7 +65,7 @@ api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
-api.add_resource(LessonListResource, "/rest_lessons/<int:course_id>")
+api.add_resource(LessonListResource, "/rest_lessons/<int:lesson_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
 login_manager = LoginManager()
@@ -381,12 +391,13 @@ def delete_course(course_id):
 def course_view(course_id):
     course = get(root + '/rest_course/' + str(course_id)
                  ).json()["course"]
-
-    course_about = '&lt;br&lt;'.join(course["about"].split("\r\n"))
-    course_about = '<<<<'.join(course["about"].split("\r\n"))
-
-    return render_template('course_view.html', course_data=course, course_about=course_about,
-                           back_button_hidden='false', back_url="/courses")
+    json_course = get(root + '/rest_course/' + str(course_id)
+                      ).json()
+    json_course = json.dumps(json_course['course']['about'])
+    data_parser_file = open("static/data_parser.js", "w")
+    data_parser_file.write(f"var json_course_about = {json_course}\n")
+    return render_template('course_view.html', course_data=course, back_button_hidden='false',
+                           back_url="/courses", json_course=json_course)
 
 
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
@@ -457,7 +468,7 @@ def lesson_words_js_list(array):
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def lesson_view(course_id, lesson_id):
-    lesson = get(root + '/rest_lessons/' + str(lesson_id)
+    lesson = get(root + '/rest_lesson/' + str(lesson_id)
                  ).json()["lesson"]
     db_sess = db_session.create_session()
 
@@ -679,7 +690,7 @@ def change_lesson(lesson_id):
 @app.route('/courses/<int:course_id>/lesson_delete/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def delete_lesson(course_id, lesson_id):
-    ret = delete(root + "/rest_lessons/" + str(lesson_id)).json()
+    ret = delete(root + "/rest_lesson/" + str(lesson_id)).json()
     if ret == {'success': 'OK'}:
         return redirect("/courses/" + str(course_id))
     else:
@@ -792,11 +803,7 @@ def dict_view():
 def add_word():
     form = WordsForm()
     db_sess = db_session.create_session()
-    image_start_preview = "/static/tutorial_down.png"
-    # left_start_preview = "/static/tutorial_left.png"
-    # right_start_preview = "/static/tutorial_right.png"
-    # up_start_preview = "/static/tutorial_up.png"
-    # down_start_preview = "/static/tutorial_down.png"
+    image_start_preview = "/static/words_data/tutorial_down.png"
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
@@ -805,18 +812,7 @@ def add_word():
         new_word.transcription = form.transcription.data
         new_word.phrase_ch = form.phrase_ch.data
         new_word.phrase_ru = form.phrase_ru.data
-        # print(1, new_word.author)
-        # print(2, new_word.hieroglyph)
-        # print(3, new_word.translation)
-        # print(4, new_word.transcription)
-        # print(5, new_word.phrase_ch)
-        # print(6, new_word.phrase_ru)
-        # print(request.files)
         image = request.files['image']
-        # left = request.files['left']
-        # right = request.files['right']
-        # up = request.files['up']
-        # down = request.files['down']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
         translation_audio = request.files['translation_audio']
@@ -824,7 +820,7 @@ def add_word():
         full_path = os.path.join(path_to_file)
         save_name = str(hash(
             str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
-        filepath = os.path.join(full_path, "static", save_name)
+        filepath = os.path.join(full_path, "static", "words_data", save_name)
         if image:
             image.save(filepath + "_image.png")
             new_word.image = save_name + "_image.png"
@@ -938,12 +934,16 @@ def dict_word_view(word_id):
                            transcription=word["transcription"],
                            phrase_ch=word["phrase_ch"],
                            phrase_ru=word["phrase_ru"],
-                           image_name=url_for("static", filename=word["image"]),
-                           front_audio=url_for("static", filename=word["front_side_audio"]),
-                           left_audio=url_for("static", filename=word["left_side_audio"]),
-                           right_audio=url_for("static", filename=word["right_side_audio"]),
-                           up_audio=url_for("static", filename=word["up_side_audio"]),
-                           down_audio=url_for("static", filename=word["down_side_audio"]),
+                           image_name=url_for("static", filename="words_data/" + word["image"]),
+                           front_audio=url_for("/static/words_data",
+                                               filename=word["front_side_audio"]),
+                           left_audio=url_for("/static/words_data",
+                                              filename=word["left_side_audio"]),
+                           right_audio=url_for("/static/words_data",
+                                               filename=word["right_side_audio"]),
+                           up_audio=url_for("/static/words_data", filename=word["up_side_audio"]),
+                           down_audio=url_for("/static/words_data",
+                                              filename=word["down_side_audio"]),
                            back_url="/dictionary",
                            dict=all_words,
                            prev_button_visibility=prev_button_visibility,
@@ -958,7 +958,7 @@ def dict_word_view(word_id):
 def lesson_word_view(course_id, lesson_id, word_id):
     db_sess = db_session.create_session()
     word = get(root + '/rest_word/' + str(word_id)).json()["word"]
-    lesson_words = get(root + '/rest_lessons/' + str(lesson_id)
+    lesson_words = get(root + '/rest_lesson/' + str(lesson_id)
                        ).json()["lesson"]["words"]
     word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == word["id"] and
                                                           WordsToUsers.users == current_user.id)[0]
@@ -985,12 +985,16 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            transcription=word["transcription"],
                            phrase_ch=word["phrase_ch"],
                            phrase_ru=word["phrase_ru"],
-                           image_name=url_for("static", filename=word["image"]),
-                           front_audio=url_for("static", filename=word["front_side_audio"]),
-                           left_audio=url_for("static", filename=word["left_side_audio"]),
-                           right_audio=url_for("static", filename=word["right_side_audio"]),
-                           up_audio=url_for("static", filename=word["up_side_audio"]),
-                           down_audio=url_for("static", filename=word["down_side_audio"]),
+                           image_name=url_for("/static/words_data", filename=word["image"]),
+                           front_audio=url_for("/static/words_data",
+                                               filename=word["front_side_audio"]),
+                           left_audio=url_for("/static/words_data",
+                                              filename=word["left_side_audio"]),
+                           right_audio=url_for("/static/words_data",
+                                               filename=word["right_side_audio"]),
+                           up_audio=url_for("/static/words_data", filename=word["up_side_audio"]),
+                           down_audio=url_for("/static/words_data",
+                                              filename=word["down_side_audio"]),
                            back_url="/courses/" + str(course_id) + "/lesson/" + str(lesson_id),
                            dict=lesson_words,
                            prev_button_visibility=prev_button_visibility,
@@ -1057,8 +1061,9 @@ def lesson_test_view(course_id, lesson_id, test_id):
 
     answer_button_number = 6
     tests_list = []
-    for i in range(len(lesson_word)):
-        rand_test = all_tests[random.randint(0, len(all_tests))]
+
+    for i in range(len(lesson_words)):
+        rand_test = all_tests[random.randint(0, len(all_tests) - 1)]
         tests_list.append(str(rand_test.check_side) + " " + str(rand_test.ans_side))
     tests_list = "  ".join(tests_list)
     if test.check_side == -1 and test.ans_side == -1:
@@ -1078,8 +1083,6 @@ def lesson_test_view(course_id, lesson_id, test_id):
 @login_required
 def test_result(course_id, lesson_id, test_id):
     db_sess = db_session.create_session()
-    course = db_sess.query(Courses).get(course_id)
-    lesson = db_sess.query(Lessons).get(lesson_id)
 
     results = request.json["results"].split(".")
     right_answer_count = len(list(filter(lambda x: x, [bool(int(i)) for i in results[:-1]])))
@@ -1119,13 +1122,14 @@ def change_word(word_id):
     prev_phrase_ch = new_word.phrase_ch
     prev_phrase_ru = new_word.phrase_ru
 
-    image_file = Image.open(os.path.join(full_path, "static", new_word.image))
+    image_file = Image.open(os.path.join(full_path, "static", "words_data", new_word.image))
 
     transcription_audio_file = vlc.MediaPlayer(os.path.join(
-        full_path, "static", new_word.front_side_audio))
-    phrase_audio_file = vlc.MediaPlayer(os.path.join(full_path, "static", new_word.up_side_audio))
+        full_path, "static", "words_data", new_word.front_side_audio))
+    phrase_audio_file = vlc.MediaPlayer(
+        os.path.join(full_path, "static", "words_data", new_word.up_side_audio))
     translation_audio_file = vlc.MediaPlayer(
-        os.path.join(full_path, "static", new_word.left_side_audio))
+        os.path.join(full_path, "static", "words_data", new_word.left_side_audio))
 
     if "undefined" not in new_word.front_side_audio:
         is_transcription_audio = "true"
@@ -1140,7 +1144,7 @@ def change_word(word_id):
     else:
         is_translation_audio = "false"
 
-    image_start_preview = "/static/" + new_word.image
+    image_start_preview = "/static/words_data/" + new_word.image
     if form.validate_on_submit():
         new_word = db_sess.query(Words).get(word_id)
         new_word.author = current_user.id
@@ -1157,7 +1161,7 @@ def change_word(word_id):
         full_path = os.path.join(path_to_file)
         save_name = str(hash(
             str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
-        filepath = os.path.join(full_path, "static", save_name)
+        filepath = os.path.join(full_path, "static", "words_data", save_name)
         if image:
             image.save(filepath + "_image.png")
             new_word.image = save_name + "_image.png"

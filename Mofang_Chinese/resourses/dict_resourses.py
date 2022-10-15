@@ -73,11 +73,11 @@ class DictResourse(Resource):
                      up_side_audio=args["up_side_audio"],
                      down_side_audio=args["down_side_audio"]
                      )
-        print(word)
-        print(4)
+        # print(word)
+        # print(4)
         session.add(word)
         session.commit()
-        print(5)
+        # print(5)
         return jsonify({'success': 'OK'})
 
 
@@ -124,7 +124,8 @@ class WordResourse(Resource):
             if os.path.exists(filename):
                 os.remove(filename)
             else:
-                print(f"The file {filename} does not exist")
+                pass
+                # print(f"The file {filename} does not exist")
         session.delete(word)
         session.commit()
         return jsonify({'success': 'OK'})

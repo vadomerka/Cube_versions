@@ -51,26 +51,19 @@
     <a href="/course/{{ course_data.id }}/pupils" class="btn btn-add">Просмотреть учеников курса</a>
 </div>
 {% endif %}
+<script type="text/javascript" src="../static/data_parser.js"></script>
 <script>
-    data = '{{ course_about }}'.split('&lt;&lt;&lt;&lt;');
-    // console.log(data);
-    for (let i = 0; i < data.length; i++){
-        text_holder = document.getElementById("course_about");
-        new_line = document.createElement('p');
-        new_line.classList.add("text-line");
-        new_line.innerText = data[i];
-        text_holder.appendChild(new_line);
+    if (json_course_about){
+        json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
+
+        for (let i = 0; i < json_course_about.length; i++){
+            text_holder = document.getElementById("course_about");
+            new_line = document.createElement('p');
+            new_line.classList.add("text-line");
+            new_line.innerText = json_course_about[i];
+            text_holder.appendChild(new_line);
+        }
     }
 </script>
-<!--<br>-->
-<!--{% for pupil in course_data.users %}-->
-<!--{% if pupil.id != current_user.id %}-->
-<!--<a href="/pupil/{{ pupil.id }}" class="btn btn-primary">{{ pupil.name }}</a>-->
-<!--<a href="/delete_pupil_from_course/{{ course_data.id }}/{{ pupil.id }}" class="btn btn-danger">Удалить</a>-->
-<!--<br>-->
-<!--{% endif %}-->
-<!--{% endfor %}-->
-<!--<a href="/add_users_to_course/{{ course_data.id }}" class="btn btn-add">-->
-<!--    Добавить учеников-->
 
 {% endblock %}

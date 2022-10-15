@@ -24,8 +24,6 @@ class CourseResource(Resource):
                                     list(course.lessons)]
         ret["course"]["users"] = [item.to_dict(only=('id', 'name')) for item in
                                   list(course.users)]
-        ret["course"]["tests"] = [item.to_dict(only=('id', 'name')) for item in
-                                  list(course)]
         return jsonify(ret)
 
     def delete(self, course_id):

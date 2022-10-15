@@ -18,7 +18,6 @@ class LessonResource(Resource):
         abort_if_not_found(lesson_id)
         session = db_session.create_session()
         lesson = session.query(Lessons).get(lesson_id)
-        # print([item.to_dict(only=('id', 'name')) for item in list(course.lessons)])  # .to_dict(only=('id', 'name'))
         ret = {'lesson': lesson.to_dict(only=('id', 'name'))}
         ret["lesson"]["words"] = \
             [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
