@@ -14,7 +14,8 @@ from data.trainers import Trainers
 from data.tests import Tests, TestsToUsers
 
 # forms
-from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm
+from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm, \
+    NamePasswordForm, ChangeProfileForm
 from forms.course import CoursesForm, AddUsersToCourseForm
 from forms.lesson import LessonsForm, AddSomethingToLessonForm
 from forms.word import WordsForm
@@ -160,36 +161,16 @@ def user_profile(user_id):
     return render_template('profile.html', user=profile_user, is_owner=0)
 
 
-# @app.route('/make_password', methods=['GET', 'POST'])
-# @login_required
-# def make_password(user_id):
-#     if current_user.is_authorised():
-#         db_sess = db_session.create_session()
-#         user = current_user
-#         form = MakePasswordForm()
-#         if form.validate_on_submit():
-#             if form.password.data != form.password_again.data:
-#                 return render_template('change_password.html',
-#                                        form=form,
-#                                        user=user,
-#                                        message="Пароли не совпадают")
-#             db_sess = db_session.create_session()
-#             user.set_password(form.password.data)
-#             db_sess.merge(user)
-#             db_sess.commit()
-#             return redirect('/')
-#         return render_template("change_password.html", user=user, form=form)
-#     return redirect('/')
-#
-#
-
-
 @app.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def change_password(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
-    form = MakePasswordForm()
+    name_data = user.name
+    last_name_data = user.last_name
+    patronymic_data = user.patronymic
+    about_data = user.about
+    form = NamePasswordForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('change_password.html',
@@ -197,11 +178,60 @@ def change_password(user_id):
                                    user=user,
                                    message="Пароли не совпадают")
         db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        user.name = form.name.data
+        user.last_name = form.last_name.data
+        user.patronymic = form.patronymic.data
+        user.about = form.about.data
+
+        db_sess.add(user)
         user.set_password(form.password.data)
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/')
-    return render_template("change_password.html", user=user, form=form)
+    return render_template("change_password.html", user=user, form=form, name_data=name_data,
+                           last_name_data=last_name_data, patronymic_data=patronymic_data,
+                           about_data=about_data)
+
+
+@app.route('/change_profile', methods=['GET', 'POST'])
+@login_required
+def change_profile():
+    # db_sess = db_session.create_session()
+    user = current_user
+    name_data = user.name
+    last_name_data = user.last_name
+    patronymic_data = user.patronymic
+    about_data = user.about
+    email_data = user.email
+    form = ChangeProfileForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(current_user.id)
+        if not user.check_password(form.old_password.data):
+            return render_template('change_password.html',
+                                   form=form,
+                                   user=user,
+                                   message="Неправильный пароль")
+        if form.password.data != form.password_again.data:
+            return render_template('change_password.html',
+                                   form=form,
+                                   user=user,
+                                   message="Пароли не совпадают")
+        user.name = form.name.data
+        user.last_name = form.last_name.data
+        user.patronymic = form.patronymic.data
+        user.about = form.about.data
+        user.email = form.email.data
+
+        db_sess.add(user)
+        user.set_password(form.password.data)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template("change_password.html", user=user, form=form, name_data=name_data,
+                           last_name_data=last_name_data, patronymic_data=patronymic_data,
+                           about_data=about_data, email_data=email_data)
 
 
 def send_email(to, subject, template):
@@ -226,7 +256,8 @@ def reset_password_email_send():  # сценарий "пользователь �
         user_email = form.email.data  # пользователь вводит почту, на которую придет специальная ссылка
         with app.app_context():
             token = generate_reset_password_token(user_email)  # создаем спец токен на основе
-            confirm_url = url_for('reset_password', token=token, _external=True)  # ссылка вида root/reset_password/<token>
+            confirm_url = url_for('reset_password', token=token,
+                                  _external=True)  # ссылка вида root/reset_password/<token>
             html = render_template('activate.html', confirm_url=confirm_url)  # тело письма
             subject = "Сброс пароля Mofang Chinese"  # тема письма
             send_email(user_email, subject, html)  # отправление письма
@@ -296,11 +327,6 @@ def pupils():
             one_user = get(root + "/rest_user/" + str(user.id)).json()["user"]
             user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()
             user_courses = user.courses
-            # {'about': 'teacher', 'courses': [], 'email': 'teacher@gmail.com'
-            # 'id': 7, 'name': 'teacher', 'teacher': True, 'words': [{'hieroglyph': '忙', 'id': 49, 'translation': 'занят'}]}
-            # {'about': '', 'courses': [], 'email': 'alesha_sobaka@gmail.com',
-            # 'id': 8, 'name': 'alesha_sobaka', 'teacher': True, 'words': []}
-            # print(user.id, user_courses, one_user)
             users_pupils.append(user)
 
     users_pupils_js = pupil_js_list(users_pupils)
@@ -405,7 +431,7 @@ def delete_course(course_id):
     if ret == {'success': 'OK'}:
         return redirect("/courses")
     else:
-        print("Couldn't delete course " + str(course_id))
+        # print("Couldn't delete course " + str(course_id))
         return redirect("/courses")
 
 
@@ -683,7 +709,7 @@ def add_words_to_lesson(lesson_id):
                            all_items_js=all_words_js, my_items_js=my_words_js,
                            rest_items_js=rest_words_js, lesson_items_js=lesson_words_js,
                            unused_items_js=unused_words_js, course_items_js=course_words_js,
-                           not_course_items_js=not_course_words_js, )
+                           not_course_items_js=not_course_words_js)
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])
@@ -890,30 +916,6 @@ def add_word():
                            # up_start_preview=up_start_preview,
                            # down_start_preview=down_start_preview,
                            back_button_hidden="false", back_url="/dictionary")
-
-
-@app.route('/add_words/<int:number>', methods=['GET', 'POST'])
-@login_required
-def add_words(number):
-    if current_user.teacher == 1:
-        data = {"author": current_user.id,
-                "hieroglyph": "null",
-                "translation": "null",
-                "front_side": "undefined_image.png",
-                "left_side": "undefined_image.png",
-                "right_side": "undefined_image.png",
-                "up_side": "undefined_image_up.png",
-                "down_side": "undefined_image_down.png",
-                "front_side_audio": "undefined_trans_audio.mp3",
-                "left_side_audio": "undefined_translation_audio.mp3",
-                "right_side_audio": "undefined_trans_audio.mp3",
-                "up_side_audio": "undefined_phrase_audio.mp3",
-                "down_side_audio": "undefined_trans_audio.mp3"}
-        for i in range(number):
-            ret = post(root + "/rest_dict", json=data, params=data)
-
-        return redirect("/dictionary")
-    return redirect("/dictionary")
 
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
@@ -1155,7 +1157,7 @@ def change_word(word_id):
     phrase_audio_file = vlc.MediaPlayer(
         os.path.join(full_path, "static", "words_data", new_word.up_side_audio))
     translation_audio_file = vlc.MediaPlayer(
-        os.path.join(full_path, "static", "words_data", new_word.left_side_audio))
+        os.path.join(full_path, "static", "words_data", new_word.down_side_audio))
 
     if "undefined" not in new_word.front_side_audio:
         is_transcription_audio = "true"
@@ -1165,7 +1167,7 @@ def change_word(word_id):
         is_phrase_audio = "true"
     else:
         is_phrase_audio = "false"
-    if "undefined" not in new_word.left_side_audio:
+    if "undefined" not in new_word.down_side_audio:
         is_translation_audio = "true"
     else:
         is_translation_audio = "false"
@@ -1191,29 +1193,18 @@ def change_word(word_id):
         if image:
             image.save(filepath + "_image.png")
             new_word.image = save_name + "_image.png"
-            # print(7, new_word.image)
-        else:
-            new_word.image = "undefined_image.png"
-
         if transcription_audio:
             transcription_audio.save(filepath + "_trans_audio.mp3")
             new_word.front_side_audio = save_name + "_trans_audio.mp3"
             new_word.right_side_audio = save_name + "_trans_audio.mp3"
-        else:
-            new_word.front_side_audio = "undefined_trans_audio.mp3"
-            new_word.right_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             phrase_audio.save(filepath + "_phrase_audio.mp3")
             new_word.up_side_audio = save_name + "_phrase_audio.mp3"
             new_word.left_side_audio = save_name + "_phrase_audio.mp3"
-        else:
-            new_word.up_side_audio = "undefined_phrase_audio.mp3"
-            new_word.left_side_audio = "undefined_phrase_audio.mp3"
         if translation_audio:
             translation_audio.save(filepath + "_translation_audio.mp3")
             new_word.down_side_audio = save_name + "_translation_audio.mp3"
-        else:
-            new_word.down_side_audio = "undefined_translation_audio.mp3"
+
         new_word.creation_time = dt.datetime.now()
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
