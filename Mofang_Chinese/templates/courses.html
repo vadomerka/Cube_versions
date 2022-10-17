@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="vertical-align: middle; justify-content: center">
+<div style="vertical-align: middle;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;">
     {% if not courses %}
     {% if not current_user.teacher %}
     <h1>На данный момент вы не подключены ни к одному курсу.
@@ -30,18 +35,20 @@
 
     {% endfor %}
     {% if current_user.teacher %}
-
-    <!--    <div class="course-card">-->
-    <!--        <div class="card-body">-->
-    <!--    <div style="width: 160px; height: 160px; display: inline-block;" 510 162>-->
-    <div style="width: 510px; height: 162px; display: inline-block; margin: 10px 10px 10px 10px; justify-content: center">
-        <a style="    vertical-align: middle;
-                  margin-top: 10px;
-                  margin-bottom: 75px;
-                  position: relative;
-              "
-           class="btn btn-add" href="/make_course">Добавить курс</a>
+    <div style="width: 400px;
+                display: flex;
+                justify-content: center;
+                margin: 10px 10px 10px 10px;">
+    <a style="" class="btn btn-add" href="/make_course">Добавить курс</a>
     </div>
+<!--        vertical-align: middle;-->
+<!--                  margin-top: 10px;-->
+<!--                  margin-bottom: 75px;-->
+<!--                  position: relative;-->
+<!--              -->
+<!--    <div style="width: 510px; height: 162px; display: inline-block; margin: 10px 10px 10px 10px; justify-content: center">-->
+<!--        -->
+<!--    </div>-->
     <!--        </div>-->
     <!--    </div>-->
     {% endif %}

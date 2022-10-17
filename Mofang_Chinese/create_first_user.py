@@ -4,7 +4,7 @@ from data.users import User
 db_session.global_init("db/users.db")
 db_sess = db_session.create_session()
 new_user_email = "pradomiri@gmail.com"
-email_users = db_sess.query(User).filter(User.email == new_user_email)
+email_users = db_sess.query(User).filter(User.email == new_user_email).all()
 if email_users:
     print("user already exists")
     user = email_users[0]

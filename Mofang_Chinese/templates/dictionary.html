@@ -65,18 +65,25 @@
         position: relative;
     }
 
-
+    .instruments-group{
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-around;
+        margin-bottom: 2vh;
+    }
+    .create-word-group{
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2vh;
+    }
 
 </style>
-<div style="display: flex;">
-    {% if current_user.teacher %}
-    <a href="/add_word" class="btn btn-success">Добавить слово</a>
-    <button id="filter_button" class="btn btn-add">Показать только свои слова</button>
-    {% endif %}
-    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{
-        len_all_words }}</h2>
+<div style="display: flex;align-items: center;">
+    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Слов в словаре: {{ len_all_words }}</h2>
 </div>
-<div class="input-group mb-3" style="width: 45%;">
+<div class="instruments-group">
+<div class="input-group" style="width: 45%;">
     <div class="input-group-prepend">
         <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
                                                               x="0px" y="0px"
@@ -93,7 +100,7 @@
            aria-describedby="basic-addon1" style="height: 44px;" id="hieroglyph search field"
            value="">
 </div>
-<div class="sort-button-group" style="width: 45%;">
+<div class="sort-button-group" style="">
     <button id="alphabet_translation-sort-button" class="btn-primary alphabet-sort-button"> 
         а↑
     </button>
@@ -113,7 +120,15 @@
         🕔↑
     </button>
 </div>
-
+<div class="filter-button-group">
+<button id="filter_button" class="btn btn-add">Показать только свои слова</button>
+</div>
+</div>
+<div class="create-word-group">
+{% if current_user.teacher %}
+<a href="/add_word" class="btn btn-success">Добавить слово</a>
+{% endif %}
+</div>
 <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
 <div class="row" id="word_row">
     {% for i in range(30) %}

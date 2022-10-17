@@ -1,3 +1,10 @@
+:root {
+  --red: #9C1313;
+  --orange: #EB8258;
+  --yellow: #FDE74C;
+  --green: #9BC53D;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
 
@@ -14,13 +21,13 @@ body {
     z-index: 1000;
 }
 .navbar-brand {
-    color: #9c1313;
+    color: var(--red);
     position: relative;
 }
 
 .navbar-brand:hover {
     color: white;
-    background-color: #9c1313;
+    background-color: var(--red);
 }
 .btn {
     margin: 0 10px;
@@ -28,6 +35,8 @@ body {
     width: 155px;
 }
 .btn-primary {
+    white-space: nowrap;
+    text-align: center;
     min-width: 45px;
     min-height: 45px;
     display: inline-block;
@@ -35,22 +44,38 @@ body {
     color: white;
     overflow: hidden;
     text-overflow: ellipsis;
-    background-color: #9c1313;
+    background-color: var(--red);
     border: solid 3px white;
     border-radius: 10px;
 }
+
+.btn-warning {
+    color: #212529;
+    background-color: #ffc107;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 45px;
+    min-height: 45px;
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: solid 3px white;
+    border-radius: 10px;
+}
+
 .btn-white:hover {
     color: white;
-    background-color: #9c1313;
+    background-color: var(--red);
 }
 .btn-white {
     display: inline-block;
     vertical-align: top;
-    color: #9c1313;
+    color: var(--red);
     overflow: hidden;
     text-overflow: ellipsis;
     background-color: white;
-    border: solid 3px #9c1313;
+    border: solid 3px var(--red);
     border-radius: 10px;
 }
 
@@ -60,18 +85,18 @@ body {
     color: white;
     overflow: hidden;
     text-overflow: ellipsis;
-    background-color: #9c1313;
+    background-color: var(--red);
     border: solid 3px white;
     border-radius: 10px;
 }
 .btn-white:focus {
     display: inline-block;
     vertical-align: top;
-    color: #9c1313;
+    color: var(--red);
     overflow: hidden;
     text-overflow: ellipsis;
     background-color: white;
-    border: solid 3px #9c1313;
+    border: solid 3px var(--red);
     border-radius: 10px;
 }
 
@@ -82,8 +107,8 @@ body {
 
 .btn-primary:hover {
     background-color: white;
-    color: #9c1313;
-    border: solid 3px #9c1313;
+    color: var(--red);
+    border: solid 3px var(--red);
 }
 .btn-success {
     color: #fce38a;
@@ -97,6 +122,7 @@ body {
 }
 .btn-delete{
     width: 45px;
+    height: 45px;
     border: 3px white solid;
     border-radius: 10px;
 }
@@ -109,7 +135,7 @@ body {
 
 .card-body{
     background-color: white;
-    border: solid 3px #9c1313;
+    border: solid 3px var(--red);
 }
 .card-title{
     width: 260px;
@@ -127,7 +153,7 @@ body {
     height: 90px;
 
     border-style: solid;
-    border-color: #9c1313;
+    border-color: var(--red);
     margin: 10px 10px 10px 10px;
     background-color: white;
     display: flex;

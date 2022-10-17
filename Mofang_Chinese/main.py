@@ -10,7 +10,7 @@ from data.words import Words, words_to_lesson, WordsToUsers
 from data.lessons import Lessons, lessons_to_course
 from data.courses import Courses, users_to_course
 from data.users import User
-from data.trainers import Trainers
+from data.trainers import Trainers, TrainersToUsers
 from data.tests import Tests, TestsToUsers
 
 # forms
