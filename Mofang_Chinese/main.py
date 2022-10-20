@@ -94,9 +94,8 @@ def list_to_javascript(array):
     return array_js
 
 
-@app.route("/style_loader")
-def style_loader():
-    return
+def delete_extra_spaces(string):
+    return " ".join(list(filter(lambda x: x, string.split())))
 
 
 @app.route("/")
@@ -212,11 +211,17 @@ def change_profile():
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
+                                   name_data=name_data,
+                                   last_name_data=last_name_data, patronymic_data=patronymic_data,
+                                   about_data=about_data, email_data=email_data,
                                    message="Неправильный пароль")
         if form.password.data != form.password_again.data:
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
+                                   name_data=name_data,
+                                   last_name_data=last_name_data, patronymic_data=patronymic_data,
+                                   about_data=about_data, email_data=email_data,
                                    message="Пароли не совпадают")
         user.name = form.name.data
         user.last_name = form.last_name.data
@@ -445,8 +450,34 @@ def course_view(course_id):
     json_course = json.dumps(json_course['course']['about'])
     data_parser_file = open("static/data_parser.js", "w")
     data_parser_file.write(f"var json_course_about = {json_course}\n")
+    course_name = course["name"]
+    if not current_user.teacher:
+        return render_template('course_view.html', course_data=course, back_button_hidden='false',
+                               back_url="/courses", json_course=json_course,
+                               current_user=current_user, course_name=course_name)
+    form = CoursesForm()
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    course_name = course.name
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        course = db_sess.query(Courses).get(course_id)
+        course.name = form.name.data
+        course.about = form.about.data
+        course_name = course.name
+        json_course = json.dumps(course.about)
+        data_parser_file = open("static/data_parser.js", "w")
+        data_parser_file.write(f"var json_course_about = {json_course}\n")
+        user = db_sess.query(User).get(current_user.id)
+        user.courses.append(course)
+        db_sess.merge(user)
+        db_sess.commit()
+        return render_template('course_view.html', course_data=course, back_button_hidden='false',
+                               back_url="/courses", json_course=json_course, form=form,
+                               current_user=current_user, course_name=course_name)
     return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                           back_url="/courses", json_course=json_course)
+                           back_url="/courses", json_course=json_course, form=form,
+                           current_user=current_user, course_name=course_name)
 
 
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
@@ -520,21 +551,69 @@ def lesson_view(course_id, lesson_id):
     lesson = get(root + '/rest_lesson/' + str(lesson_id)
                  ).json()["lesson"]
     db_sess = db_session.create_session()
-
     column_number = 1
     items_in_column_number = 13
     if not current_user.teacher:
         items_in_column_number = 26
     lesson_words_js = lesson_words_js_list(lesson['words'])
+    words_learn_states = {}
+    for word in lesson["words"]:
+        word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.users == current_user.id,
+                                                              WordsToUsers.words == int(
+                                                                  word["id"])).first().learn_state
+        words_learn_states[word["id"]] = word_learn_state
+    trainer_results = []
+    for trainer in lesson["trainers"]:
+        t_res = db_sess.query(TrainersToUsers).filter(
+            TrainersToUsers.trainer_id == trainer["id"],
+            TrainersToUsers.course_id == course_id,
+            TrainersToUsers.lesson_id == lesson_id,
+            TrainersToUsers.user_id == current_user.id).first()
+        if t_res:
+            trainer_results.append([trainer["id"], int(t_res.started), int(t_res.finished)])
+        else:
+            trainer_results.append([trainer["id"], 0, 0])
+
     test_results = db_sess.query(TestsToUsers).filter(TestsToUsers.course_id == course_id,
                                                       TestsToUsers.lesson_id == lesson_id,
                                                       TestsToUsers.user_id == current_user.id).all()
     test_results = [[res.test_id, res.id, res.last_result, res.best_result] for res in test_results]
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    lesson_name = lesson.name
+    if current_user.teacher:
+        form = LessonsForm()
+        if form.validate_on_submit():
+            lesson = db_sess.query(Lessons).get(lesson_id)
+            current_course = db_sess.query(Courses).get(course_id)
+            lesson.name = form.name.data
+            lesson_name = lesson.name
+            current_course.lessons.append(lesson)
+            db_sess.merge(current_course)
+            db_sess.commit()
+            return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
+                                   back_button_hidden='false', back_url=f"/courses/{course_id}",
+                                   lesson_words_js=lesson_words_js, column_number=column_number,
+                                   items_in_column_number=items_in_column_number,
+                                   test_results=test_results,
+                                   trainer_results=trainer_results,
+                                   len_test_results=len(test_results),
+                                   words_learn_states=words_learn_states, form=form, lesson_name=lesson_name)
+        return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
+                               back_button_hidden='false', back_url=f"/courses/{course_id}",
+                               lesson_words_js=lesson_words_js, column_number=column_number,
+                               items_in_column_number=items_in_column_number,
+                               test_results=test_results,
+                               trainer_results=trainer_results,
+                               len_test_results=len(test_results),
+                               words_learn_states=words_learn_states, form=form, lesson_name=lesson_name)
+
     return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
                            back_button_hidden='false', back_url=f"/courses/{course_id}",
                            lesson_words_js=lesson_words_js, column_number=column_number,
                            items_in_column_number=items_in_column_number, test_results=test_results,
-                           len_test_results=len(test_results))
+                           trainer_results=trainer_results,
+                           len_test_results=len(test_results),
+                           words_learn_states=words_learn_states, lesson_name=lesson.name)
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
@@ -856,11 +935,12 @@ def add_word():
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
-        new_word.hieroglyph = form.hieroglyph.data
-        new_word.translation = form.translation.data
-        new_word.transcription = form.transcription.data
-        new_word.phrase_ch = form.phrase_ch.data
-        new_word.phrase_ru = form.phrase_ru.data
+        new_word.hieroglyph = delete_extra_spaces(form.hieroglyph.data)
+        new_word.translation = delete_extra_spaces(form.translation.data)
+        new_word.transcription = delete_extra_spaces(form.transcription.data)
+        new_word.phrase_ch = delete_extra_spaces(form.phrase_ch.data)
+        new_word.phrase_ru = delete_extra_spaces(form.phrase_ru.data)
+
         image = request.files['image']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
@@ -1066,11 +1146,46 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     lesson_words = db_list_to_javascript(lesson.words)
     lesson_all_words = db_list_to_javascript(all_words)
 
+    db_sess.add(TrainersToUsers(
+        trainer_id=trainer_id,
+        course_id=course_id,
+        lesson_id=lesson_id,
+        user_id=current_user.id,
+        started=1,
+        finished=0
+    ))
+    db_sess.commit()
     answer_button_number = 6
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
                            back_button_hidden="false", all_words=lesson_all_words)
+
+
+@app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/trainer/<int:trainer_id>/result',
+           methods=['GET', 'POST'])
+@login_required
+def trainer_result(course_id, lesson_id, trainer_id):
+    db_sess = db_session.create_session()
+    db_sess.query(TrainersToUsers).filter()
+    prev_result = db_sess.query(TrainersToUsers).filter(TrainersToUsers.trainer_id == trainer_id,
+                                                        TrainersToUsers.course_id == course_id,
+                                                        TrainersToUsers.lesson_id == lesson_id,
+                                                        TrainersToUsers.user_id == current_user.id).first()
+    if prev_result:
+        prev_result.finished = 1
+        db_sess.merge(prev_result)
+    else:
+        db_sess.add(TrainersToUsers(
+            trainer_id=trainer_id,
+            course_id=course_id,
+            lesson_id=lesson_id,
+            user_id=current_user.id,
+            started=1,
+            finished=1
+        ))
+    db_sess.commit()
+    return {'success': "OK"}
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/test/<int:test_id>',
@@ -1176,11 +1291,11 @@ def change_word(word_id):
     if form.validate_on_submit():
         new_word = db_sess.query(Words).get(word_id)
         new_word.author = current_user.id
-        new_word.hieroglyph = form.hieroglyph.data
-        new_word.translation = form.translation.data
-        new_word.transcription = form.transcription.data
-        new_word.phrase_ch = form.phrase_ch.data
-        new_word.phrase_ru = form.phrase_ru.data
+        new_word.hieroglyph = delete_extra_spaces(form.hieroglyph.data)
+        new_word.translation = delete_extra_spaces(form.translation.data)
+        new_word.transcription = delete_extra_spaces(form.transcription.data)
+        new_word.phrase_ch = delete_extra_spaces(form.phrase_ch.data)
+        new_word.phrase_ru = delete_extra_spaces(form.phrase_ru.data)
         image = request.files['image']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']

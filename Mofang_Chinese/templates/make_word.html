@@ -34,7 +34,7 @@
     {{ form.hidden_tag() }}
     <p>
         {{ form.hieroglyph.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
-        {{ form.hieroglyph(class="form-control") }}<br>
+        {{ form.hieroglyph(class="form-control", id="hieroglyph") ) }}<br>
         {% for error in form.hieroglyph.errors %}
     <p content="alert alert-danger" role="alert">
         {{ error }}

@@ -1,8 +1,12 @@
 :root {
   --red: #9C1313;
-  --orange: #EB8258;
-  --yellow: #FDE74C;
-  --green: #9BC53D;
+  --orange: #FF660C;
+  --yellow: #ffc107;
+  --green: #158903;
+  --contrast-red: white;
+  --contrast-orange: white;
+  --contrast-yellow: #3E2314;
+  --contrast-green: white;
 }
 
 body {
@@ -26,7 +30,7 @@ body {
 }
 
 .navbar-brand:hover {
-    color: white;
+    color: var(--contrast-red);
     background-color: var(--red);
 }
 .btn {
@@ -41,17 +45,17 @@ body {
     min-height: 45px;
     display: inline-block;
     vertical-align: top;
-    color: white;
+    color: var(--contrast-red);
     overflow: hidden;
     text-overflow: ellipsis;
     background-color: var(--red);
-    border: solid 3px white;
+    border: solid 3px var(--contrast-red);
     border-radius: 10px;
 }
 
 .btn-warning {
-    color: #212529;
-    background-color: #ffc107;
+    color: var(--contrast-yellow);
+    background-color: var(--yellow);
     white-space: nowrap;
     text-align: center;
     min-width: 45px;
@@ -65,7 +69,7 @@ body {
 }
 
 .btn-white:hover {
-    color: white;
+    color: var(--contrast-red);
     background-color: var(--red);
 }
 .btn-white {
@@ -74,7 +78,7 @@ body {
     color: var(--red);
     overflow: hidden;
     text-overflow: ellipsis;
-    background-color: white;
+    background-color: var(--contrast-red);
     border: solid 3px var(--red);
     border-radius: 10px;
 }
@@ -82,7 +86,7 @@ body {
 .btn-primary:focus {
     display: inline-block;
     vertical-align: top;
-    color: white;
+    color: var(--contrast-red);
     overflow: hidden;
     text-overflow: ellipsis;
     background-color: var(--red);
@@ -95,7 +99,7 @@ body {
     color: var(--red);
     overflow: hidden;
     text-overflow: ellipsis;
-    background-color: white;
+    background-color: var(--contrast-red);
     border: solid 3px var(--red);
     border-radius: 10px;
 }
@@ -106,19 +110,19 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: white;
+    background-color: var(--contrast-red);
     color: var(--red);
     border: solid 3px var(--red);
 }
 .btn-success {
-    color: #fce38a;
+    color: var(--contrast-green);
+    background-color: var(--green);
 }
 
 .btn-add {
-    color: #fce38a;
-    background-color: #4CAF50;
+    background-color: var(--green);
     border: none;
-    color: white;
+    color: var(--contrast-green);
 }
 .btn-delete{
     width: 45px;
@@ -126,6 +130,7 @@ body {
     border: 3px white solid;
     border-radius: 10px;
 }
+
 .course-card {
     width: auto;
     height: auto;
@@ -149,9 +154,8 @@ body {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-.lesson-card{
-    height: 90px;
-
+.lesson-card {
+    width: 69vh;
     border-style: solid;
     border-color: var(--red);
     margin: 10px 10px 10px 10px;
@@ -159,15 +163,12 @@ body {
     display: flex;
     direction: row;
     flex-wrap: wrap;
-    padding: 24px 24px 24px;
-    padding-top: 24px;
-    padding-right: 24px;
-    padding-bottom: 24px;
-    padding-left: 24px;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .c-button {
-
     min-width: 50px;
     min-height: 50px;
     appearance: none;

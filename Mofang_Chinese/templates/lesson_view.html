@@ -34,9 +34,42 @@
         height: 43px;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .unstarted-trainer{
+        background-color: var(--orange);
+        color: var(--contrast-orange);
+    }
+
+    .unfinished-trainer{
+        background-color: var(--yellow);
+        color: var(--contrast-yellow);
+    }
+
+    .finished-trainer{
+        background-color: var(--green);
+        color: var(--contrast-green);
+    }
 
 </style>
-<h1>{{ lesson_data.name }}</h1>
+{% if current_user.teacher %}
+<form action="" method="post" name="checks">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.name(class="form-control") }}<br>
+        {% for error in form.name.errors %}
+    <p content="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% else %}
+    <h1>{{ lesson_name }}</h1>
+{% endif %}
 <div>
     <div class="column">
         <h2>Материалы урока</h2>
@@ -67,7 +100,7 @@
                     flex-direction: row;
                     justify-content: center;">
             <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
-               class="btn btn-primary item-button" style="min-width: 250px">
+               class="btn btn-primary item-button" style="min-width: 250px" id="trainer {{ trainer.id }}">
                 {{ trainer.name }}
             </a>
             {% if current_user.teacher %}
@@ -102,7 +135,7 @@
             {% for test in lesson_data.tests %}
 
             <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
-               class="btn btn-primary item-button" style="min-width: 250px">
+               class="btn btn-primary item-button unstarted-trainer" style="min-width: 250px" id="test {{ test.id }}">
                 {{ test.name }}
             </a>
 
@@ -181,17 +214,23 @@
             button.id = "button " + i.toString();
             button.type = "button";
             // button.addEventListener("click", wordButtonClick, false);
-            button.href = "/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/word/" +
-            item_list[i][item_js_table["id"]];
+            button.href = "/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/word/" + item_list[i][item_js_table["id"]];
             button.classList.add("btn");
             button.classList.add("btn-primary");
             button.classList.add("item-button");
+            server_id = item_list[i][item_js_table["id"]];
+            if (words_learn_states[server_id] == 0){
+                button.style = "color: var(--contrast-orange);background-color: var(--orange);";
+            } else if (words_learn_states[server_id] == 1) {
+                button.style = "color: var(--contrast-yellow);background-color: var(--yellow);";
+            } else if (words_learn_states[server_id] == 2) {
+                button.style = "color: var(--contrast-green);background-color: var(--green);";
+            }
 
             // button.classList.add("user-word-button");
             button.innerText = item_list[i][item_js_table["hieroglyph"]] + ' '
             + item_list[i][item_js_table["translation"]];
             column.appendChild(button);
-            button.style = "min-width: 250px";
             button.classList.add("user-word-button");
             // alert("{{ current_user.teacher }}");
             if ("{{ current_user.teacher }}" == "True"){
@@ -399,6 +438,8 @@
     "hieroglyph": 1,
     "translation": 2};
 
+    var words_learn_states = {{ words_learn_states }};
+
     createItemButtons(current_page_item_list);
     if (current_page_max_number > 1){
         createPageButtons();
@@ -409,14 +450,44 @@
     for (let i = 0; i < test_results.length; i++){
         res = test_results[i];
         // console.log(res);
-        console.log(res[2]);
+        // console.log(res[2]);
         // console.log(items_lists.length);
         display = document.getElementById("test result " + res[0].toString());
         percents = (Math.round((res[2] / items_lists[0].length) * 100)).toString() + "%";
         display.innerText = percents;
+        string = "test " + res[0].toString();
+        doc_test = document.getElementById(string);
+        if (percents == "0%"){
+            doc_test.classList.add("unstarted-trainer");
+        } else if (percents == "100%"){
+            doc_test.classList.add("finished-trainer");
+        } else {
+            doc_test.classList.add("unfinished-trainer");
+        }
     }
 
+    var started = 0;
+    var finished = 0;
+    trainer_results = {{ trainer_results }};
+    // console.log(trainer_results[3]);
+    for (var i = 0; i < trainer_results.length; i++) {
+        trainer_id = trainer_results[i][0];
+        // console.log(trainer_results[i]);
+        doc_trainer = document.getElementById("trainer " + trainer_id.toString());
+        started = trainer_results[i][1];
+        finished = trainer_results[i][2];
+        if (started == 1 && finished == 0){
+            doc_trainer.classList.add("unfinished-trainer");
+        } else if (started == 1 && finished == 1){
+            doc_trainer.classList.add("finished-trainer");
+        } else {
+            doc_trainer.classList.add("unstarted-trainer");
+        }
+    }
 
-
+    if ("{{ current_user.teacher }}" == "True"){
+        input = document.getElementById("name");
+        input.value = "{{ lesson_name }}";
+    }
 </script>
 {% endblock %}

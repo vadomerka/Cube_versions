@@ -299,7 +299,7 @@
         average_line_len = 9;
         i = 0;
         while (i < (text_words.length - 1)){
-            if (text_words[i] == '') {text_words.splice(i, 1);}
+            if (text_words[i + 1] == '') {text_words.splice(i, 1);}
             // console.log(text_words, i)
             if (i == 0){
                 if ((text_words[i + 1].length + text_words[i].length + 1) < average_line_len) {
