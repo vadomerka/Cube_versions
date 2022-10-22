@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+	.pupil-stats-column {
+		display: flex;
+	    flex-wrap: wrap;
+	    flex-direction: row;
+	    align-content: center;
+	    align-items: center;
+	    justify-content: flex-start;
+	    margin-top: 2vh;
+	}
+	.pupil-stats-holder {
+		display: flex;
+	    flex-direction: column;
+	    flex-wrap: wrap;
+	    align-items: flex-start;
+	    margin: 2vh;
+	}
+</style>
+<h1>Статистика урока: {{ lesson_name }}</h1>
+<h3>Количество слов: {{ lesson_words_len }}</h3>
+<h3>Количество тренажеров: {{ lesson_trainers_len }}</h3>
+<h3>Количество тестов: {{ lesson_tests_len }}</h3>
+<h4>Чтобы посмотреть более подробную статистику по ученику, кликните на кнопку с его именем</h4>
+<div id="pupil-stats-column" class="pupil-stats-column">
+	<!-- {% for pupil in course_pupils %}
+		<div class="pupil-stats-holder">
+			<a class="btn btn-primary" href="/courses/{{ course_id }}/lesson_statistics/{{ lesson_id }}/pupil/{{ pupil.id }}">{{ pupil.name }}</a>
+			<h3>Выучено слов: {{ pupil.words_learned }}</h3>
+			<h3>Просмотрено слов: {{ pupil.words_viewed }}</h3>
+			<h3>Пройдено тренажеров: {{ pupil.trainers_completed }}</h3>
+			<h3>Пройдено тестов: {{ pupil.tests_completed }}</h3>
+		</div>
+	{% endfor %} -->
+</div>
+<script type="text/javascript" src="/static/data_parser.js"></script>
+<script type="text/javascript">
+	function createItemStatHolders(){
+		pupil_stats_column = document.getElementById("pupil-stats-column");
+		for (var i = 0; i < cur_items_array.length; i++) {
+			pupil_stats_holder = document.createElement("div");
+			pupil_stats_holder.classList.add("pupil-stats-holder");
+			item_but = document.createElement("a");
+			item_but.classList.add("btn");
+			item_but.classList.add("btn-primary");
+			item_but.href = "/courses/{{ course_id }}/lesson_statistics/{{ lesson_id }}/pupil/" + cur_items_array[i]["id"].toString();
+			item_but.innerText = cur_items_array[i]["name"];
+			pupil_stats_holder.appendChild(item_but);
+			
+			stat_texts = ["Выучено слов: " + cur_items_array[0]["words_learned"].toString(),
+						  "Просмотрено слов: " + cur_items_array[0]["words_viewed"].toString(),
+						  "Пройдено тренажеров: " + cur_items_array[0]["trainers_completed"].toString(),
+						  "Пройдено тестов: " + cur_items_array[0]["tests_completed"].toString()]
+			for (var j = 0; j < stat_texts.length; j++) {
+				stat_text = document.createElement("h3");
+				stat_text.innerText = stat_texts[j];
+				pupil_stats_holder.appendChild(stat_text);
+			}
+			pupil_stats_holder.appendChild(stat_text);
+			pupil_stats_column.appendChild(pupil_stats_holder);
+		}
+	}
+	// {"eamil": "pupil@gmail.com", 
+	// "id": 2,
+	// "name": "pupil",
+	// "teacher": false}
+	sort_buttons_id =  ["alphabet-sort-button", 
+					    "rev_alphabet-sort-button", 
+					    "time-sort-button",
+					    "rev_time-sort-button"];
+    for (var i = 0; i < sort_buttons_id.length; i++) {
+    	sort_button = document.getElementById(sort_buttons_id[i]);
+    	if (sort_button != null){
+    		sort_button.addEventListener("click", sortButtonClick, false);
+    	}
+    }
+
+	var items_array = course_pupils;
+	var cur_items_array = course_pupils;
+	
+    var filter_button_state = 0;
+    var text_button_state = 0;
+    var button_texts = ["name", "email"];
+
+    page_numbers = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
+        page_numbers.push(page_number);
+        // console.log(page_numbers[i]);
+    }
+    page_lists = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+        max_items_number_on_one_page * current_page);
+        page_lists.push(page_items);
+    }
+
+    var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+    current_page_item_list = page_lists[filter_button_state];
+    current_page_max_number = page_numbers[filter_button_state];
+
+    item_js_table = {
+    "id": 0,
+    "name": 1,
+    "email": 2,
+    "creator": 3};
+
+    createItemButtons(current_page_item_list);
+    if (current_page_max_number > 1){
+        createPageButtons();
+    }
+
+	createItemStatHolders();
+</script>
+{% endblock %}

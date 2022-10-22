@@ -22,7 +22,7 @@ class CourseResource(Resource):
         ret = {'course': course.to_dict(only=('id', 'name', 'about'))}
         ret["course"]["lessons"] = [item.to_dict(only=('id', 'name')) for item in
                                     list(course.lessons)]
-        ret["course"]["users"] = [item.to_dict(only=('id', 'name')) for item in
+        ret["course"]["users"] = [item.to_dict(only=('id', 'name', 'email', 'teacher')) for item in
                                   list(course.users)]
         return jsonify(ret)
 

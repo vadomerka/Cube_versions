@@ -2,6 +2,25 @@
 
 {% block content %}
 
+<style type="text/css">
+    .bottom-trainer{
+        margin: 50px 10px 10px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .bottom-trainer-first-layer{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        width: 100%;
+    }
+    .long-buttons{
+        width: fit-content;
+    }
+</style>
+
 <h1 style="color: white;">Выберете правильный вариант ответа</h1>
 <div class="trainer">
     <div class="task-box" style="position: relative; height: 150px;
@@ -49,10 +68,20 @@
         {% endfor %}
         {% endif %}
     </div>
-    <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
-        <h3 id="left_word_number">start text</h3>
-        <a id="continue" class="btn btn-primary my-btn" hidden style="
-        color: white; right: 20%; position: absolute;">Продолжить</a>
+    <div class="bottom-trainer">
+        <div class="bottom-trainer-first-layer">
+            <h3 id="left_word_number">start text</h3>
+            <a id="continue" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
+        </div>
+        <div>
+            {% if not is_last_trainer %}
+            <a id="next-trainer" class="btn btn-primary long-buttons" hidden href="{{ next_trainer_href }}">Перейти к следующему тренажеру</a>
+            {% else %}
+            {% if next_test_href != "" %}
+            <a id="next-trainer" class="btn btn-primary long-buttons" hidden href="{{ next_test_href }}">Перейти к проверке знаний</a>
+            {% endif %}
+            {% endif %}
+        </div>  
     </div>
 </div>
 <script>
@@ -77,6 +106,7 @@
     var audio_playing = false;
     var results = [];
     var unlearned = [];
+    var mistakes = 0;
     for (let i = 0; i < lesson.length; i++) {
         results.push(false);
         unlearned.push(i);
@@ -176,6 +206,7 @@
             results[current_word] = false;
             // если ответ неверный, добавляем элемент в конец unlearned
             unlearned.push(current_word);
+            mistakes += 1;
         }
         ans_buttons = document.getElementsByClassName("ans-button");
         for (let i = 0; i < ans_buttons.length; i += 1){
@@ -185,6 +216,37 @@
         // берем следующий элемент unlearned
         if (resultsCheck(results)){
             // alert("finished");
+            mistakes_number_text = "Вы сделали: " + mistakes.toString();
+            if (mistakes % 10 == 1) {
+                mistakes_number_text += " ошибку";
+            } else if (mistakes % 10 == 2 || mistakes % 10 == 3 || mistakes % 10 == 4) {
+                mistakes_number_text += " ошибки";
+            } else if (mistakes % 10 >= 5 || mistakes % 10 == 0) {
+                mistakes_number_text += " ошибок";
+            }
+            document.getElementById("left_word_number").innerText = mistakes_number_text;
+            next_trainer_button = document.getElementById("next-trainer");
+            if (next_trainer_button) {
+                next_trainer_button.hidden = false;
+                next_trainer_button.addEventListener("click", async function(event){
+                    const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result", {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },  //                    "results": ` + json_results + `
+                    body: `{
+                       "id": "{{ trainer.id }}",
+                       "results": "1"
+                      }`,
+                    });
+
+                    response.json().then(data => {
+                      console.log(data);
+                    });
+                }, false)
+            }
+
             continue_button = document.getElementById("continue");
             continue_button.innerText = "Вернуться к уроку";
             continue_button.href = "{{ back_url }}";

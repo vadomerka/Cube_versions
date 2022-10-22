@@ -597,7 +597,8 @@ def lesson_view(course_id, lesson_id):
                                    test_results=test_results,
                                    trainer_results=trainer_results,
                                    len_test_results=len(test_results),
-                                   words_learn_states=words_learn_states, form=form, lesson_name=lesson_name)
+                                   words_learn_states=words_learn_states, form=form,
+                                   lesson_name=lesson_name)
         return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
                                back_button_hidden='false', back_url=f"/courses/{course_id}",
                                lesson_words_js=lesson_words_js, column_number=column_number,
@@ -605,7 +606,8 @@ def lesson_view(course_id, lesson_id):
                                test_results=test_results,
                                trainer_results=trainer_results,
                                len_test_results=len(test_results),
-                               words_learn_states=words_learn_states, form=form, lesson_name=lesson_name)
+                               words_learn_states=words_learn_states, form=form,
+                               lesson_name=lesson_name)
 
     return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
                            back_button_hidden='false', back_url=f"/courses/{course_id}",
@@ -823,6 +825,117 @@ def delete_lesson(course_id, lesson_id):
         return redirect("/courses/" + str(course_id))
     else:
         return abort(404, message=f"Lesson {lesson_id} not found")
+
+
+@app.route('/courses/<int:course_id>/lesson_statistics/<int:lesson_id>', methods=['GET', 'POST'])
+@login_required
+def lesson_statistics(course_id, lesson_id):
+    db_sess = db_session.create_session()
+    lesson = get(root + "/rest_lesson/" + str(lesson_id)).json()["lesson"]
+    course = get(root + "/rest_course/" + str(course_id)).json()["course"]
+    course_pupils = list(filter(lambda x: not x['teacher'], course["users"]))
+    for i in range(len(course_pupils)):
+        words_learned = 0
+        words_viewed = 0
+        trainers_completed = 0
+        tests_completed = 0
+        for w in lesson["words"]:
+            w_learn_state = db_sess.query(WordsToUsers).filter(
+                WordsToUsers.users == course_pupils[i]["id"],
+                WordsToUsers.words == int(w["id"])).first().learn_state
+            if w_learn_state == 1:
+                words_viewed += 1
+            elif w_learn_state == 2:
+                words_learned += 1
+
+        lesson_trainers = [(t.started, t.finished)
+                           for t in db_sess.query(TrainersToUsers).filter(
+                TrainersToUsers.user_id == course_pupils[i]["id"],
+                TrainersToUsers.course_id == course_id,
+                TrainersToUsers.lesson_id == lesson_id).all()]
+        for t in lesson_trainers:
+            if t[0] and t[1]:
+                trainers_completed += 1
+
+        lesson_tests = [(t.best_result, t.last_result)
+                        for t in db_sess.query(TestsToUsers).filter(
+                TestsToUsers.user_id == course_pupils[i]["id"],
+                TestsToUsers.course_id == course_id,
+                TestsToUsers.lesson_id == lesson_id).all()]
+        for t in lesson_tests:
+            if t[0] == len(lesson["words"]):
+                tests_completed += 1
+
+        course_pupils[i]["words_learned"] = words_learned
+        course_pupils[i]["words_viewed"] = words_viewed
+        course_pupils[i]["trainers_completed"] = trainers_completed
+        course_pupils[i]["tests_completed"] = tests_completed
+    json_course_pupils = json.dumps(course_pupils)
+    data_parser_file = open("static/data_parser.js", "w")
+    data_parser_file.write(f"var course_pupils = {json_course_pupils}\n")
+    return render_template("lesson_statistics.html", lesson_name=lesson["name"],
+                           back_button_hidden='false', back_url=f"/courses/{course_id}",
+                           lesson_words_len=len(lesson["words"]),
+                           lesson_trainers_len=len(lesson["trainers"]),
+                           lesson_tests_len=len(lesson["tests"]),
+                           course_pupils=course_pupils, course_id=course_id, lesson_id=lesson_id)
+
+
+@app.route('/courses/<int:course_id>/lesson_statistics/<int:lesson_id>/pupil/<int:pupil_id>',
+           methods=['GET', 'POST'])
+@login_required
+def lesson_pupil_statistics(course_id, lesson_id, pupil_id):
+    db_sess = db_session.create_session()
+    lesson = get(root + "/rest_lesson/" + str(lesson_id)).json()["lesson"]
+    course = get(root + "/rest_course/" + str(course_id)).json()["course"]
+    pupil = db_sess.query(User).get(pupil_id)
+    words_learned = 0
+    words_viewed = 0
+    trainers_completed = 0
+    trainers_uncompleted = 0
+    tests_completed = 0
+    tests_uncompleted = 0
+    for w in lesson["words"]:
+        w_learn_state = db_sess.query(WordsToUsers).filter(
+            WordsToUsers.users == pupil.id,
+            WordsToUsers.words == int(w["id"])).first().learn_state
+        if w_learn_state == 1:
+            words_viewed += 1
+        elif w_learn_state == 2:
+            words_learned += 1
+
+    lesson_trainers = [(t.started, t.finished)
+                       for t in db_sess.query(TrainersToUsers).filter(
+            TrainersToUsers.user_id == pupil.id,
+            TrainersToUsers.course_id == course_id,
+            TrainersToUsers.lesson_id == lesson_id).all()]
+    for t in lesson_trainers:
+        if t[0] and t[1]:
+            trainers_completed += 1
+        else:
+            trainers_uncompleted += 1
+
+    lesson_tests = [(t.best_result, t.last_result)
+                    for t in db_sess.query(TestsToUsers).filter(
+            TestsToUsers.user_id == pupil.id,
+            TestsToUsers.course_id == course_id,
+            TestsToUsers.lesson_id == lesson_id).all()]
+    for t in lesson_tests:
+        if t[0] == len(lesson["words"]):
+            tests_completed += 1
+        else:
+            tests_uncompleted += 1
+    return render_template("lesson_pupil_statistics.html", pupil=pupil,
+                           back_button_hidden='false', back_url=f"/courses/{course_id}/lesson_statistics/{lesson_id}",
+                           # lesson_words_len=lesson_words_len,
+                           # lesson_trainers_len=lesson_trainers_len,
+                           # lesson_tests_len=lesson_tests_len,
+                           words_learned=words_learned,
+                           words_viewed=words_viewed,
+                           trainers_completed=trainers_completed,
+                           trainers_uncompleted=trainers_uncompleted,
+                           tests_completed=tests_completed,
+                           tests_uncompleted=tests_uncompleted)
 
 
 @app.route("/delete_word_from_lesson/<int:lesson_id>/<int:word_id>", methods=['GET'])
@@ -1064,11 +1177,27 @@ def dict_word_view(word_id):
 def lesson_word_view(course_id, lesson_id, word_id):
     db_sess = db_session.create_session()
     word = get(root + '/rest_word/' + str(word_id)).json()["word"]
-    lesson_words = get(root + '/rest_lesson/' + str(lesson_id)
-                       ).json()["lesson"]["words"]
-    word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == word["id"] and
-                                                          WordsToUsers.users == current_user.id)[0]
-    # print(word_result.words, word_result.users, word_result.learn_state)
+    lesson = get(root + '/rest_lesson/' + str(lesson_id)
+                 ).json()["lesson"]
+    lesson_words = lesson["words"]
+    ret = post(root + f"/rest_word_view_recording/{current_user.id}/{word_id}")
+    # word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == word["id"] and
+    #                                                       WordsToUsers.users == current_user.id)[0]
+    words_learn_state = 1
+    for w in lesson_words:
+        word_learn_state = db_sess.query(WordsToUsers).filter(
+            WordsToUsers.words == w["id"],
+            WordsToUsers.users == current_user.id).first().learn_state
+        if word_learn_state == 0:
+            words_learn_state = 0
+            break
+    if len(lesson["trainers"]) != 0:
+        first_trainer_id = lesson["trainers"][0]['id']
+        # print(lesson["trainers"][0])
+        trainer_href = f"/courses/{course_id}/lesson/{lesson_id}/trainer/{first_trainer_id}"
+    else:
+        trainer_href = ""
+        words_learn_state = 0
     prev_id = 1
     next_id = 1
     prev_button_visibility = "visible"
@@ -1085,7 +1214,6 @@ def lesson_word_view(course_id, lesson_id, word_id):
             else:
                 next_id = lesson_words[i + 1]["id"]
             break
-    ret = post(root + f"/rest_word_view_recording/{current_user.id}/{word_id}")
     return render_template('word_view.html',
                            hieroglyph=word["hieroglyph"],
                            translation=word["translation"],
@@ -1113,7 +1241,7 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            next_word_url="/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
                                next_id),
-                           word_learn_state=word_learn_state)
+                           words_learn_state=words_learn_state, trainer_href=trainer_href)
 
 
 def db_list_to_javascript(array):
@@ -1128,7 +1256,8 @@ def db_list_to_javascript(array):
                                   word.image,
                                   word.front_side_audio,
                                   word.up_side_audio,
-                                  word.left_side_audio]))
+                                  word.left_side_audio,
+                                  str(word.id)]))
     array_js = ";;;".join(array_js)
     return array_js
 
@@ -1141,25 +1270,54 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     course = db_sess.query(Courses).get(course_id)
     lesson = db_sess.query(Lessons).get(lesson_id)
     trainer = db_sess.query(Trainers).get(trainer_id)
+    les = get(root + '/rest_lesson/' + str(lesson_id)).json()
+    lesson_trainers = les["lesson"]["trainers"]
+    lesson_tests = les["lesson"]["tests"]
+    is_last_trainer = False
+    next_trainer_href = ""
+    next_test_href = ""
+    if lesson_trainers[-1]["id"] == trainer_id:
+        is_last_trainer = True
+        if len(lesson_tests) != 0:
+            next_test_href = \
+                f"/courses/{course_id}/lesson/{lesson_id}/test/{lesson_tests[0]['id']}"
+    else:
+        for i in range(len(lesson_trainers)):
+            t = lesson_trainers[i]
+            if t["id"] == trainer_id:
+                next_trainer_href = \
+                    f"/courses/{course_id}/lesson/{lesson_id}/trainer/{lesson_trainers[i + 1]['id']}"
+                break
+
     all_words = db_sess.query(Words).all()
 
     lesson_words = db_list_to_javascript(lesson.words)
     lesson_all_words = db_list_to_javascript(all_words)
 
-    db_sess.add(TrainersToUsers(
-        trainer_id=trainer_id,
-        course_id=course_id,
-        lesson_id=lesson_id,
-        user_id=current_user.id,
-        started=1,
-        finished=0
-    ))
+    prev_result = db_sess.query(TrainersToUsers).filter(TrainersToUsers.trainer_id == trainer_id,
+                                                        TrainersToUsers.course_id == course_id,
+                                                        TrainersToUsers.lesson_id == lesson_id,
+                                                        TrainersToUsers.user_id == current_user.id).first()
+    if prev_result:
+        prev_result.started = 1
+        db_sess.merge(prev_result)
+    else:
+        db_sess.add(TrainersToUsers(
+            trainer_id=trainer_id,
+            course_id=course_id,
+            lesson_id=lesson_id,
+            user_id=current_user.id,
+            started=1,
+            finished=0
+        ))
     db_sess.commit()
     answer_button_number = 6
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                           back_button_hidden="false", all_words=lesson_all_words)
+                           back_button_hidden="false", all_words=lesson_all_words,
+                           is_last_trainer=is_last_trainer, next_trainer_href=next_trainer_href,
+                           next_test_href=next_test_href)
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/trainer/<int:trainer_id>/result',
@@ -1201,6 +1359,22 @@ def lesson_test_view(course_id, lesson_id, test_id):
 
     lesson_words = db_list_to_javascript(lesson.words)
     lesson_all_words = db_list_to_javascript(all_words)
+    les = get(root + '/rest_lesson/' + str(lesson_id)).json()
+    lesson_tests = les["lesson"]["tests"]
+
+    is_last_test = False
+    next_test_href = ""
+    # print(lesson_tests)
+    if lesson_tests[-1]["id"] == test_id:
+        is_last_test = True
+    else:
+        for i in range(len(lesson_tests)):
+            t = lesson_tests[i]
+            if t["id"] == test_id:
+                next_test_href = \
+                    f"/courses/{course_id}/lesson/{lesson_id}/test/{lesson_tests[i + 1]['id']}"
+                # print(next_test_href)
+                break
 
     answer_button_number = 6
     tests_list = []
@@ -1214,11 +1388,13 @@ def lesson_test_view(course_id, lesson_id, test_id):
                                lesson_words=lesson_words, answer_button_number=answer_button_number,
                                back_url=f"/courses/{course_id}/lesson/{lesson_id}",
                                back_button_hidden="false", all_words=lesson_all_words,
-                               tests_list=tests_list)
+                               tests_list=tests_list, is_last_test=is_last_test,
+                               next_test_href=next_test_href)
     return render_template('test_view.html', course=course, lesson=lesson, test=test,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                           back_button_hidden="false", all_words=lesson_all_words)
+                           back_button_hidden="false", all_words=lesson_all_words,
+                           is_last_test=is_last_test, next_test_href=next_test_href)
 
 
 @app.route('/courses/<int:course_id>/lesson/<int:lesson_id>/test/<int:test_id>/result',
@@ -1226,16 +1402,32 @@ def lesson_test_view(course_id, lesson_id, test_id):
 @login_required
 def test_result(course_id, lesson_id, test_id):
     db_sess = db_session.create_session()
-
-    results = request.json["results"].split(".")
-    right_answer_count = len(list(filter(lambda x: x, [bool(int(i)) for i in results[:-1]])))
+    results = request.json["results"].split(".")[:-1]
+    words_id = request.json["words"].split(".")[:-1]
+    right_answer_count = len(list(filter(lambda x: x, [bool(int(i)) for i in results])))
     prev_result = db_sess.query(TestsToUsers).filter(TestsToUsers.test_id == test_id,
                                                      TestsToUsers.course_id == course_id,
                                                      TestsToUsers.lesson_id == lesson_id,
                                                      TestsToUsers.user_id == current_user.id).first()
+    for i in range(len(words_id)):
+        if results[i] != '0':
+            word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == words_id[i],
+                                                                  WordsToUsers.users == current_user.id).first()
+            if word_learn_state:
+                word_learn_state.learn_state = 2
+                db_sess.merge(word_learn_state)
+            else:
+                db_sess.add(WordsToUsers(
+                    words=words_id[0],
+                    users=current_user.id,
+                    learn_state=2
+                ))
+            db_sess.commit()
+            db_sess.close()
     if prev_result:
         prev_result.last_result = right_answer_count
         prev_result.best_result = max(right_answer_count, prev_result.best_result)
+        db_sess.merge(prev_result)
     else:
         db_sess.add(TestsToUsers(
             test_id=test_id,

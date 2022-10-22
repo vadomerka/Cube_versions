@@ -21,10 +21,16 @@
         justify-content: center;">
         
     </div>
-    <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
-        <h3 id="left_word_number">start text</h3>
-        <a id="continue" class="btn btn-primary my-btn" hidden style="
-        color: white; right: 20%; position: absolute;">Продолжить</a>
+    <div class="bottom-trainer">
+        <div class="bottom-trainer-first-layer">
+            <h3 id="left_word_number">start text</h3>
+            <a id="continue" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
+        </div>
+        <div>
+            {% if not is_last_test %}
+            <a id="next-trainer" class="btn btn-primary long-buttons" hidden href="{{ next_test_href }}">Перейти к следующему тесту</a>
+            {% endif %}
+        </div>  
     </div>
 </div>
 <script>
@@ -234,6 +240,7 @@
         }
         // берем следующий элемент unlearned
         if (unlearned == ''){ // если тест пройден
+            // alert("finished");
             continue_button = document.getElementById("continue");
             continue_button.innerText = "Вернуться к уроку";
             continue_button.href = "{{ back_url }}";
@@ -247,14 +254,34 @@
                     json_results += `0.`;
                 }
             }
-            // console.log(json_results);
+            next_trainer_button = document.getElementById("next-trainer");
+            if (next_trainer_button) {
+                next_trainer_button.hidden = false;
+                next_trainer_button.addEventListener("click", async function(event){
+                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },  //                    "results": ` + json_results + `
+                body: `{
+                   "id": "{{ test.id }}",
+                   "results": "` + json_results + `"
+                  }`,
+                });
+
+                    response.json().then(data => {
+                      console.log(data);
+                    });
+                }, false)
+            }
             continue_button.addEventListener("click", async function(event){
                 const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
-                },
+                },  //                    "results": ` + json_results + `
                 body: `{
                    "id": "{{ test.id }}",
                    "results": "` + json_results + `"
@@ -265,6 +292,7 @@
                   console.log(data);
                 });
             }, false)
+            // continue_button.href = "{{ back_url }}";
         } else { // если тест еще не пройден
             current_word = unlearned[0];
             cur_check_side = tests_list[current_word][0];

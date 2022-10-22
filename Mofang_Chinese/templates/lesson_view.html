@@ -452,17 +452,22 @@
         // console.log(res);
         // console.log(res[2]);
         // console.log(items_lists.length);
-        display = document.getElementById("test result " + res[0].toString());
-        percents = (Math.round((res[2] / items_lists[0].length) * 100)).toString() + "%";
-        display.innerText = percents;
-        string = "test " + res[0].toString();
-        doc_test = document.getElementById(string);
-        if (percents == "0%"){
-            doc_test.classList.add("unstarted-trainer");
-        } else if (percents == "100%"){
-            doc_test.classList.add("finished-trainer");
-        } else {
-            doc_test.classList.add("unfinished-trainer");
+        test_res_id = "test result " + res[0].toString();
+        // console.log(test_res_id);
+        display = document.getElementById(test_res_id);
+        if (display){
+            percents = (Math.round((res[2] / items_lists[0].length) * 100)).toString() + "%";
+            display.innerText = percents;
+
+            string = "test " + res[0].toString();
+            doc_test = document.getElementById(string);
+            if (percents == "0%"){
+                doc_test.classList.add("unstarted-trainer");
+            } else if (percents == "100%"){
+                doc_test.classList.add("finished-trainer");
+            } else {
+                doc_test.classList.add("unfinished-trainer");
+            }
         }
     }
 
@@ -486,8 +491,11 @@
     }
 
     if ("{{ current_user.teacher }}" == "True"){
+
         input = document.getElementById("name");
+        // if (input) {console.log("{{ lesson_name }}")}
         input.value = "{{ lesson_name }}";
+
     }
 </script>
 {% endblock %}

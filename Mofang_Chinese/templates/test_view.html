@@ -48,10 +48,16 @@
         {% endfor %}
         {% endif %}
     </div>
-    <div style="margin: 50px 10px 10px 10px; display: flex;"> <!--  display: flex; -->
-        <h3 id="left_word_number">start text</h3>
-        <a id="continue" class="btn btn-primary my-btn" hidden style="
-        color: white; right: 20%; position: absolute;">Продолжить</a>
+    <div class="bottom-trainer">
+        <div class="bottom-trainer-first-layer">
+            <h3 id="left_word_number">start text</h3>
+            <a id="continue" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
+        </div>
+        <div>
+            {% if not is_last_test %}
+            <a id="next-trainer" class="btn btn-primary long-buttons" hidden href="{{ next_test_href }}">Перейти к следующему тесту</a>
+            {% endif %}
+        </div>  
     </div>
 </div>
 <script>
@@ -193,14 +199,38 @@
             continue_button.removeEventListener("click", continueButtonClick, false);
             // console.log(results);
             json_results = ``;
+            word_ids = ``;
             for (let i = 0; i < results.length; i++){
                 if (results[i]){
                     json_results += `1.`;
                 } else {
                     json_results += `0.`;
                 }
+                word_ids += lesson[i][lesson[i].length - 1] + '.';
             }
-            // console.log(json_results);
+            console.log(word_ids);
+            next_trainer_button = document.getElementById("next-trainer");
+            if (next_trainer_button) {
+                next_trainer_button.hidden = false;
+                next_trainer_button.addEventListener("click", async function(event){
+                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },  //                    "results": ` + json_results + `
+                body: `{
+                   "id": "{{ test.id }}",
+                   "words": "` + word_ids + `",
+                   "results": "` + json_results + `"
+                  }`,
+                });
+
+                    response.json().then(data => {
+                      console.log(data);
+                    });
+                }, false)
+            }
             continue_button.addEventListener("click", async function(event){
                 const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
                 method: 'POST',
@@ -210,6 +240,7 @@
                 },  //                    "results": ` + json_results + `
                 body: `{
                    "id": "{{ test.id }}",
+                   "words": "` + word_ids + `",
                    "results": "` + json_results + `"
                   }`,
                 });
