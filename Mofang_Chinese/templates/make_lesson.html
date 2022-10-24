@@ -19,7 +19,7 @@
                 flex-direction: column;
                 align-content: center;">
         {% for i in range(len_trainers) %}
-        <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary"
+        <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary" style="width: 475px;"
                 value="{{ trainers[i].id }}">{{ trainers[i].name }}
         </button>
         <input id="input of train {{ i }}" hidden type="checkbox" checked="checked"
@@ -33,7 +33,7 @@
                 flex-direction: column;
                 align-content: center;">
         {% for i in range(len_tests) %}
-        <button id="test {{ i }}" name="not_lesson_test" type="button" class="btn btn-primary"
+        <button id="test {{ i }}" name="not_lesson_test" type="button" class="btn btn-primary" style="width: 475px;"
                 value="{{ tests[i].id }}">{{ tests[i].name }}
         </button>
         <input id="input of test {{ i }}" hidden type="checkbox" checked="checked"

@@ -2,6 +2,8 @@ from flask_restful import reqparse, abort, Api, Resource
 from flask import jsonify
 from data import db_session
 from data.courses import Courses, users_to_course
+from data.trainers import TrainersToUsers
+from data.tests import TestsToUsers
 from data.users import User
 from resourses.parser import parserAdd
 from flask import request
@@ -29,6 +31,10 @@ class CourseResource(Resource):
     def delete(self, course_id):
         abort_if_not_found(course_id)
         session = db_session.create_session()
+        for ttu in session.query(TrainersToUsers).filter(TrainersToUsers.course_id == course_id).all():
+            session.delete(ttu)
+        for ttu in session.query(TestsToUsers).filter(TestsToUsers.course_id == course_id).all():
+            session.delete(ttu)
         course = session.query(Courses).get(course_id)
         for lesson in course.lessons:
             session.delete(lesson)

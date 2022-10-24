@@ -456,7 +456,10 @@
         // console.log(test_res_id);
         display = document.getElementById(test_res_id);
         if (display){
-            percents = (Math.round((res[2] / items_lists[0].length) * 100)).toString() + "%";
+            percents = (Math.round((res[2] / items_lists[0].length) * 100)).toString();
+            if (percents == "Infinity"){percents = "0";}
+            if (parseInt(percents) > 100){percents = "100";}
+            percents += "%";
             display.innerText = percents;
 
             string = "test " + res[0].toString();

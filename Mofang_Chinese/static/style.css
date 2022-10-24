@@ -3,10 +3,12 @@
   --orange: #FF660C;
   --yellow: #ffc107;
   --green: #158903;
+  --blue: #006AFF;
   --contrast-red: white;
   --contrast-orange: white;
   --contrast-yellow: #3E2314;
   --contrast-green: white;
+  --contrast-blue: white;
 }
 
 body {
@@ -36,7 +38,7 @@ body {
 .btn {
     margin: 0 10px;
     margin-bottom: 10px;
-    width: 155px;
+    width: auto;
 }
 .btn-primary {
     white-space: nowrap;
@@ -93,6 +95,7 @@ body {
     border: solid 3px white;
     border-radius: 10px;
 }
+
 .btn-white:focus {
     display: inline-block;
     vertical-align: top;
@@ -105,8 +108,9 @@ body {
 }
 
 .btn-primary:active {
-  box-shadow: 0 5px #666;
-  transform: translateY(4px);
+    box-shadow: 0 5px #666;
+    background-color: var(--red);
+    transform: translateY(4px);
 }
 
 .btn-primary:hover {
@@ -129,6 +133,10 @@ body {
     height: 45px;
     border: 3px white solid;
     border-radius: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 }
 
 .course-card {
@@ -206,5 +214,21 @@ body {
 .long-buttons{
     width: fit-content;
 }
-
+.info-button {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--blue);
+    color: var(--contrast-blue);
+}
+.info-button:hover {
+    border: solid 3px var(--blue);
+    background-color: var(--blue);
+}
+.info-svg {
+    fill:var(--contrast-blue);
+}
 © 2022 GitHub, Inc.
+

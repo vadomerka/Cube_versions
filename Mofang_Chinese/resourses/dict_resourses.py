@@ -107,7 +107,7 @@ class WordResourse(Resource):
         abort_if_not_found(word_id)
         session = db_session.create_session()
         word = session.query(Words).get(word_id)
-        path = "static/"
+        path = "static/words_data/"
         side_list = []
         for x in [word.image,
                   word.front_side_audio,

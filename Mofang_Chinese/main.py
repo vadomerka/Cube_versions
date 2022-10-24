@@ -55,7 +55,7 @@ mail_settings = {
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": 'pradomiri@yandex.ru',
-    "MAIL_PASSWORD": 'wsRuHhBwL2'
+    "MAIL_PASSWORD": 'lP!NIpDGGr6ADxE^N6ElWc1pX$8vq4@WU2w37LfnNWG$F2heXh'
 }
 
 app.config.update(mail_settings)
@@ -263,9 +263,15 @@ def reset_password_email_send():  # сценарий "пользователь �
             token = generate_reset_password_token(user_email)  # создаем спец токен на основе
             confirm_url = url_for('reset_password', token=token,
                                   _external=True)  # ссылка вида root/reset_password/<token>
-            html = render_template('activate.html', confirm_url=confirm_url)  # тело письма
+            html = render_template('reset_password_letter.html',
+                                   confirm_url=confirm_url)  # тело письма
             subject = "Сброс пароля Mofang Chinese"  # тема письма
-            send_email(user_email, subject, html)  # отправление письма
+            try:
+                send_email(user_email, subject, html)  # отправление письма
+            except Exception as e:
+                print(str(e))
+                return render_template("reset_password.html", form=form,
+                                       message="не удалось отправить письмо, пожалуйста, повторите попытку позже")
         return redirect('/')
     return render_template("reset_password.html", form=form)
 
@@ -926,7 +932,8 @@ def lesson_pupil_statistics(course_id, lesson_id, pupil_id):
         else:
             tests_uncompleted += 1
     return render_template("lesson_pupil_statistics.html", pupil=pupil,
-                           back_button_hidden='false', back_url=f"/courses/{course_id}/lesson_statistics/{lesson_id}",
+                           back_button_hidden='false',
+                           back_url=f"/courses/{course_id}/lesson_statistics/{lesson_id}",
                            # lesson_words_len=lesson_words_len,
                            # lesson_trainers_len=lesson_trainers_len,
                            # lesson_tests_len=lesson_tests_len,
@@ -1045,6 +1052,10 @@ def add_word():
     form = WordsForm()
     db_sess = db_session.create_session()
     image_start_preview = "/static/words_data/tutorial_down.png"
+    all_words = get(root + "/rest_dict").json()["words"]
+    json_all_words = json.dumps(all_words)
+    data_parser_file = open("static/data_parser.js", "w")
+    data_parser_file.write(f"var json_all_words = {json_all_words}\n")
     if form.validate_on_submit():
         new_word = Words()
         new_word.author = current_user.id
@@ -1053,7 +1064,6 @@ def add_word():
         new_word.transcription = delete_extra_spaces(form.transcription.data)
         new_word.phrase_ch = delete_extra_spaces(form.phrase_ch.data)
         new_word.phrase_ru = delete_extra_spaces(form.phrase_ru.data)
-
         image = request.files['image']
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
@@ -1104,11 +1114,8 @@ def add_word():
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, filename="tmp",
                            image_start_preview=image_start_preview,
-                           # left_start_preview=left_start_preview,
-                           # right_start_preview=right_start_preview,
-                           # up_start_preview=up_start_preview,
-                           # down_start_preview=down_start_preview,
-                           back_button_hidden="false", back_url="/dictionary")
+                           back_button_hidden="false", back_url="/dictionary",
+                           all_words=all_words)
 
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
@@ -1168,7 +1175,8 @@ def dict_word_view(word_id):
                            prev_button_visibility=prev_button_visibility,
                            next_button_visibility=next_button_visibility,
                            prev_word_url="/dict_word/" + str(prev_id),
-                           next_word_url="/dict_word/" + str(next_id))
+                           next_word_url="/dict_word/" + str(next_id),
+                           words_learn_state=0)
 
 
 @app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/word/<int:word_id>',
@@ -1384,7 +1392,7 @@ def lesson_test_view(course_id, lesson_id, test_id):
         tests_list.append(str(rand_test.check_side) + " " + str(rand_test.ans_side))
     tests_list = "  ".join(tests_list)
     if test.check_side == -1 and test.ans_side == -1:
-        return render_template('ultimate_test.html', course=course, lesson=lesson, test=test,
+        return render_template('ultimate_test_view.html', course=course, lesson=lesson, test=test,
                                lesson_words=lesson_words, answer_button_number=answer_button_number,
                                back_url=f"/courses/{course_id}/lesson/{lesson_id}",
                                back_button_hidden="false", all_words=lesson_all_words,
@@ -1410,20 +1418,23 @@ def test_result(course_id, lesson_id, test_id):
                                                      TestsToUsers.lesson_id == lesson_id,
                                                      TestsToUsers.user_id == current_user.id).first()
     for i in range(len(words_id)):
+        word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == words_id[i],
+                                                              WordsToUsers.users == current_user.id).first()
         if results[i] != '0':
-            word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.words == words_id[i],
-                                                                  WordsToUsers.users == current_user.id).first()
-            if word_learn_state:
-                word_learn_state.learn_state = 2
-                db_sess.merge(word_learn_state)
-            else:
-                db_sess.add(WordsToUsers(
-                    words=words_id[0],
-                    users=current_user.id,
-                    learn_state=2
-                ))
-            db_sess.commit()
-            db_sess.close()
+            res = 2
+        else:
+            res = 1
+        if word_learn_state:
+            word_learn_state.learn_state = res
+            db_sess.merge(word_learn_state)
+        else:
+            db_sess.add(WordsToUsers(
+                words=words_id[0],
+                users=current_user.id,
+                learn_state=res
+            ))
+        db_sess.commit()
+        db_sess.close()
     if prev_result:
         prev_result.last_result = right_answer_count
         prev_result.best_result = max(right_answer_count, prev_result.best_result)
@@ -1534,7 +1545,8 @@ def change_word(word_id):
                            phrase_audio_file=phrase_audio_file, is_phrase_audio=is_phrase_audio,
                            translation_audio_file=translation_audio_file,
                            is_translation_audio=is_translation_audio,
-                           image_start_preview=image_start_preview)
+                           image_start_preview=image_start_preview,
+                           all_words=all_words)
 
 
 def main():

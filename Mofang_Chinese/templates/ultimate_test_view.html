@@ -33,6 +33,7 @@
         </div>  
     </div>
 </div>
+<script src="/static/templates_js/cube_side_text.js"></script>
 <script>
     tests_list = "{{ tests_list }}".split("  ");
     for (var i = 0; i < tests_list.length; i++) {
@@ -44,19 +45,24 @@
                 task_image = document.createElement("img");
                 task_image.classList.add("task-field-image");
                 task_image.id = "task-field-image";
-                task_image.src = "/static/" + lesson[current_word][cur_check_side];
+                task_image.src = "/static/words_data/" + lesson[current_word][cur_check_side];
                 document.getElementById("task-box").appendChild(task_image);
             } else {
                 task_canvas = document.createElement("canvas");
                 task_canvas.classList.add("task-field-canvas");
                 task_canvas.id = "task-field-canvas";
-                task_canvas = task_text(task_canvas, lesson[current_word][cur_check_side], 1000);
+                task_canvas.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
+                if (check_side == 0 || check_side == 3){
+                    task_canvas = task_hieroglyph_text(task_canvas, lesson[current_word][cur_check_side], 1000);
+                } else {
+                    task_canvas = task_text(task_canvas, lesson[current_word][cur_check_side], 1000);
+                }
                 document.getElementById("task-box").appendChild(task_canvas);
             }
         } else {
             audio_but = document.getElementById("audio_but");
             audio_but.hidden = false;
-            task_audio = new Audio("/static/" + lesson[current_word][cur_check_side]);
+            task_audio = new Audio("/static/words_data/" + lesson[current_word][cur_check_side]);
             audio_but.addEventListener("click", audioButtonClick, false);
         }
     }
@@ -72,7 +78,7 @@
                 if (cur_ans_side == 5){
                     but_image = document.createElement("img");
                     but_image.name = i.toString();
-                    but_image.src = "/static/" + ans_vars[i];
+                    but_image.src = "/static/words_data/" + ans_vars[i];
                     but_image.id = "id " + i.toString();
                     but_image.value = ans_vars[i];
                     but_image.style.width = (img_size).toString() + "px";
@@ -84,6 +90,11 @@
                     but_canvas.name = i.toString();
                     but_canvas.id = "id " + i.toString();
                     but_canvas = task_text(but_canvas, ans_vars[i], 1000);
+                    if (check_side == 0 || check_side == 3){
+                        but_canvas = task_hieroglyph_text(but_canvas, ans_vars[i], 1000);;
+                    } else {
+                        but_canvas = task_text(but_canvas, ans_vars[i], 1000);;
+                    }
                     but_canvas.value = ans_vars[i];
                     but_canvas.style.width = (img_size).toString() + "px";
                     but_canvas.style.height = (img_size).toString() + "px";
@@ -241,19 +252,24 @@
         // берем следующий элемент unlearned
         if (unlearned == ''){ // если тест пройден
             // alert("finished");
+            document.getElementById("left_word_number").innerText = "Вы прошли проверку знаний!";
+
             continue_button = document.getElementById("continue");
             continue_button.innerText = "Вернуться к уроку";
             continue_button.href = "{{ back_url }}";
             continue_button.removeEventListener("click", continueButtonClick, false);
             // console.log(results);
             json_results = ``;
+            word_ids = ``;
             for (let i = 0; i < results.length; i++){
                 if (results[i]){
                     json_results += `1.`;
                 } else {
                     json_results += `0.`;
                 }
+                word_ids += lesson[i][lesson[i].length - 1] + '.';
             }
+
             next_trainer_button = document.getElementById("next-trainer");
             if (next_trainer_button) {
                 next_trainer_button.hidden = false;
@@ -266,6 +282,7 @@
                 },  //                    "results": ` + json_results + `
                 body: `{
                    "id": "{{ test.id }}",
+                   "words": "` + word_ids + `",
                    "results": "` + json_results + `"
                   }`,
                 });
@@ -284,6 +301,7 @@
                 },  //                    "results": ` + json_results + `
                 body: `{
                    "id": "{{ test.id }}",
+                   "words": "` + word_ids + `",
                    "results": "` + json_results + `"
                   }`,
                 });
@@ -306,85 +324,6 @@
         buttonsDelete();
         buttonsInit();
     }
-
-    function task_text(canvas_to_change, text, cv_width){
-        // const cv = document.createElement( 'canvas' );
-        const cv = canvas_to_change;
-        console.log(text);
-        text_size = 150;
-        cube_width = cv_width;
-        cv.width = cv_width //  3 * 512
-        cv.height = cv_width;
-
-        const ctx = cv.getContext( '2d' );
-
-        ctx.fillStyle = '#fefefe';
-        ctx.fillRect( 0, 0, cv.width, cv.height );
-        ctx.fillStyle = '#129912';
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        text_words = text.split(" ");
-        average_line_len = 9;
-        i = 0;
-        while (i < (text_words.length - 1)){
-            if (text_words[i + 1] == '') {text_words.splice(i, 1);}
-            // console.log(text_words, i)
-            if (i == 0){
-                if ((text_words[i + 1].length + text_words[i].length + 1) < average_line_len) {
-                    text_words[i] = text_words[i] + ' ' + text_words[i + 1];
-                    text_words.splice(i + 1, 1);
-                    i--;
-                }
-            } else {
-                if ((text_words[i - 1].length + text_words[i].length + 1) < average_line_len ||
-                    (text_words[i + 1].length + text_words[i].length + 1) < average_line_len){
-                    if (text_words[i - 1].length < text_words[i + 1].length) {
-                        text_words[i] = text_words[i - 1] + ' ' + text_words[i]
-                        text_words.splice(i - 1, 1);
-                        // console.log(text_words, i);
-                        i--;
-                    } else {
-                        text_words[i] = text_words[i] + ' ' + text_words[i + 1];
-                        // console.log(text_words)
-                        text_words.splice(i + 1, 1);
-                        // console.log(text_words, i);
-                        i--;
-                    }
-                }}
-            i++;
-        }
-        max_word_len = 0;
-        for (var i = 0; i < text_words.length; i++) {
-            if (max_word_len < text_words[i].length) {
-                max_word_len = text_words[i].length;
-            }
-        }
-        max_line_len = max_word_len;
-        // считал отношением 1000 к количеству символов в monospace помещающихся при таком-то фонте
-        // например: 1000/6 = 166.6667 при font = 276, symbol_size_const = 0,603864734
-        //           1000/7 = 142.9 при font = 236, symbol_size_const = 0,605326877
-        symbol_width_coef = 0.6;
-        symbol_height_coef = 1.166;
-        font_size = Math.round(cube_width / ((max_word_len + 1) * symbol_width_coef));
-        max_font_size = 250
-        if (font_size > max_font_size) {font_size = max_font_size;}
-        symbol_height = font_size * symbol_height_coef;
-        lines_number = (cube_width / symbol_height).toString().split(".")[0];
-        prelines_px = (cube_width % symbol_height) / 2;
-        if (lines_number % 2 != text_words.length % 2) {
-            lines_number = parseInt(lines_number) + 1;
-            prelines_px -= symbol_height / 4;
-        }
-        ctx.font = 'bold ' + font_size + 'px Monospace';
-        for (var i = 0; i < text_words.length; i++) {
-            line_num = (i + ((lines_number - text_words.length) / 2)) / lines_number;
-            ctx.fillText(text_words[i], cube_width / 2, line_num * cube_width + prelines_px);
-        }
-        return cv;
-    }
-
-    // alert(ans_buttons[0]);
-    
 
     continue_button = document.getElementById("continue");
     continue_button.addEventListener("click", continueButtonClick, false);

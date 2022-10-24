@@ -34,7 +34,7 @@
     {{ form.hidden_tag() }}
     <p>
         {{ form.hieroglyph.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
-        {{ form.hieroglyph(class="form-control", id="hieroglyph") ) }}<br>
+        {{ form.hieroglyph(class="form-control", id="hieroglyph") }}<br>
         {% for error in form.hieroglyph.errors %}
     <p content="alert alert-danger" role="alert">
         {{ error }}
@@ -135,8 +135,9 @@
         </label>
     </div>
     </div>
-    {{ form.submit(type="submit", class="btn btn-primary") }}
+    {{ form.submit(type="button", class="btn btn-primary", id="submit-button") }}
 </form>
+<script type="text/javascript" src="../static/data_parser.js"></script>
 <script>
     var fileLoader = function(event) {
         var output = document.getElementById("image_output");
@@ -226,6 +227,43 @@
         button.style = "min-width: 75px; min-height: 75px; background-color: red;";
     }
 
+    function checkWordUniqueness(){
+    	all_words = json_all_words;
+    	hieroglyph = document.getElementById("hieroglyph").value;
+    	translation = document.getElementById("translation").value;
+    	res = 0;
+    	for (var i = 0; i < all_words.length; i++) {
+    		if (hieroglyph == all_words[i]["hieroglyph"] && translation == all_words[i]["translation"]){
+    			res = Math.max(3, res);
+    		} else if (hieroglyph == all_words[i]["hieroglyph"]){
+    			res = Math.max(2, res);
+    		} else if (translation == all_words[i]["translation"]){
+    			res = Math.max(1, res);
+    		}
+    	}
+    	return res;
+    }
+
+    function submitButtonClick(event){
+    	if (checkWordUniqueness() == 0) {
+    		document.getElementById("submit-button").type = "submit";
+    	} else {
+    		if (checkWordUniqueness() == 2){
+    			message = "Слово с таким иероглифом уже существует. Вы действительно хотите создать новую запись для этого иероглифа?"
+    		} else if (checkWordUniqueness() == 1) {
+    			message = "Слово с таким переводом уже существует. Вы действительно хотите создать новую запись для этого перевода?"
+    		} else if (checkWordUniqueness() == 3) {
+    			message = "Слово с таким иероглифом и переводом уже существует. Вы действительно хотите создать новую запись для этого слова?"
+    		} 
+    		var retVal = confirm(message);
+            if( retVal == true ) {
+              	document.getElementById("submit-button").type = "submit";
+            } else {
+                document.getElementById("submit-button").type = "button";
+            }
+    	}
+    }
+    document.getElementById("submit-button").addEventListener("click", submitButtonClick, false);
 
 </script>
 {% endblock %}
