@@ -584,6 +584,7 @@ def lesson_view(course_id, lesson_id):
                                                       TestsToUsers.lesson_id == lesson_id,
                                                       TestsToUsers.user_id == current_user.id).all()
     test_results = [[res.test_id, res.id, res.last_result, res.best_result] for res in test_results]
+    # print(test_results)
     lesson = db_sess.query(Lessons).get(lesson_id)
     lesson_name = lesson.name
     if current_user.teacher:
@@ -1387,8 +1388,9 @@ def lesson_test_view(course_id, lesson_id, test_id):
     answer_button_number = 6
     tests_list = []
 
-    for i in range(len(lesson_words)):
-        rand_test = all_tests[random.randint(0, len(all_tests) - 1)]
+    for i in range(len(lesson.words)):  # lesson_words - string, not list!
+        rand_num = random.randint(0, len(all_tests) - 2)
+        rand_test = all_tests[rand_num]
         tests_list.append(str(rand_test.check_side) + " " + str(rand_test.ans_side))
     tests_list = "  ".join(tests_list)
     if test.check_side == -1 and test.ans_side == -1:
@@ -1434,8 +1436,8 @@ def test_result(course_id, lesson_id, test_id):
                 learn_state=res
             ))
         db_sess.commit()
-        db_sess.close()
     if prev_result:
+        prev_result = db_sess.query(TestsToUsers).get(prev_result.id)
         prev_result.last_result = right_answer_count
         prev_result.best_result = max(right_answer_count, prev_result.best_result)
         db_sess.merge(prev_result)

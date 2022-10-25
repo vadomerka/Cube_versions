@@ -164,7 +164,7 @@ function task_text(canvas_to_change, text, cv_width){
     ctx.fillStyle = '#129912';
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-
+    console.log(text);
     text_words = text.split(" ");
     text_words = lines_merger(text_words, 10);
     console.log(text_words);
@@ -187,11 +187,13 @@ function task_hieroglyph_text(canvas_to_change, text, cv_width){
     ctx.fillStyle = '#129912';
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-
+    console.log("task_hieroglyph_text");
+    console.log(text);
     text_words = text.split("，");
     for (var i = 0; i < text_words.length - 1; i++) {
         text_words[i] += "，";
     }
+    console.log(text_words);
     text_words = hieroglyph_lines_merger(text_words, 10);
     // считал отношением 1000 к количеству символов в monospace помещающихся при таком-то фонте
     // для иерглифов:

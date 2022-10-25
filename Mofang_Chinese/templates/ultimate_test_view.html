@@ -35,10 +35,6 @@
 </div>
 <script src="/static/templates_js/cube_side_text.js"></script>
 <script>
-    tests_list = "{{ tests_list }}".split("  ");
-    for (var i = 0; i < tests_list.length; i++) {
-        tests_list[i] = [parseInt(tests_list[i].split(" ")[0]), parseInt(tests_list[i].split(" ")[1])];
-    }
     function generate_check_field(){
         if (cur_check_side < 6) {
             if (cur_check_side == 5) {
@@ -46,15 +42,17 @@
                 task_image.classList.add("task-field-image");
                 task_image.id = "task-field-image";
                 task_image.src = "/static/words_data/" + lesson[current_word][cur_check_side];
+                task_image.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
                 document.getElementById("task-box").appendChild(task_image);
             } else {
                 task_canvas = document.createElement("canvas");
                 task_canvas.classList.add("task-field-canvas");
                 task_canvas.id = "task-field-canvas";
                 task_canvas.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
-                if (check_side == 0 || check_side == 3){
+                if (cur_check_side == 0 || cur_check_side == 3){
                     task_canvas = task_hieroglyph_text(task_canvas, lesson[current_word][cur_check_side], 1000);
                 } else {
+                    // console.log("task_text");
                     task_canvas = task_text(task_canvas, lesson[current_word][cur_check_side], 1000);
                 }
                 document.getElementById("task-box").appendChild(task_canvas);
@@ -66,6 +64,7 @@
             audio_but.addEventListener("click", audioButtonClick, false);
         }
     }
+
     function generate_ans_fields(ans_vars){
         if (cur_ans_side < 6) {
             // console.log({{ answer_button_number }});
@@ -89,8 +88,9 @@
                     but_canvas.src = "";
                     but_canvas.name = i.toString();
                     but_canvas.id = "id " + i.toString();
-                    but_canvas = task_text(but_canvas, ans_vars[i], 1000);
-                    if (check_side == 0 || check_side == 3){
+                    // but_canvas = task_text(but_canvas, ans_vars[i], 1000);
+                    // console.log(cur_check_side);
+                    if (cur_ans_side == 0 || cur_ans_side == 3){
                         but_canvas = task_hieroglyph_text(but_canvas, ans_vars[i], 1000);;
                     } else {
                         but_canvas = task_text(but_canvas, ans_vars[i], 1000);;
@@ -108,6 +108,7 @@
             }
         }
     }
+
     function buttonsInit(){
         wrong_variants =  word_wrong_variants[current_word]
         var ans_variants = [lesson[current_word][cur_ans_side]];
@@ -122,9 +123,11 @@
         document.getElementById("left_word_number").innerText = "Осталось слов: " +
         left_words_number_string + "/" + lesson.length.toString();
     }
-    
+
     function buttonsDelete(){
         prev_but = document.getElementById("task-field-canvas");
+        if (prev_but != null){prev_but.remove();}
+        prev_but = document.getElementById("task-field-image");
         if (prev_but != null){prev_but.remove();}
         prev_but = document.getElementById("audio_but");
         if (prev_but != null){prev_but.hidden = true} // аудио кнопку удалять нельзя
@@ -133,52 +136,6 @@
             if (prev_but != null){prev_but.remove();}
         }
     }
-
-    var width = window.innerWidth
-    var height = window.innerHeight
-    var extra_size_ansbut = 50;
-    var img_size = 100;
-
-    var lesson = "{{ lesson_words }}";
-    // hieroglyph,translation;transcription;phrase;phrase_translation;image;trans_audio;phrase_audio;translation_audio;
-    lesson = lesson.split(";;;");
-    for (let i = 0; i < lesson.length; i += 1){
-        lesson[i] = lesson[i].split(";");
-    }
-    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
-    var all_words = "{{ all_words }}";
-    all_words = all_words.split(";;;");
-    for (let i = 0; i < all_words.length; i += 1){
-        all_words[i] = all_words[i].split(";");
-    }
-
-    var task_audio;
-    var audio_playing = false;
-    var results = [];
-    var unlearned = [];
-    for (let i = 0; i < lesson.length; i++) {
-        results.push(false);
-        unlearned.push(i);
-    }
-    var current_word = 0;
-    var cur_check_side = tests_list[current_word][0];
-    var cur_ans_side = tests_list[current_word][1];
-    var check_side = cur_check_side;
-    var ans_side = cur_ans_side;
-
-    word_wrong_variants = [];
-    for (let i = 0; i < lesson.length; i++){
-        tmp_wrong_vars = []
-        for (let j = 0; j < all_words.length; j++) {
-            if (all_words[j][0] != lesson[current_word][0]){
-                tmp_wrong_vars.push(all_words[j][tests_list[i][1]]);
-            }
-        }
-        shuffle(tmp_wrong_vars);
-        word_wrong_variants.push(tmp_wrong_vars);
-    }
-
-    buttonsInit();
 
     function shuffle(array) {
       let currentIndex = array.length,  randomIndex;
@@ -251,14 +208,12 @@
         }
         // берем следующий элемент unlearned
         if (unlearned == ''){ // если тест пройден
-            // alert("finished");
             document.getElementById("left_word_number").innerText = "Вы прошли проверку знаний!";
 
             continue_button = document.getElementById("continue");
             continue_button.innerText = "Вернуться к уроку";
             continue_button.href = "{{ back_url }}";
             continue_button.removeEventListener("click", continueButtonClick, false);
-            // console.log(results);
             json_results = ``;
             word_ids = ``;
             for (let i = 0; i < results.length; i++){
@@ -324,6 +279,53 @@
         buttonsDelete();
         buttonsInit();
     }
+
+    var tests_list = "{{ tests_list }}".split("  ");
+    for (var i = 0; i < tests_list.length; i++) {
+        tests_list[i] = [parseInt(tests_list[i].split(" ")[0]), parseInt(tests_list[i].split(" ")[1])];
+    }
+    var width = window.innerWidth
+    var height = window.innerHeight
+    var extra_size_ansbut = 50;
+    var img_size = 100;
+
+    var lesson = "{{ lesson_words }}";
+    lesson = lesson.split(";;;");
+    for (let i = 0; i < lesson.length; i += 1){
+        lesson[i] = lesson[i].split(";");
+    }
+    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
+    var all_words = "{{ all_words }}";
+    all_words = all_words.split(";;;");
+    for (let i = 0; i < all_words.length; i += 1){
+        all_words[i] = all_words[i].split(";");
+    }
+
+    var task_audio;
+    var audio_playing = false;
+    var results = [];
+    var unlearned = [];
+    for (let i = 0; i < lesson.length; i++) {
+        results.push(false);
+        unlearned.push(i);
+    }
+    var current_word = 0;
+    var cur_check_side = tests_list[current_word][0];
+    var cur_ans_side = tests_list[current_word][1];
+
+    word_wrong_variants = [];
+    for (let i = 0; i < lesson.length; i++){
+        tmp_wrong_vars = []
+        for (let j = 0; j < all_words.length; j++) {
+            if (all_words[j][0] != lesson[current_word][0]){
+                tmp_wrong_vars.push(all_words[j][tests_list[i][1]]);
+            }
+        }
+        shuffle(tmp_wrong_vars);
+        word_wrong_variants.push(tmp_wrong_vars);
+    }
+
+    buttonsInit();
 
     continue_button = document.getElementById("continue");
     continue_button.addEventListener("click", continueButtonClick, false);
