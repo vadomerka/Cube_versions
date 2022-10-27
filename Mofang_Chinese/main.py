@@ -16,7 +16,7 @@ from data.tests import Tests, TestsToUsers
 # forms
 from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm, \
     NamePasswordForm, ChangeProfileForm
-from forms.course import CoursesForm, AddUsersToCourseForm
+from forms.course import CoursesForm, AddItemToSomethingForm
 from forms.lesson import LessonsForm, AddSomethingToLessonForm
 from forms.word import WordsForm
 
@@ -165,16 +165,24 @@ def user_profile(user_id):
 def change_password(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
+    if user != current_user:
+        return render_template("others_account.html")
+    form = NamePasswordForm()
     name_data = user.name
     last_name_data = user.last_name
     patronymic_data = user.patronymic
     about_data = user.about
-    form = NamePasswordForm()
+    if user.hashed_password:
+        return redirect('/change_profile')
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
+                                   name_data=name_data,
+                                   last_name_data=last_name_data,
+                                   patronymic_data=patronymic_data,
+                                   about_data=about_data,
                                    message="Пароли не совпадают")
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
@@ -301,7 +309,7 @@ def reset_password(token):  # если пользователь получил �
         message = 'Пользователя с такой почтой не существует'
         return render_template("make_password.html", message=message, user=None, form=None)
     user.hashed_password = None
-    login_user(user)
+    logout_user()
     form = MakePasswordForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -375,6 +383,58 @@ def add_pupil():
         db_sess.commit()
         return redirect('/generate_link/' + str(user.id))
     return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
+                           form=form)
+
+
+@app.route('/pupil/<int:pupil_id>/courses', methods=['GET', 'POST'])
+@login_required
+def pupil_courses_view(pupil_id):
+    form = AddItemToSomethingForm()
+    db_sess = db_session.create_session()
+    pupil = db_sess.query(User).get(pupil_id)
+    all_courses = []
+    pupil_courses = []
+    not_pupil_courses = []
+    cur_user = db_sess.query(User).get(current_user.id)
+    for course in cur_user.courses:
+        course_js = {"id": course.id,
+                     "name": course.name,
+                     "about": course.about}
+        all_courses.append(course_js)
+        if course in pupil.courses:
+            pupil_courses.append(course_js)
+        else:
+            not_pupil_courses.append(course_js)
+    if form.validate_on_submit():
+        courses_js = request.form.getlist('form-res')
+        str_arr = courses_js[0]
+
+        ans_arr = [int(item) for item in str_arr.split(",")]
+        for course_js in all_courses:
+            course = db_sess.query(Courses).get(course_js["id"])
+            if ans_arr[course_js["id"]]:
+                pupil.courses.append(course)
+            else:
+                if course in pupil.courses:
+                    pupil.courses.remove(course)
+        db_sess.merge(pupil)
+        db_sess.commit()
+
+        return redirect("/profile/" + str(pupil_id))
+    all_items_js = json.dumps(all_courses)
+    pupil_courses_js = json.dumps(pupil_courses)
+    not_pupil_courses_js = json.dumps(not_pupil_courses)
+    data_parser_file = open("static/data_parser.js", "w")
+    data_parser_file.write(f"var all_items_js = {all_items_js}\n")
+    data_parser_file.write(f"var pupil_courses_js = {pupil_courses_js}\n")
+    data_parser_file.write(f"var not_pupil_courses_js = {not_pupil_courses_js}\n")
+    data_parser_file.close()
+    # all_items_js = pupil_js_list(all_courses)
+    # pupil_courses_js = pupil_js_list(pupil_courses)
+    # not_pupil_courses_js = pupil_js_list(not_pupil_courses)
+    return render_template('pupil_courses.html',
+                           back_button_hidden='false', back_url="/pupils",
+                           items_in_column_number=13, column_number=4,
                            form=form)
 
 
@@ -489,22 +549,22 @@ def course_view(course_id):
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
 @login_required
 def course_pupils_view(course_id):
-    form = AddUsersToCourseForm()
+    form = AddItemToSomethingForm()
     db_sess = db_session.create_session()
     course = db_sess.query(Courses).get(course_id)
     all_pupils = []
     course_pupils = []
     not_course_pupils = []
-    my_pupils = []
-    rest_pupils = []
+    # my_pupils = []
+    # rest_pupils = []
     db_sess.query(User).all()
     for user in db_sess.query(User).all():
         if not user.teacher:
             all_pupils.append(user)
-            if user.creator == current_user.id:
-                my_pupils.append(user)
-            else:
-                rest_pupils.append(user)
+            # if user.creator == current_user.id:
+            #     my_pupils.append(user)
+            # else:
+            #     rest_pupils.append(user)
             if user in course.users:
                 course_pupils.append(user)
             else:
@@ -529,14 +589,14 @@ def course_pupils_view(course_id):
 
         return redirect("/courses/" + str(course_id))
     all_pupils_js = pupil_js_list(all_pupils)
-    my_pupils_js = pupil_js_list(my_pupils)
-    rest_pupils_js = pupil_js_list(rest_pupils)
+    # my_pupils_js = pupil_js_list(my_pupils)
+    # rest_pupils_js = pupil_js_list(rest_pupils)
     course_pupils_js = pupil_js_list(course_pupils)
     not_course_pupils_js = pupil_js_list(not_course_pupils)
     return render_template('course_pupils.html', course=course, course_items=all_pupils,
                            back_button_hidden='false', back_url="/courses/" + str(course_id),
                            items_in_column_number=13, column_number=4, all_items_js=all_pupils_js,
-                           my_items_js=my_pupils_js, rest_items_js=rest_pupils_js,
+                           # my_items_js=my_pupils_js, rest_items_js=rest_pupils_js,
                            course_items_js=course_pupils_js,
                            not_course_items_js=not_course_pupils_js,
                            form=form)

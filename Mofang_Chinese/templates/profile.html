@@ -19,6 +19,7 @@
 {% else %}
     {% if current_user.id == user.creator %}
         <a class="btn btn-primary" href="/generate_link/{{ user.id }}">Создать ссылку для входа</a>
+        <a class="btn btn-primary" href="/pupil/{{ user.id }}/courses">Добавить курсы ученику</a>
     {% endif %}
 {% endif %}
 {% endblock %}

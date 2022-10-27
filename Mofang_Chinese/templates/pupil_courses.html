@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .row {
+      display: flex;
+    }
+
+    .column {
+      flex: 50%;
+    }
+
+    .pages-row {
+        display: inline-block;
+
+    }
+
+    .page_button {
+        margin: 5px 5px 5px 5px;
+        color: white;
+    }
+
+    .current_page_button {
+        margin: 0px 0px 0px 0px;
+        border-style: solid;
+        border-color: red;
+        border-width: 5px;
+    }
+
+    .item_button{
+        min-width: 250px;
+        position: relative;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+
+    .user-word-button {
+        color: white;
+        margin-left: 5px;
+        position: relative;
+
+    }
+
+
+</style>
+<h1>Ученики курса</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <div style="display: flex;">
+        {% if current_user.teacher %}
+        <button id="filter_button" class="btn btn-add" type="button"></button>
+        {% endif %}
+        <!--    <h2 style="position: relative; width: 400px; margin: 0px 0px 0px 0px">Учеников в словаре: len_all_items</h2>-->
+    </div>
+    <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
+
+    <div style="display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-content: center;
+                justify-content: flex-start;
+                align-items: center;
+                margin-bottom: 1rem!important;">
+    <div style="width: 45%;" class="search-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                  x="0px" y="0px"
+                                                                  width="30" height="30"
+                                                                  viewBox="0 0 30 30"
+                                                                  style=" fill:#000000;">
+                <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+            </svg></span>
+        </div>
+        <input type="text" class="form-control" placeholder="Поиск курсов" aria-label="Поиск"
+               aria-describedby="basic-addon1" style="height: 44px;" id="search field"
+               value="">
+    </div>
+    </div>
+    <div class="sort-button-group" style="width: 45%;">
+        <button type="button" id="alphabet-sort-button" class="btn-primary alphabet-sort-button"> 
+            а↑
+        </button>
+        <button type="button" id="rev_alphabet-sort-button" class="btn-primary alphabet-sort-button">
+            а↓
+        </button>
+        <button type="button" id="time-sort-button" class="btn-primary alphabet-sort-button">
+            🕔↓
+        </button>
+        <button type="button" id="rev_time-sort-button" class="btn-primary alphabet-sort-button">
+            🕔↑
+        </button>
+    </div>
+
+    <div class="row" id="item_row">
+        {% for i in range(column_number) %}
+        <div class="column" id="column {{ i }}"></div>
+        {% endfor %}
+    </div>
+    <h3 id="items-not-found-heading" hidden>Курсы не найдены</h3>
+
+    <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+        <div class="pages-row" id="pages-row">
+        </div>
+    </div>
+<!--    <div name="form-res" id="form-res"></div>-->
+    <input hidden id="form-res" name="form-res">
+    <p>{{ form.submit(type="submit", class="btn btn-primary", style="margin-top: 20px;",
+        id="submit-button") }}</p>
+    {{message}}
+</form>
+<script src="/static/templates_js/add_items.js"></script>
+<script type="text/javascript" src="/static/data_parser.js"></script>
+<script>
+    function sortButtonClick(event){
+        button_type = event.target.id;
+        current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+        if (button_type == "alphabet-sort-button"){
+            current_item_list.sort((firstItem, secondItem) => {
+                  const translation1 = firstItem["name"].toUpperCase(); // ignore upper and lowercase
+                  const translation2 = secondItem["name"].toUpperCase(); // ignore upper and lowercase
+                  if (translation1 < translation2) {return -1;}
+                  if (translation1 > translation2) {return 1;}
+                  return 0;
+            });
+        } else if (button_type == "rev_alphabet-sort-button") {
+            current_item_list.sort((firstItem, secondItem) => {
+                  const translation1 = firstItem["name"].toUpperCase(); // ignore upper and lowercase
+                  const translation2 = secondItem["name"].toUpperCase(); // ignore upper and lowercase
+                  if (translation1 < translation2) {return 1;}
+                  if (translation1 > translation2) {return -1;}
+                  return 0;
+            });
+        } else if (button_type == "time-sort-button") {
+            current_item_list.sort((firstItem, secondItem) => {
+                  const translation1 = parseInt(firstItem["id"]); // ignore upper and lowercase
+                  const translation2 = parseInt(secondItem["id"]); // ignore upper and lowercase
+                  if (translation1 < translation2) {return -1;}
+                  if (translation1 > translation2) {return 1;}
+                  return 0;
+            });
+        } else if (button_type == "rev_time-sort-button") {
+            current_item_list.sort((firstItem, secondItem) => {
+                  const translation1 = parseInt(firstItem["id"]); // ignore upper and lowercase
+                  const translation2 = parseInt(secondItem["id"]); // ignore upper and lowercase
+                  if (translation1 < translation2) {return 1;}
+                  if (translation1 > translation2) {return -1;}
+                  return 0;
+            });
+        }
+        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
+            max_items_number_on_one_page * current_page);
+        current_page_max_number = page_numbers[filter_button_state];
+
+        if ((current_page_item_list[0] == "")){
+            current_page_item_list = [];
+        }
+        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
+            current_page = current_page_max_number;
+            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
+        }
+        createItemButtons(current_page_item_list);
+        if (current_page_max_number > 1){  // f
+            createPageButtons();
+        }
+    }
+
+    function javascriptList(list){
+        if (!list) {return [];}
+        list = list.split(";;;");
+        for (let i = 0; i < list.length; i += 1){
+            list_item = list[i].split(";");
+            list[i] = { "id": list_item[0],
+                        "name": list_item[1],
+                        "about": list_item[2],
+                      };
+        }
+        return list;
+    }
+
+    sort_buttons_id =  ["alphabet-sort-button", 
+                        "rev_alphabet-sort-button", 
+                        "time-sort-button",
+                        "rev_time-sort-button"];
+    for (var i = 0; i < sort_buttons_id.length; i++) {
+        sort_button = document.getElementById(sort_buttons_id[i]);
+        if (sort_button != null){
+            sort_button.addEventListener("click", sortButtonClick, false);
+        }
+    }
+
+    column_number = {{ column_number }};
+    filter_button = document.getElementById("filter_button");
+    filter_button_innerTexts = ["Показать курсы ученика", 
+                                 "Показать курсы, к которым ученик не подключен", 
+                                 "Показать все курсы"];
+    if (filter_button != null){
+        filter_button.addEventListener("click", filterButtonClick, false);
+        filter_button.innerText = filter_button_innerTexts[0];
+    }
+
+    var filter_button_state = 0;
+    var text_button_state = 0;
+    var button_texts = ["name"];
+    var current_page = 1;
+    var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
+
+
+    items_lists =  [all_items_js, 
+    				pupil_courses_js,
+					not_pupil_courses_js];
+	console.log(items_lists);
+    // items_lists = [javascriptList("{{ all_items_js }}"),
+    //                 javascriptList("{{ added_items_js }}"),
+    //                 javascriptList("{{ not_added_items_js }}")];
+    for (let i = 0; i < items_lists.length; i++){
+        if (items_lists[i][0] == ''){
+            items_lists[i] = [];
+        }
+    }
+    bool_added_items = []
+    for (let i = 0; i < items_lists[0].length; i++) {
+    	bool_added_items.push(0);
+    }
+    for (let i = 0; i < items_lists[1].length; i++) {
+    	bool_added_items[parseInt(items_lists[1][i]["id"])] = 1;
+    }
+
+    page_numbers = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
+        page_numbers.push(page_number);
+    }
+    page_lists = []
+    for (let i = 0; i < items_lists.length; i++){
+        page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+        max_items_number_on_one_page * current_page);
+        page_lists.push(page_items);
+    }
+
+    current_item_list = items_lists[filter_button_state];
+    current_page_item_list = page_lists[filter_button_state];
+    current_page_max_number = page_numbers[filter_button_state];
+
+    createItemButtons(current_page_item_list);
+    if (current_page_max_number > 1){
+        createPageButtons();
+    }
+
+    email_search_field = document.getElementById("search field");
+    email_search_field.addEventListener("keyup", onSearchChange, false);
+
+    submit_button = document.getElementById("submit-button");
+    submit_button.addEventListener("click", onSubmitButtonClick, false);
+</script>
+{% endblock %}
