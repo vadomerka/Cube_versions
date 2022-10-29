@@ -163,7 +163,7 @@ body {
     text-overflow: ellipsis;
 }
 .lesson-card {
-    width: 69vh;
+    width: 71vh;
     border-style: solid;
     border-color: var(--red);
     margin: 10px 10px 10px 10px;

@@ -429,9 +429,6 @@ def pupil_courses_view(pupil_id):
     data_parser_file.write(f"var pupil_courses_js = {pupil_courses_js}\n")
     data_parser_file.write(f"var not_pupil_courses_js = {not_pupil_courses_js}\n")
     data_parser_file.close()
-    # all_items_js = pupil_js_list(all_courses)
-    # pupil_courses_js = pupil_js_list(pupil_courses)
-    # not_pupil_courses_js = pupil_js_list(not_pupil_courses)
     return render_template('pupil_courses.html',
                            back_button_hidden='false', back_url="/pupils",
                            items_in_column_number=13, column_number=4,
@@ -546,6 +543,67 @@ def course_view(course_id):
                            current_user=current_user, course_name=course_name)
 
 
+def lesson_learned(lesson_id, user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    lesson = db_sess.query(Lessons).get(lesson_id)
+    if len(lesson.words) == 0:
+        return 0, 0, 0
+    lls = 0
+    wls = 0
+    for w in lesson.words:
+        word_learn_state = db_sess.query(WordsToUsers).filter(WordsToUsers.users == user.id,
+                                                              WordsToUsers.words == w.id).first().learn_state
+        wls += word_learn_state / 2
+    wls = int((wls / len(lesson.words)) * 100)
+    test_results = db_sess.query(TestsToUsers).filter(TestsToUsers.lesson_id == lesson_id,
+                                                      TestsToUsers.user_id == user.id).all()
+    # print([t.id for t in test_results])
+    tls = 0
+    for t in test_results:
+        tls += (t.best_result / len(lesson.words))
+    tls = int((tls / len(lesson.tests)) * 100)
+    # print(wls, tls)
+    lls = int((wls + tls) / 2)
+    return lls, wls, tls
+
+
+@app.route('/course_statistics/<int:course_id>', methods=['GET', 'POST'])
+@login_required
+def course_statistics(course_id):
+    db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    json_course = get(root + '/rest_course/' + str(course_id)
+                      ).json()
+    json_course = json.dumps(course.about)
+    data_parser_file = open("static/data_parser.js", "w")
+    data_parser_file.write(f"var json_course_about = {json_course}\n")
+    lessons_data = {}
+    pupil_count = 0
+    for lesson in course.lessons:
+        lesson_percentage = 0
+        completed_lesson = 0
+        started_lesson = 0
+        unstarted_lesson = 0
+        for user in course.users:
+            if not user.teacher:
+                pupil_count += 1
+                # lessson_learn_state, words_learn_state, tests_learn_state =
+                res = lesson_learned(lesson.id, user.id)
+                # lessons_data.append(res)
+                lesson_percentage += res[0]
+                if res[0] == 100:
+                    completed_lesson += 1
+                elif res[0] == 0:
+                    unstarted_lesson += 1
+                else:
+                    started_lesson += 1
+        lesson_percentage = int(lesson_percentage / pupil_count)
+        lessons_data[lesson.id] = (lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
+    return render_template("course_statistics.html", course=course, lessons_data=lessons_data,
+                           len_course_lessons=len(course.lessons), len_course_pupils=pupil_count)  # ff
+
+
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
 @login_required
 def course_pupils_view(course_id):
@@ -555,16 +613,10 @@ def course_pupils_view(course_id):
     all_pupils = []
     course_pupils = []
     not_course_pupils = []
-    # my_pupils = []
-    # rest_pupils = []
     db_sess.query(User).all()
     for user in db_sess.query(User).all():
         if not user.teacher:
             all_pupils.append(user)
-            # if user.creator == current_user.id:
-            #     my_pupils.append(user)
-            # else:
-            #     rest_pupils.append(user)
             if user in course.users:
                 course_pupils.append(user)
             else:
@@ -589,8 +641,6 @@ def course_pupils_view(course_id):
 
         return redirect("/courses/" + str(course_id))
     all_pupils_js = pupil_js_list(all_pupils)
-    # my_pupils_js = pupil_js_list(my_pupils)
-    # rest_pupils_js = pupil_js_list(rest_pupils)
     course_pupils_js = pupil_js_list(course_pupils)
     not_course_pupils_js = pupil_js_list(not_course_pupils)
     return render_template('course_pupils.html', course=course, course_items=all_pupils,
@@ -940,12 +990,20 @@ def lesson_statistics(course_id, lesson_id):
     json_course_pupils = json.dumps(course_pupils)
     data_parser_file = open("static/data_parser.js", "w")
     data_parser_file.write(f"var course_pupils = {json_course_pupils}\n")
+    lesson_percentage = 0
+    les = db_sess.query(Lessons).get(lesson_id)
+    for user in db_sess.query(Courses).get(course_id).users:
+        if not user.teacher:
+            res = lesson_learned(les.id, user.id)[0]
+            print(res)
+            lesson_percentage += res
     return render_template("lesson_statistics.html", lesson_name=lesson["name"],
                            back_button_hidden='false', back_url=f"/courses/{course_id}",
                            lesson_words_len=len(lesson["words"]),
                            lesson_trainers_len=len(lesson["trainers"]),
                            lesson_tests_len=len(lesson["tests"]),
-                           course_pupils=course_pupils, course_id=course_id, lesson_id=lesson_id)
+                           course_pupils=course_pupils, course_id=course_id, lesson_id=lesson_id,
+                           lesson_percentage=lesson_percentage)
 
 
 @app.route('/courses/<int:course_id>/lesson_statistics/<int:lesson_id>/pupil/<int:pupil_id>',

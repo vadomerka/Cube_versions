@@ -454,8 +454,9 @@
 
 
     items_lists = [javascriptList("{{ all_items_js }}"),
-                    javascriptList("{{ pupil_courses_js }}"),
-                    javascriptList("{{ not_pupil_courses_js }}")];
+                    javascriptList("{{ course_items_js }}"),
+                    javascriptList("{{ not_course_items_js }}")];
+    console.log(items_lists);
     for (let i = 0; i < items_lists.length; i++){
         if (items_lists[i][0] == ''){
             items_lists[i] = [];
@@ -512,7 +513,7 @@
         showButtons();
     }
 
-    email_search_field = document.getElementById("email search field");
+    email_search_field = document.getElementById("search field");
     email_search_field.addEventListener("keyup", onSearchChange, false);
     text_change_button = document.getElementById("text change button");
     text_change_button.addEventListener("click", onTextChangeButtonClick, false);
