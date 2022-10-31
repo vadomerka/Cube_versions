@@ -1,28 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1 style="color: white;">Выберете правильный вариант ответа</h1>
-<div class="test">
-    <div class="task-box" style="position: relative; height: 150px;
+<style>
+    .task-box {
         display: flex;
         justify-content: center;
-        margin-bottom: 10px;">
+        margin-bottom: 10px;
+    }
+    .task-field-canvas {
+        height: 150px;
+        width: 150px;
+        margain-bottom: 10px;
+        border: solid 3px #9c1313;
+    }
+    .task-field-image {
+        height: 150px;
+        width: 150px;
+    }
+    .mistakes-holder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+<h1 id="test-header">Выберете правильный вариант ответа</h1>
+<div class="test">
+    <div class="task-box">
         {% if test.check_side < 6 %}
         {% if test.check_side == 5 %}
-        <img src="" class="task-field-image" id="task-field-image" name="task-field-image" style="
-                    position: absolute;
-                    height: 150px;
-                    width: 150px">
+        <img src="" class="task-field-image" id="task-field-image" name="task-field-image">
         {% else %}
-        <canvas src="" id="task-field-canvas" name="task-field-canvas" style="
-                    position: absolute;
-                    height: 150px;
-                    width: 150px;
-                    margain-bottom: 10px;
-                    border: solid 3px #9c1313;"></canvas>
+        <canvas src="" id="task-field-canvas" name="task-field-canvas" class="task-field-canvas"></canvas>
         {% endif %}
-
         {% else %}
         <button style="width: 50px;
                        height: 50px;
@@ -48,12 +57,16 @@
         {% endfor %}
         {% endif %}
     </div>
-    <div class="bottom-trainer">
-        <div class="bottom-trainer-first-layer">
+    <div id="mistakes-holder" class="mistakes-holder" hidden>
+        <h3 id="mistakes-text">Слова, требующие повторения</h3>
+    </div>
+    <div class="bottom-t">
+        <div id="bottom-t-first-layer" class="bottom-t-first-layer">
             <h3 id="left_word_number">start text</h3>
             <a id="continue" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
         </div>
-        <div>
+        <div id="bottom-t-second-layer" hidden>
+            <a id="back-to-lesson" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" href="{{ back_url }}">Вернуться к уроку</a>
             {% if not is_last_test %}
             <a id="next-trainer" class="btn btn-primary long-buttons" hidden href="{{ next_test_href }}">Перейти к следующему тесту</a>
             {% endif %}
@@ -61,15 +74,18 @@
     </div>
 </div>
 <script src="/static/templates_js/cube_side_text.js"></script>
+<script src="/static/templates_js/lesson_test.js"></script>
 <script>
     // var test_word_number = 10;
     var width = window.innerWidth
     var height = window.innerHeight
     var extra_size_ansbut = 50;
     var img_size = 100;
+    var answer_button_number = {{ answer_button_number }};
+    var back_url = "{{ back_url }}";
+    var result_url = "/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
 
     var lesson = "{{ lesson_words }}";
-    // hieroglyph,translation;transcription;phrase;phrase_translation;image;trans_audio;phrase_audio;translation_audio;
     lesson = lesson.split(";;;");
     for (let i = 0; i < lesson.length; i += 1){
         lesson[i] = lesson[i].split(";");
@@ -105,39 +121,9 @@
         word_wrong_variants.push(tmp_wrong_vars);
     }
 
-    function shuffle(array) {
-      let currentIndex = array.length,  randomIndex;
-      while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-      }
-      return array;
-    }
-
-    function resultsCheck(array){
-        is_true = true;
-        for (let i = 0; i < array.length; i++){
-            if (!array[i]){
-                is_true = false;
-            }
-        }
-        return is_true;
-    }
-
-    function audioButtonClick(event){
-        if (!task_audio.paused){task_audio.pause(); task_audio.currentTime = 0;}
-        else {task_audio.play();}
-        // alert(playing);
-        audio_playing = !audio_playing;
-        // alert(audio_playing);
-    }
-
     function ansButtonClick(event){
         val = event.target.value;
         unlearned = unlearned.slice(1, unlearned.length);  // удаляем первый элемент
-        // console.log(event.target.type);
-        // console.log(event.target.name, event.target.id)
         if (val == lesson[current_word][ans_side]){
             results[current_word] = true;
             // alert("correct")
@@ -193,65 +179,8 @@
         // alert(unlearned);
         // берем следующий элемент unlearned
         if (unlearned == ''){  // resultsCheck(results)
-            document.getElementById("left_word_number").innerText = "Вы прошли проверку знаний";
-
-            continue_button = document.getElementById("continue");
-            continue_button.innerText = "Вернуться к уроку";
-            continue_button.href = "{{ back_url }}";
-            continue_button.removeEventListener("click", continueButtonClick, false);
-            // console.log(results);
-            json_results = ``;
-            word_ids = ``;
-            for (let i = 0; i < results.length; i++){
-                if (results[i]){
-                    json_results += `1.`;
-                } else {
-                    json_results += `0.`;
-                }
-                word_ids += lesson[i][lesson[i].length - 1] + '.';
-            }
-
-            next_trainer_button = document.getElementById("next-trainer");
-            if (next_trainer_button) {
-                next_trainer_button.hidden = false;
-                next_trainer_button.addEventListener("click", async function(event){
-                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },  //                    "results": ` + json_results + `
-                body: `{
-                   "id": "{{ test.id }}",
-                   "words": "` + word_ids + `",
-                   "results": "` + json_results + `"
-                  }`,
-                });
-
-                    response.json().then(data => {
-                      console.log(data);
-                    });
-                }, false)
-            }
-            continue_button.addEventListener("click", async function(event){
-                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },  //                    "results": ` + json_results + `
-                body: `{
-                   "id": "{{ test.id }}",
-                   "words": "` + word_ids + `",
-                   "results": "` + json_results + `"
-                  }`,
-                });
-
-                response.json().then(data => {
-                  console.log(data);
-                });
-            }, false)
-            // continue_button.href = "{{ back_url }}";
+            showMistakes();
+            sendTestReasults();
         } else {
             current_word = unlearned[0];
         }
@@ -267,28 +196,22 @@
     // alert(ans_buttons[0]);
     function buttonsInit(){
         // задаем задание
-        // task_but = document.getElementsByName("task-field")[0];
-        // task_but.src = "/static/" + lesson[current_word][check_side];
         if (check_side < 5) {
             if (check_side == 0 || check_side == 3){
                 task_but = task_hieroglyph_text(document.getElementById("task-field-canvas"), lesson[current_word][check_side], 1000);
-                // console.log(lesson[current_word][check_side]);
             } else {
                 task_but = task_text(document.getElementById("task-field-canvas"), lesson[current_word][check_side], 1000);
             }
-            
         } else if (check_side == 5) {
             task_but = document.getElementById("task-field-image");
             task_but.src = "/static/words_data/" + lesson[current_word][check_side];
         } else {
             task_audio = new Audio("/static/words_data/" + lesson[current_word][check_side]);
-            // audioButtonClick
             audio_but = document.getElementById("audio_but");
-            // alert(audio_but);
             audio_but.addEventListener("click", audioButtonClick, false);
         }
 
-        wrong_variants =  word_wrong_variants[current_word]  // ff
+        wrong_variants =  word_wrong_variants[current_word]
         var ans_variants = [lesson[current_word][ans_side]];
         for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
             ans_variants.push(wrong_variants[i]);
@@ -304,14 +227,10 @@
             } else {
                 if (ans_side == 0 || ans_side == 3){
                     but_img = task_hieroglyph_text(ans_buttons[i].getElementsByTagName("canvas")[0], ans_variants[i], 1000);;
-                    // console.log(lesson[current_word][check_side]);
                 } else {
                     but_img = task_text(ans_buttons[i].getElementsByTagName("canvas")[0], ans_variants[i], 1000);
                 }
             }
-            // console.log('result: ', but_img);
-            
-            // alert(but_img.src);
             ans_buttons[i].value = ans_variants[i];
             but_img.value = ans_variants[i];
             but_img.style.width = (img_size).toString() + "px";

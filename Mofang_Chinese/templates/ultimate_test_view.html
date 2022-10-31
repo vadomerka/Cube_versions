@@ -1,13 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1 style="color: white;">Выберете правильный вариант ответа</h1>
-<div class="test">
-    <div id="task-box" class="task-box" style="position: relative; height: 150px;
+<style>
+    .task-box {
         display: flex;
         justify-content: center;
-        margin-bottom: 10px;">
+        margin-bottom: 10px;
+    }
+    .task-field-canvas {
+        height: 150px;
+        width: 150px;
+        margain-bottom: 10px;
+        border: solid 3px #9c1313;
+    }
+    .task-field-image {
+        height: 150px;
+        width: 150px;
+    }
+    .mistakes-holder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+<h1 id="test-header">Выберете правильный вариант ответа</h1>
+<div class="test">
+    <div id="task-box" class="task-box";>
         <button style="width: 50px;
                        height: 50px;
                        margin-top: 50px;" id="audio_but" class="c-button" name="task-field" hidden="True">
@@ -21,12 +39,16 @@
         justify-content: center;">
         
     </div>
-    <div class="bottom-trainer">
-        <div class="bottom-trainer-first-layer">
+    <div id="mistakes-holder" class="mistakes-holder" hidden>
+        <h3 id="mistakes-text">Слова, требующие повторения</h3>
+    </div>
+    <div class="bottom-t">
+        <div id="bottom-t-first-layer" class="bottom-t-first-layer">
             <h3 id="left_word_number">start text</h3>
             <a id="continue" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
         </div>
-        <div>
+        <div id="bottom-t-second-layer" hidden>
+            <a id="back-to-lesson" class="btn btn-primary long-buttons" style="color: var(--contrast-red);" href="{{ back_url }}">Вернуться к уроку</a>
             {% if not is_last_test %}
             <a id="next-trainer" class="btn btn-primary long-buttons" hidden href="{{ next_test_href }}">Перейти к следующему тесту</a>
             {% endif %}
@@ -34,6 +56,7 @@
     </div>
 </div>
 <script src="/static/templates_js/cube_side_text.js"></script>
+<script src="/static/templates_js/lesson_test.js"></script>
 <script>
     function generate_check_field(){
         if (cur_check_side < 6) {
@@ -42,17 +65,18 @@
                 task_image.classList.add("task-field-image");
                 task_image.id = "task-field-image";
                 task_image.src = "/static/words_data/" + lesson[current_word][cur_check_side];
-                task_image.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
+                // task_image.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
+                task_image.classList.add("task-field-image");
                 document.getElementById("task-box").appendChild(task_image);
             } else {
                 task_canvas = document.createElement("canvas");
                 task_canvas.classList.add("task-field-canvas");
                 task_canvas.id = "task-field-canvas";
-                task_canvas.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
+                // task_canvas.style = "position: absolute;height: 150px;width: 150px;margain-bottom: 10px;border: solid 3px #9c1313;";
+                task_canvas.classList.add("task-field-canvas");
                 if (cur_check_side == 0 || cur_check_side == 3){
                     task_canvas = task_hieroglyph_text(task_canvas, lesson[current_word][cur_check_side], 1000);
                 } else {
-                    // console.log("task_text");
                     task_canvas = task_text(task_canvas, lesson[current_word][cur_check_side], 1000);
                 }
                 document.getElementById("task-box").appendChild(task_canvas);
@@ -67,7 +91,6 @@
 
     function generate_ans_fields(ans_vars){
         if (cur_ans_side < 6) {
-            // console.log({{ answer_button_number }});
             for (var i = 0; i < {{ answer_button_number }}; i++) {
                 ans_but = document.createElement("button");
                 ans_but.id = i.toString();
@@ -88,8 +111,6 @@
                     but_canvas.src = "";
                     but_canvas.name = i.toString();
                     but_canvas.id = "id " + i.toString();
-                    // but_canvas = task_text(but_canvas, ans_vars[i], 1000);
-                    // console.log(cur_check_side);
                     if (cur_ans_side == 0 || cur_ans_side == 3){
                         but_canvas = task_hieroglyph_text(but_canvas, ans_vars[i], 1000);;
                     } else {
@@ -124,46 +145,6 @@
         left_words_number_string + "/" + lesson.length.toString();
     }
 
-    function buttonsDelete(){
-        prev_but = document.getElementById("task-field-canvas");
-        if (prev_but != null){prev_but.remove();}
-        prev_but = document.getElementById("task-field-image");
-        if (prev_but != null){prev_but.remove();}
-        prev_but = document.getElementById("audio_but");
-        if (prev_but != null){prev_but.hidden = true} // аудио кнопку удалять нельзя
-        for (var i = 0; i < {{ answer_button_number }}; i++) {
-            prev_but = document.getElementById(i.toString());
-            if (prev_but != null){prev_but.remove();}
-        }
-    }
-
-    function shuffle(array) {
-      let currentIndex = array.length,  randomIndex;
-      while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-      }
-      return array;
-    }
-
-    function resultsCheck(array){
-        is_true = true;
-        for (let i = 0; i < array.length; i++){
-            if (!array[i]){
-                is_true = false;
-            }
-        }
-        return is_true;
-    }
-
-    function audioButtonClick(event){
-        if (!task_audio.paused){task_audio.pause(); task_audio.currentTime = 0;}
-        else {task_audio.play();}
-        // alert(playing);
-        audio_playing = !audio_playing;
-        // alert(audio_playing);
-    }
 
     function ansButtonClick(event){
         val = event.target.value;
@@ -208,64 +189,8 @@
         }
         // берем следующий элемент unlearned
         if (unlearned == ''){ // если тест пройден
-            document.getElementById("left_word_number").innerText = "Вы прошли проверку знаний!";
-
-            continue_button = document.getElementById("continue");
-            continue_button.innerText = "Вернуться к уроку";
-            continue_button.href = "{{ back_url }}";
-            continue_button.removeEventListener("click", continueButtonClick, false);
-            json_results = ``;
-            word_ids = ``;
-            for (let i = 0; i < results.length; i++){
-                if (results[i]){
-                    json_results += `1.`;
-                } else {
-                    json_results += `0.`;
-                }
-                word_ids += lesson[i][lesson[i].length - 1] + '.';
-            }
-
-            next_trainer_button = document.getElementById("next-trainer");
-            if (next_trainer_button) {
-                next_trainer_button.hidden = false;
-                next_trainer_button.addEventListener("click", async function(event){
-                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },  //                    "results": ` + json_results + `
-                body: `{
-                   "id": "{{ test.id }}",
-                   "words": "` + word_ids + `",
-                   "results": "` + json_results + `"
-                  }`,
-                });
-
-                    response.json().then(data => {
-                      console.log(data);
-                    });
-                }, false)
-            }
-            continue_button.addEventListener("click", async function(event){
-                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result", {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },  //                    "results": ` + json_results + `
-                body: `{
-                   "id": "{{ test.id }}",
-                   "words": "` + word_ids + `",
-                   "results": "` + json_results + `"
-                  }`,
-                });
-
-                response.json().then(data => {
-                  console.log(data);
-                });
-            }, false)
-            // continue_button.href = "{{ back_url }}";
+            showMistakes();
+            sendTestReasults();
         } else { // если тест еще не пройден
             current_word = unlearned[0];
             cur_check_side = tests_list[current_word][0];
@@ -288,6 +213,9 @@
     var height = window.innerHeight
     var extra_size_ansbut = 50;
     var img_size = 100;
+    var answer_button_number = {{ answer_button_number }};
+    var back_url = "{{ back_url }}";
+    var result_url = "/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
 
     var lesson = "{{ lesson_words }}";
     lesson = lesson.split(";;;");

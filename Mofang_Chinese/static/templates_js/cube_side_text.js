@@ -80,7 +80,62 @@ function lines_print(ctx, text_arr, cube_width, symbol_width_coef, symbol_height
     return ctx;
 }
 
-function cubeViewSideText(text, text_ang){
+function addBottomGrd(context, c_side, grd_height){
+    grd = context.createLinearGradient(0, c_side - grd_height, 0, c_side);
+    grd.addColorStop(1, "#158903");
+    grd.addColorStop(0, "white");
+    context.fillStyle = grd;
+    context.fillRect(100, c_side - grd_height, c_side - 200, c_side);
+    return context;
+}
+function addTopGrd(context, c_side, grd_height){
+    grd = context.createLinearGradient(0, 0, 0, grd_height);
+    grd.addColorStop(0, "#158903");
+    grd.addColorStop(1, "white");
+    context.fillStyle = grd;
+    context.fillRect(100, 0, c_side - 200, grd_height);
+    return context;
+}
+function addLeftGrd(context, c_side, grd_height){
+    grd = context.createLinearGradient(0, 0, grd_height, 0);
+    grd.addColorStop(0, "#158903");
+    grd.addColorStop(1, "white");
+    context.fillStyle = grd;
+    context.fillRect(0, 100, grd_height, c_side - 200);
+    return context;
+}
+function addRightGrd(context, c_side, grd_height){
+    grd = context.createLinearGradient(c_side - grd_height, 0, c_side, 0);
+    grd.addColorStop(1, "#158903");
+    grd.addColorStop(0, "white");
+    context.fillStyle = grd;
+    context.fillRect(c_side - grd_height, 100, c_side, c_side - 200);
+    return context;
+}
+
+function showPossibleTurns(ctx1, side){
+    if (side == "up"){
+        ctx1 = addBottomGrd(ctx1, cube_width, 50);
+    } else if (side == "down") {
+        ctx1 = addTopGrd(ctx1, cube_width, 50);
+    } else if (side == "left") {
+        ctx1 = addTopGrd(ctx1, cube_width, 50);
+        ctx1 = addBottomGrd(ctx1, cube_width, 50);
+        ctx1 = addRightGrd(ctx1, cube_width, 50);
+    } else if (side == "right") {
+        ctx1 = addTopGrd(ctx1, cube_width, 50);
+        ctx1 = addBottomGrd(ctx1, cube_width, 50);
+        ctx1 = addLeftGrd(ctx1, cube_width, 50);
+    } else {
+        ctx1 = addTopGrd(ctx1, cube_width, 50);
+        ctx1 = addBottomGrd(ctx1, cube_width, 50);
+        ctx1 = addLeftGrd(ctx1, cube_width, 50);
+        ctx1 = addRightGrd(ctx1, cube_width, 50);
+    }
+    return ctx1;
+}
+
+function cubeViewSideText(text, text_ang, color, side){
     const cv = document.createElement( 'canvas' );
     cube_width = 1000
     cv.width = cube_width //  3 * 512
@@ -94,7 +149,12 @@ function cubeViewSideText(text, text_ang){
     // ctx.translate( 0, 0 );  // -cv.width
     ctx.fillStyle = '#fefefe';
     ctx.fillRect( 0, 0, cv.width, cv.height );
-    ctx.fillStyle = '#129912';
+
+    if (hints_enabled){
+        ctx = showPossibleTurns(ctx, side);
+    }
+
+    ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
 
@@ -110,7 +170,7 @@ function cubeViewSideText(text, text_ang){
     return cvTexture;
 }
 
-function cubeViewSideHieroglyphText(text, text_ang){
+function cubeViewSideHieroglyphText(text, text_ang, color, side){
     const cv = document.createElement( 'canvas' );
     cube_width = 1000
     cv.width = cube_width
@@ -124,7 +184,12 @@ function cubeViewSideHieroglyphText(text, text_ang){
 
     ctx.fillStyle = '#fefefe';
     ctx.fillRect( 0, 0, cv.width, cv.height );
-    ctx.fillStyle = '#129912';
+
+    if (hints_enabled){
+        ctx = showPossibleTurns(ctx, side);
+    }
+
+    ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
 
@@ -151,7 +216,6 @@ function cubeViewSideHieroglyphText(text, text_ang){
 function task_text(canvas_to_change, text, cv_width){
     // const cv = document.createElement( 'canvas' );
     const cv = canvas_to_change;
-    // console.log(text);
     // text_size = 150;
     cube_width = cv_width;
     cv.width = cv_width //  3 * 512
@@ -164,17 +228,14 @@ function task_text(canvas_to_change, text, cv_width){
     ctx.fillStyle = '#129912';
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    console.log(text);
     text_words = text.split(" ");
     text_words = lines_merger(text_words, 10);
-    console.log(text_words);
     ctx = lines_print(ctx, text_words, cube_width, 0.6, 1.166);
     return cv;
 }
 function task_hieroglyph_text(canvas_to_change, text, cv_width){
     // const cv = document.createElement( 'canvas' );
     const cv = canvas_to_change;
-    // console.log(text);
     // text_size = 150;
     cube_width = cv_width;
     cv.width = cv_width //  3 * 512
@@ -187,13 +248,10 @@ function task_hieroglyph_text(canvas_to_change, text, cv_width){
     ctx.fillStyle = '#129912';
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    console.log("task_hieroglyph_text");
-    console.log(text);
     text_words = text.split("，");
     for (var i = 0; i < text_words.length - 1; i++) {
         text_words[i] += "，";
     }
-    console.log(text_words);
     text_words = hieroglyph_lines_merger(text_words, 10);
     // считал отношением 1000 к количеству символов в monospace помещающихся при таком-то фонте
     // для иерглифов:
@@ -206,3 +264,4 @@ function task_hieroglyph_text(canvas_to_change, text, cv_width){
     ctx = lines_print(ctx, text_words, cube_width, 1, 1.45);
     return cv;
 }
+

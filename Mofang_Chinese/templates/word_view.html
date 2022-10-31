@@ -45,15 +45,45 @@
 		    justify-content: space-between;
 		    margin-top: 2vh;
         }
-
-
-    </style>
-</head>
-<body>
-<script src="https://threejs.org/build/three.min.js"></script>
-<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
-<div style="
-			position: absolute;
+        .back-help-word-buttons {
+    	    width: 100%;
+		    display: flex;
+		    flex-direction: row;
+		    justify-content: space-between;
+		    align-items: center;
+        }
+        .help-button {
+        	width: 45px;
+        	height: 45px;
+    	    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    flex-wrap: nowrap;
+		    flex-direction: column;
+        }
+        .explanation-container {
+		    width: 100%;
+		    min-height: 100%;
+		    background-color: rgba(0,0,0,0.5);
+		    overflow: hidden;
+		    position: fixed;
+		    top: 0px;
+		    display: flex;
+		    flex-direction: row;
+		    flex-wrap: nowrap;
+		    align-items: center;
+		    justify-content: center;
+		}
+		.explanation-content {
+			background-color: #bfbfbf;
+		    width: 75%;
+		    display: flex;
+		    align-items: center;
+		    flex-wrap: nowrap;
+		    flex-direction: column;
+		}
+        .all-buttons {
+        	position: absolute;
 			width: 100%;
 			height: 100%;
 			display: flex;
@@ -61,35 +91,59 @@
 			align-items: center;
 			flex-direction: column;
 			flex-wrap: nowrap;
-			">
-<div class="top-word-buttons" style="width: 100%;">
-<div class="back-word-button" style="width: 100%;">
-<a href="{{ back_url }}" class="btn btn-primary my-btn"> Назад </a>
-</div>
-<button style="left: 673px; top: 216px;" id="playButton" class="c-button">
-    <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"></polygon>
-    </svg>
-</button>
+        }
+    </style>
+</head>
+<body>
+<script src="https://threejs.org/build/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+<div class="all-buttons">
+	<div class="top-word-buttons" style="width: 100%;">
+		<div class="back-help-word-buttons" style="width: 100%;">
+			<a href="{{ back_url }}" class="btn btn-primary my-btn"> Назад </a>
+			<button id="help-button" class="btn btn-primary help-button">
+				<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+				    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+				    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+				</svg>
+			</button>
+		</div>
+		<button style="left: 673px; top: 216px;" id="playButton" class="c-button">
+		    <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+		        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"></polygon>
+		    </svg>
+		</button>
 
-<div style="display: none;">
-	<img id="right_side_image" src="{{ image_name }}">
-</div>
-<div class="url-word-buttons">
-<div id="prev_url" style="visibility: {{ prev_button_visibility }};">
-    <a href="{{ prev_word_url }}" class="btn btn-primary my-btn"
-       style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
-</div>
-<div id="next_url" style="visibility: {{ next_button_visibility }};">
-    <a href="{{ next_word_url }}" class="btn btn-primary my-btn" style="top: 50px; right: 0px">
-        Следующее слово </a>
-</div>
-</div>
-</div>
-<!-- <canvas id="myCanvas" width="240" height="297" style="border:1px solid #d3d3d3;">
-Your browser does not support the HTML5 canvas tag.
-</canvas> -->
-<a id="trainer-button" href="{{ trainer_href }}" class="btn btn-primary my-btn" hidden style="margin-bottom: 17vh;">Перейти к тренажерам</a>
+		<div id="explanation-container" class="explanation-container" hidden=true>
+			<div class="explanation-content">
+				<h1>Как управлять кубиком?</h1>
+				<img src="http://i.stack.imgur.com/SBv4T.gif" alt="this slowpoke moves"  width="250" />
+				<p>У нашего кубика есть 5 сторон</p>
+				<img src="/static/cube_tutorial.png">
+				<p>на передней стороне написан иероглиф слова</p>
+				<p>на нижней стороне написан перевод слова</p>
+				<p>на правой стороне написана транскрипция и картинка слова</p>
+				<p>на левой стороне написано словосочетание с использованием слова</p>
+				<p>на верхней стороне написан перевод словосочетания с использованием слова</p>
+				<button id="close-button" class="close-button">Close button</button>
+			</div>	
+		</div>
+
+		<div style="display: none;">
+			<img id="right_side_image" src="{{ image_name }}">
+		</div>
+		<div class="url-word-buttons">
+			<div id="prev_url" style="visibility: {{ prev_button_visibility }};">
+			    <a href="{{ prev_word_url }}" class="btn btn-primary my-btn"
+			       style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
+			</div>
+			<div id="next_url" style="visibility: {{ next_button_visibility }};">
+			    <a href="{{ next_word_url }}" class="btn btn-primary my-btn" style="top: 50px; right: 0px">
+			        Следующее слово </a>
+			</div>
+		</div>
+	</div>
+	<a id="trainer-button" href="{{ trainer_href }}" class="btn btn-primary my-btn" hidden style="margin-bottom: 17vh;">Перейти к тренажерам</a>
 </div>
 <script src="js/three.js"></script>
 <script src="/static/templates_js/cube_side_text.js"></script>
@@ -174,10 +228,10 @@ Your browser does not support the HTML5 canvas tag.
         if (side == "up") {
             if (text_ang == 90) {text_ang = 270;}
             else if (text_ang == 270) {text_ang = 90;}  // иначе слова вверх ногами
-            materials[2] = new THREE.MeshBasicMaterial({map: cubeViewSideText(up_text, text_ang)});
+            materials[2] = new THREE.MeshBasicMaterial({map: cubeViewSideText(up_text, text_ang, up_color, "up")});
         }
         if (side == "down") {
-            materials[3] = new THREE.MeshBasicMaterial({map: cubeViewSideText(down_text, text_ang)});
+            materials[3] = new THREE.MeshBasicMaterial({map: cubeViewSideText(down_text, text_ang, down_color, "down")});
         }
         old_rot_x = cube.rotation.x
         old_rot_y = cube.rotation.y
@@ -234,18 +288,18 @@ Your browser does not support the HTML5 canvas tag.
         }
     }
 
-    function buf_check(side, x, y, bufer_size){
+    function buf_check(side, x, y, buffer_size){
         if (side == "up"){
             in_x = (x >= cube_screen_cords['up left'][0] && x <= cube_screen_cords['up right'][0]);
-            y_buf_limit = cube_screen_cords["up left"][1] - (half_cube_size * bufer_size);
+            y_buf_limit = cube_screen_cords["up left"][1] - (half_cube_size * buffer_size);
             in_y = (y >= y_buf_limit && y <= cube_screen_cords['up left'][1]);
             big_bufer = (in_x && in_y);
 
-            left_limit = cube_screen_cords['up left'][0] + (half_cube_size * bufer_size);
-            right_limit = cube_screen_cords['up right'][0]  - (half_cube_size * bufer_size);
+            left_limit = cube_screen_cords['up left'][0] + (half_cube_size * buffer_size);
+            right_limit = cube_screen_cords['up right'][0]  - (half_cube_size * buffer_size);
             in_x = ((x >= left_limit && x <= right_limit));
             up_limit = cube_screen_cords["up left"][1];
-            down_limit = (cube_screen_cords['up left'][1] + (half_cube_size * bufer_size));
+            down_limit = (cube_screen_cords['up left'][1] + (half_cube_size * buffer_size));
             in_y = (y >=  up_limit && y <= down_limit);
             small_bufer =  (in_x && in_y);
 
@@ -254,59 +308,59 @@ Your browser does not support the HTML5 canvas tag.
         if (side == "down"){
             in_x = (x >= cube_screen_cords['up left'][0] && x <= cube_screen_cords['up right'][0]);
             up_limit = cube_screen_cords["down left"][1];
-            down_limit = cube_screen_cords["down left"][1] + (half_cube_size * bufer_size);
+            down_limit = cube_screen_cords["down left"][1] + (half_cube_size * buffer_size);
             in_y = (y >= up_limit && y <= down_limit);
             big_bufer = (in_x && in_y);
 
-            left_limit = cube_screen_cords['up left'][0] + (half_cube_size * bufer_size);
-            right_limit = cube_screen_cords['up right'][0]  - (half_cube_size * bufer_size);
+            left_limit = cube_screen_cords['up left'][0] + (half_cube_size * buffer_size);
+            right_limit = cube_screen_cords['up right'][0]  - (half_cube_size * buffer_size);
             in_x = (x >= left_limit && x <= right_limit);
-            up_limit = cube_screen_cords["down left"][1] - (half_cube_size * bufer_size);
+            up_limit = cube_screen_cords["down left"][1] - (half_cube_size * buffer_size);
             down_limit = cube_screen_cords['down left'][1];
             in_y = (y >=  up_limit && y <= down_limit);
             small_bufer =  (in_x && in_y);
             return big_bufer || small_bufer;
         }
         if (side == "left"){
-            left_limit = cube_screen_cords['up left'][0] - (half_cube_size * bufer_size);
+            left_limit = cube_screen_cords['up left'][0] - (half_cube_size * buffer_size);
             in_x = (x >=  left_limit && x <= cube_screen_cords['up left'][0]);
             in_y = (y >= cube_screen_cords["up left"][1] && y <= cube_screen_cords["down left"][1]);
             big_bufer = (in_x && in_y);
 
             left_limit = cube_screen_cords['up left'][0];
-            right_limit = cube_screen_cords['up left'][0] + (half_cube_size * bufer_size);
+            right_limit = cube_screen_cords['up left'][0] + (half_cube_size * buffer_size);
             in_x = (x >= left_limit && x <= right_limit);
-            up_limit = cube_screen_cords["up left"][1] + (half_cube_size * bufer_size);
-            down_limit = cube_screen_cords['down left'][1] - (half_cube_size * bufer_size);
+            up_limit = cube_screen_cords["up left"][1] + (half_cube_size * buffer_size);
+            down_limit = cube_screen_cords['down left'][1] - (half_cube_size * buffer_size);
             in_y = (y >=  up_limit && y <= down_limit);
             small_bufer =  (in_x && in_y);
             return big_bufer || small_bufer;
         }
         if (side == "right"){
-            right_limit = cube_screen_cords['up right'][0] + (half_cube_size * bufer_size);
+            right_limit = cube_screen_cords['up right'][0] + (half_cube_size * buffer_size);
             in_x = (x >= cube_screen_cords["up right"][0] && x <= right_limit);
             in_y = (y >= cube_screen_cords["up right"][1] && y <= cube_screen_cords["down right"][1]);
             big_bufer = (in_x && in_y);
 
             right_limit = cube_screen_cords['up right'][0];
-            left_limit = cube_screen_cords['up right'][0] - (half_cube_size * bufer_size);
+            left_limit = cube_screen_cords['up right'][0] - (half_cube_size * buffer_size);
             in_x = (x >= left_limit && x <= right_limit);
-            up_limit = cube_screen_cords["up right"][1] + (half_cube_size * bufer_size);
-            down_limit = cube_screen_cords['down right'][1] - (half_cube_size * bufer_size);
+            up_limit = cube_screen_cords["up right"][1] + (half_cube_size * buffer_size);
+            down_limit = cube_screen_cords['down right'][1] - (half_cube_size * buffer_size);
             in_y = (y >=  up_limit && y <= down_limit);
             small_bufer =  (in_x && in_y);
             return big_bufer || small_bufer;
         }
     }
 
-    function mouseListener(e) {
+    function mouseListenerCubeRotation(e) {
         if (e.which == 1){
             mousex = e.clientX;
             mousey = e.clientY;
             // size of press zone 30%
-            bufer_coef = 0.3
+            buffer_coef = 0.3
 
-            if (buf_check("up", mousex, mousey, bufer_coef)){  // если пользователь нажал вверх
+            if (buf_check("up", mousex, mousey, buffer_coef)){  // если пользователь нажал вверх
                 if (angle_of_rotation_y == 0){  // и куб при этом стоял на месте
                     if (cube_sides_y[current_side_y] != "up"){  // если это не сторона up
                         angle_of_rotation_y = Math.PI * 0.5;  // крутимся
@@ -327,7 +381,7 @@ Your browser does not support the HTML5 canvas tag.
                     }
                 }
             }
-            else if (buf_check("down", mousex, mousey, bufer_coef)){
+            else if (buf_check("down", mousex, mousey, buffer_coef)){
                 if (angle_of_rotation_y == 0){
                     if (cube_sides_y[current_side_y] != "down"){
                         angle_of_rotation_y = -Math.PI * 0.5;
@@ -349,7 +403,7 @@ Your browser does not support the HTML5 canvas tag.
                     }
                 }
             }
-            else if (buf_check("right", mousex, mousey, bufer_coef)){
+            else if (buf_check("right", mousex, mousey, buffer_coef)){
                 if (angle_of_rotation_x == 0){
                     if (cube_sides_x[current_side_x] != "right"){
                         if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
@@ -367,7 +421,7 @@ Your browser does not support the HTML5 canvas tag.
                     }
                 }
             }
-            else if (buf_check("left", mousex, mousey, bufer_coef)){
+            else if (buf_check("left", mousex, mousey, buffer_coef)){
                 if (angle_of_rotation_x == 0){
                     if (cube_sides_x[current_side_x] != "left"){
                         if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
@@ -385,10 +439,7 @@ Your browser does not support the HTML5 canvas tag.
                         }
                     }
                 }
-            } // else {
-                // alert(cube_sides_x[current_side_x]);
-                // alert(cube_sides_y[current_side_y]);
-            // }
+            }
         }
     }
 
@@ -440,17 +491,23 @@ Your browser does not support the HTML5 canvas tag.
         // debug();
     }
 
-    function imageSideText(text){
+    function imageSideText(text, color){
         const cv = document.createElement( 'canvas' );
         // real_cv = document.getElementById("myCanvas");
         cube_width = 1000
         cv.width = cube_width;
         cv.height = cube_width;
-        const ctx = cv.getContext( '2d' );
+        ctx = cv.getContext( '2d' );
         ctx.fillStyle = '#fefefe';
         ctx.fillRect( 0, 0, cv.width, cv.height );
-        
-        ctx.fillStyle = '#129912';
+
+		if (hints_enabled){
+    	    ctx = addTopGrd(ctx, cube_width, 50);
+	        ctx = addBottomGrd(ctx, cube_width, 50);
+	        ctx = addLeftGrd(ctx, cube_width, 50);
+	    }
+	    
+        ctx.fillStyle = color;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
 
@@ -529,7 +586,28 @@ Your browser does not support the HTML5 canvas tag.
     	trainer_button.hidden = false;
     }
 
-    document.addEventListener('mousedown', mouseListener);
+    var hints_enabled = {{ hints_enabled }};
+
+	function onHelpButtonClick(event){
+		explanation_container = document.getElementById("explanation-container");
+		explanation_container.hidden = !explanation_container.hidden;
+		if (!explanation_container.hidden) {
+			document.removeEventListener('mousedown', mouseListenerCubeRotation);
+		} else {
+			document.addEventListener('mousedown', mouseListenerCubeRotation);
+		}
+	}
+
+	function onCloseButtonClick(event){
+		explanation_container = document.getElementById("explanation-container");
+		explanation_container.hidden = true;
+		document.addEventListener('mousedown', mouseListenerCubeRotation);
+	}
+
+	document.getElementById("help-button").addEventListener("click", onHelpButtonClick, false)
+	document.getElementById("close-button").addEventListener("click", onCloseButtonClick, false)
+
+    document.addEventListener('mousedown', mouseListenerCubeRotation);
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( size_of_scene, window.innerWidth / window.innerHeight,
@@ -549,13 +627,19 @@ Your browser does not support the HTML5 canvas tag.
     var up_text = "{{ phrase_ru }}";
     var down_text = "{{ translation }}";
     var back_text = "";
+    front_color = "#000000"
+    left_color = "#006AFF"
+    right_color = "#158903"
+    up_color = "#FF660C"
+    down_color = "#9C1313"
+    back_color = "fefefe"
     var materials = [
-        new THREE.MeshBasicMaterial({map: imageSideText(right_text)}),  // right
-        new THREE.MeshBasicMaterial({map: cubeViewSideHieroglyphText(left_text,  0)}),  // left
-        new THREE.MeshBasicMaterial({map: cubeViewSideText(up_text,    0)}),  // up
-        new THREE.MeshBasicMaterial({map: cubeViewSideText(down_text,  0)}),  // down
-        new THREE.MeshBasicMaterial({map: cubeViewSideHieroglyphText(front_text, 0)}),  // front
-        new THREE.MeshBasicMaterial({map: cubeViewSideText(back_text,  0)}),  // back
+        new THREE.MeshBasicMaterial({map: imageSideText(right_text, right_color)}),  // right
+        new THREE.MeshBasicMaterial({map: cubeViewSideHieroglyphText(left_text,  0, left_color, "left")}),  // left
+        new THREE.MeshBasicMaterial({map: cubeViewSideText(up_text,    0, up_color, "up")}),  // up
+        new THREE.MeshBasicMaterial({map: cubeViewSideText(down_text,  0, down_color, "down")}),  // down
+        new THREE.MeshBasicMaterial({map: cubeViewSideHieroglyphText(front_text, 0, front_color, "front")}),  // front
+        new THREE.MeshBasicMaterial({map: cubeViewSideText(back_text,  0, back_color, "back")}),  // back
     ];
     cube = new THREE.Mesh(geometry, materials);
     cube.rotation.x = 0;
@@ -575,3 +659,4 @@ Your browser does not support the HTML5 canvas tag.
 </script>
 </body>
 </html>
+

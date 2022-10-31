@@ -198,13 +198,13 @@ body {
     display: flex;
 }
 
-.bottom-trainer{
+.bottom-t{
     margin: 50px 10px 10px 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-.bottom-trainer-first-layer{
+.bottom-t-first-layer{
     display: flex;
     flex-direction: row;
     align-items: center;

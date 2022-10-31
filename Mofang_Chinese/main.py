@@ -370,7 +370,8 @@ def add_pupil():
             patronymic=form.patronymic.data,
             email=form.email.data,
             about=form.about.data,
-            teacher=form.teacher.data
+            teacher=form.teacher.data,
+            hints_enabled=1
         )
         user.creator = current_user.id
         db_sess.add(user)
@@ -1295,7 +1296,8 @@ def dict_word_view(word_id):
                            next_button_visibility=next_button_visibility,
                            prev_word_url="/dict_word/" + str(prev_id),
                            next_word_url="/dict_word/" + str(next_id),
-                           words_learn_state=0)
+                           words_learn_state=0,
+                           hints_enabled=int(current_user.hints_enabled))
 
 
 @app.route('/courses/<int:course_id>/lesson_word/<int:lesson_id>/word/<int:word_id>',
@@ -1368,7 +1370,8 @@ def lesson_word_view(course_id, lesson_id, word_id):
                            next_word_url="/" + "courses/" + str(
                                course_id) + "/lesson_word/" + str(lesson_id) + "/word/" + str(
                                next_id),
-                           words_learn_state=words_learn_state, trainer_href=trainer_href)
+                           words_learn_state=words_learn_state, trainer_href=trainer_href,
+                           hints_enabled=int(current_user.hints_enabled))
 
 
 def db_list_to_javascript(array):
