@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from flask_restful import Api
 from flask_mail import Mail, Message
 
-# tables
+# data base
 from data import db_session
 from data.words import Words, words_to_lesson, WordsToUsers
 from data.lessons import Lessons, lessons_to_course
@@ -13,14 +13,14 @@ from data.users import User
 from data.trainers import Trainers, TrainersToUsers
 from data.tests import Tests, TestsToUsers
 
-# forms
+# flask forms
 from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm, \
     NamePasswordForm, ChangeProfileForm
 from forms.course import CoursesForm, AddItemToSomethingForm
 from forms.lesson import LessonsForm, AddSomethingToLessonForm
 from forms.word import WordsForm
 
-# resourses
+# flask resourses
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource
 from resourses.lesson_resourses import LessonResource, LessonListResource
@@ -28,7 +28,6 @@ from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
 import requests
 import json
-from sqlalchemy import insert, create_engine
 import os
 import datetime as dt
 from PIL import Image
@@ -40,15 +39,12 @@ import random
 logging.basicConfig(filename="log.txt", level=logging.DEBUG,
                     format="%(asctime)s %(message)s", filemode="w")
 logging.debug("Logging test...")
-logging.info("The program is working as expected")
-logging.warning("The program may not function properly")
-logging.error("The program encountered an error")
-logging.critical("The program crashed")
-engine = create_engine('sqlite:///db/users.db', echo=True, future=True)
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'mofang_chinese_secret_key'
 app.config['SECURITY_PASSWORD_SALT'] = 'mofang_chinese_secret_password_key'
+
+# настройка почты
 mail_settings = {
     "MAIL_SERVER": 'smtp.yandex.ru',
     "MAIL_PORT": 465,
@@ -57,10 +53,10 @@ mail_settings = {
     "MAIL_USERNAME": 'pradomiri@yandex.ru',
     "MAIL_PASSWORD": 'lP!NIpDGGr6ADxE^N6ElWc1pX$8vq4@WU2w37LfnNWG$F2heXh'
 }
-
 app.config.update(mail_settings)
 mail = Mail(app)
 
+# настройка api
 api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
@@ -99,7 +95,7 @@ def delete_extra_spaces(string):
 
 
 @app.route("/")
-def index():
+def index():  # основная страница, переадресация на курсы/словарь либо на страницу авторизации
     if current_user.is_authenticated:
         if current_user.courses:
             return redirect("/courses")
@@ -108,15 +104,47 @@ def index():
         return redirect('/login')
 
 
-@app.route('/profile_change/<hash_token>', methods=['GET', 'POST'])
-def profile_change(hash_token):
+@app.route('/profile_change/<token>', methods=['GET', 'POST'])
+def profile_change(token):
     db_sess = db_session.create_session()
-    hash_token = int(hash_token)
-    user = db_sess.query(User).filter(User.hash_token == hash_token).first()
-    if user:
-        login_user(user)
-        return redirect("/change_password/" + str(user.id))
-    return render_template("wrong_link.html")
+    email = confirm_user_password_token(token)
+    if not email:
+        message = 'Ссылка для создания пароля недействительна или срок ее действия истек.'
+        return render_template("wrong_link.html", message=message)
+    user = db_sess.query(User).filter(User.email == email).first()
+    if not user:
+        return render_template("wrong_link.html")
+    login_user(user)
+    form = NamePasswordForm()
+    name_data = user.name
+    last_name_data = user.last_name
+    patronymic_data = user.patronymic
+    about_data = user.about
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('change_password.html',
+                                   form=form,
+                                   user=user,
+                                   name_data=name_data,
+                                   last_name_data=last_name_data,
+                                   patronymic_data=patronymic_data,
+                                   about_data=about_data,
+                                   message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user.id)
+        user.name = form.name.data
+        user.last_name = form.last_name.data
+        user.patronymic = form.patronymic.data
+        user.about = form.about.data
+
+        db_sess.add(user)
+        user.set_password(form.password.data)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template("change_password.html", user=user, form=form, name_data=name_data,
+                           last_name_data=last_name_data, patronymic_data=patronymic_data,
+                           about_data=about_data)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -284,7 +312,7 @@ def reset_password_email_send():  # сценарий "пользователь �
     return render_template("reset_password.html", form=form)
 
 
-def confirm_reset_password_token(token, expiration=3600):
+def confirm_user_password_token(token, expiration=3600):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(  # расшифровываем, если не прошло определенное время
@@ -300,7 +328,7 @@ def confirm_reset_password_token(token, expiration=3600):
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):  # если пользователь получил ссылку для сброса пароля
     db_sess = db_session.create_session()
-    email = confirm_reset_password_token(token)
+    email = confirm_user_password_token(token)
     if not email:
         message = 'Ссылка для восстановления пароля недействительна или срок ее действия истек.'
         return render_template("make_password.html", message=message, user=None, form=None)
@@ -445,16 +473,14 @@ def generate_link(user_id):
     return render_template("generate_link.html", user=user, root=root)
 
 
-@app.route('/add_token_to_user/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/create_token_for_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
-def add_token_to_user(user_id):
+def create_token_for_user(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
-    hash_token = hash(str(user_id) + " " + str(dt.datetime.now()))
-    user.hash_token = hash_token
-    db_sess.merge(user)
-    db_sess.commit()
-    return {'hash_token': str(hash_token)}
+    token = generate_reset_password_token(user.email)  # создаем спец токен на основе
+    print(token)
+    return {'token': str(token)}
 
 
 @app.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
