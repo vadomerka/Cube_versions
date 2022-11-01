@@ -8,9 +8,8 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
     <style>
-      body { margin: 0; }
-      canvas { width: 100%; height: 100% }
-      body {
+        canvas { width: 100%; height: 100% }
+        body {
           overflow: hidden;
           margin: 0;
         }
@@ -75,8 +74,9 @@
 		    justify-content: center;
 		}
 		.explanation-content {
-			background-color: #bfbfbf;
+			background-color: #ffffff;
 		    width: 75%;
+		    height: 40vw;
 		    display: flex;
 		    align-items: center;
 		    flex-wrap: nowrap;
@@ -91,6 +91,58 @@
 			align-items: center;
 			flex-direction: column;
 			flex-wrap: nowrap;
+        }
+        .cube-tutorial {
+        	width: 100%;
+        }
+        .image-explanation {
+    	    width: 80%;
+			margin: 1rem;
+        }
+        .text-explanation {
+    	    display: flex;
+			flex-direction: column;
+		    margin-left: 1rem;
+        }
+        .explanation-body {
+        	display: flex;
+		    flex-direction: column;
+		    flex-wrap: nowrap;
+		    align-items: center;
+		    justify-content: space-between;
+		    align-content: center;
+        }
+        .cube-sides-explanation {
+        	display: flex;
+		    flex-direction: row;
+		    flex-wrap: nowrap;
+		    align-items: center;
+		    justify-content: space-between;
+		    align-content: center;
+        }
+        .explanation-header {
+    	    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+        }
+        .close-button {
+    	    background: transparent;
+			border: transparent;
+			position: absolute;
+        }
+        .close-button-container {
+	        display: flex;
+		    flex-direction: row-reverse;
+		    margin: 0.5rem 0rem 0.5rem 0.5rem;
+        }
+        .tutorial-button-container {
+        	display: flex;
+    		justify-content: center;
+    		margin: 1rem;
+        }
+        .image-hint-explanation {
+        	width: 60%;
+			margin: 1rem;
         }
     </style>
 </head>
@@ -113,22 +165,6 @@
 		        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"></polygon>
 		    </svg>
 		</button>
-
-		<div id="explanation-container" class="explanation-container" hidden=true>
-			<div class="explanation-content">
-				<h1>Как управлять кубиком?</h1>
-				<img src="http://i.stack.imgur.com/SBv4T.gif" alt="this slowpoke moves"  width="250" />
-				<p>У нашего кубика есть 5 сторон</p>
-				<img src="/static/cube_tutorial.png">
-				<p>на передней стороне написан иероглиф слова</p>
-				<p>на нижней стороне написан перевод слова</p>
-				<p>на правой стороне написана транскрипция и картинка слова</p>
-				<p>на левой стороне написано словосочетание с использованием слова</p>
-				<p>на верхней стороне написан перевод словосочетания с использованием слова</p>
-				<button id="close-button" class="close-button">Close button</button>
-			</div>	
-		</div>
-
 		<div style="display: none;">
 			<img id="right_side_image" src="{{ image_name }}">
 		</div>
@@ -144,6 +180,74 @@
 		</div>
 	</div>
 	<a id="trainer-button" href="{{ trainer_href }}" class="btn btn-primary my-btn" hidden style="margin-bottom: 17vh;">Перейти к тренажерам</a>
+</div>
+<div id="explanation-container" class="explanation-container" hidden=true>
+	<div class="explanation-content">
+		<div style="overflow: auto;">
+			<div class="close-button-container">
+				<button id="close-button" class="close-button">
+					<svg xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 0 329.26933 329" width="50px">
+						<path fill="rgb(173, 173, 173, 0.5)" d="m194.800781 164.769531 128.210938-128.214843c8.34375-8.339844 8.34375-21.824219 0-30.164063-8.339844-8.339844-21.824219-8.339844-30.164063 0l-128.214844 128.214844-128.210937-128.214844c-8.34375-8.339844-21.824219-8.339844-30.164063 0-8.34375 8.339844-8.34375 21.824219 0 30.164063l128.210938 128.214843-128.210938 128.214844c-8.34375 8.339844-8.34375 21.824219 0 30.164063 4.15625 4.160156 9.621094 6.25 15.082032 6.25 5.460937 0 10.921875-2.089844 15.082031-6.25l128.210937-128.214844 128.214844 128.214844c4.160156 4.160156 9.621094 6.25 15.082032 6.25 5.460937 0 10.921874-2.089844 15.082031-6.25 8.34375-8.339844 8.34375-21.824219 0-30.164063zm0 0"></path>
+					</svg>
+				</button>
+			</div>	
+			<div class="explanation-header">
+				<h1 style="text-align: -webkit-center;">Как управлять кубиком?</h1>
+				<p>У нашего кубика есть 5 сторон</p>
+			</div>
+			<div class="explanation-body">
+				<div class="cube-sides-explanation">
+					<div class="image-explanation">
+						<img class="cube-tutorial" src="/static/cube_tutorial.png">
+					</div>
+					<div class="text-explanation">
+						<p>на передней стороне написан иероглиф слова</p>
+						<p>на нижней стороне написан перевод слова</p>
+						<p>на правой стороне написана транскрипция и картинка слова</p>
+						<p>на левой стороне написано словосочетание с использованием слова</p>
+						<p>на верхней стороне написан перевод словосочетания с использованием слова</p>
+					</div>
+				</div>
+				<div class="text-explanation">
+					<p>Если кубик повернут передней стороной к вам, то его можно повернуть во все 4 стороны</p>
+					<p>Если кубик повернут правой или левой стороной к вам, то его можно повернуть на переднюю, верхнюю и нижнюю стороны</p>
+					<p>Если кубик повернут верхней или нижней стороной к вам, то его можно повернуть только вниз или вверх, на сторону, откуда вы пришли</p>
+				</div>
+				<div class="cube-sides-explanation">
+					<div class="image-hint-explanation">
+						<img class="cube-tutorial" src="/static/hints_tutorial_white.png">
+					</div>
+					<div class="text-explanation">
+						<p>Также на сторонах кубика есть зеленые полоски</p>
+						<p>Они подсказывают можно ли повернуть в ту или иную сторону</p>
+					</div>
+				</div>
+				<div class="cube-audio-explanation">
+					<div class="explanation-header">
+						<p>Над кубиком можно увидеть кнопку озвучивания</p>
+					</div>
+					<div class="tutorial-button-container">
+						<button focusable="false" style="width: 50px;
+													     height: 50px;
+													     appearance: none;
+													     border: 0;
+													     background: #4676d7;
+													     color: #fff;
+													     cursor: pointer;
+													     border-radius: 50%;">
+						    <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+					        	<polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"></polygon>
+					    	</svg>
+						</button>
+					</div>
+					<div class="text-explanation">
+						<p>При нажатии будет слышно аудио, соответствующее стороне кубика</p>
+						<p>Если создатель слова его добавил</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
 </div>
 <script src="js/three.js"></script>
 <script src="/static/templates_js/cube_side_text.js"></script>
@@ -493,7 +597,6 @@
 
     function imageSideText(text, color){
         const cv = document.createElement( 'canvas' );
-        // real_cv = document.getElementById("myCanvas");
         cube_width = 1000
         cv.width = cube_width;
         cv.height = cube_width;
