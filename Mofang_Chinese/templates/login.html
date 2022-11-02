@@ -1,52 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script>
-    // container = document.getElementsByClassName("container")[0];
-    // alert(window.innerHeight * 0.33);
-    // val = (window.innerHeight * 0.33).toString();
-    // container.style = "position: relative; max-width: 540px; margin-top: " + val + "px;";
-
-
-
-
-</script>
 <style>
-    .login-page {
-            box-sizing: border-box;
-            top: 50%;
-            position: relative;
-            border-style: solid;
-            border-color: #3A3542;
-            padding: 15px;
-            background-color: #C1BFC5;
-    }
-    .container {
-        margin-top: 31vh;
-        width: 512px;
-    }
-    .page-title {
-        text-align: center;
-    }
-    .sign-in-container {
+    .main-container {
+        height: 100vh;
         display: flex;
-        align-content: center;
         flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: flex-start;
+        justify-content: center;
         align-items: center;
+        max-width: 100%;
+        padding-right: 0px;
+        padding-left: 0px;
+        margin-right: 0;
+        margin-left: 0;
     }
-    .sign-in-button-container {
-    }
-    .submit-btn {
-        margin-bottom: 0px;
-    }
-    .remember-me-label {
-        margin: 0.5rem 0rem 0.5rem 0.5rem;
-    }
-
-
-
 </style>
 <div class="login-page">
     <h1 class="page-title">Войдите в аккаунт</h1>
@@ -58,20 +25,23 @@
                 <span class="vnumgf" style="color: #d93025;">*</span>
                 {{ form.email(class="form-control", type="email") }}
                 {% for error in form.email.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </p>
             <p>
                 {{ form.password.label }} <span class="vnumgf" style="color: #d93025;">*</span>
                 {{ form.password(class="form-control", type="password") }}<br>
                 {% for error in form.password.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </p>
+            {% if message %}
+            <div class="message-container">{{ message }}</div>
+            {% endif %}
             <div class="sign-in-container">
                 <div style="display: flex;
                             align-items: center;
@@ -85,7 +55,6 @@
                     <a href="/reset_password">Забыли пароль?</a>
                 </div>
             </div>
-            <div>{{ message }}</div>
         </form>
     </div>
 </div>

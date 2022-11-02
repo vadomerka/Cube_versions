@@ -1,5 +1,7 @@
 :root {
   --red: #9C1313;
+  --backgrpund-red: #f8d7da;
+  --dark-red: #721c24;
   --orange: #FF660C;
   --yellow: #ffc107;
   --green: #158903;
@@ -257,6 +259,73 @@ body {
     color: var(--contrast-red);
     background-color: var(--red);
     border-color: var(--red);
+}
+
+.login-page {
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: #3A3542;
+    padding: 15px;
+    background-color: #c9c9c9;
+}
+
+@media (min-width: 500px) {
+    .login-page {
+        width: 475px;
+    }
+}
+@media (max-width: 500px) {
+    .login-page {
+        width: 400px;
+        font-size: 0.8em;
+    }
+    .h1 {
+        font-size: xx-large;
+    }
+}
+@media (max-width: 400px) {
+    .login-page {
+        width: 300px;
+        font-size: 0.8em;
+    }
+    .h1 {
+        font-size: xx-large;
+    }
+}
+@media (max-width: 350px) {
+    .login-page {
+        width: 250px;
+        font-size: 0.8em;
+    }
+    .h1 {
+        font-size: xx-large;
+    }
+}
+
+.page-title {
+    text-align: center;
+}
+.sign-in-container {
+    display: flex;
+    align-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto 0.5rem;
+}
+.submit-btn {
+    margin-bottom: 0px;
+}
+.remember-me-label {
+    margin: 0.5rem 0rem 0.5rem 0.5rem;
+}
+.message-container {
+    background-color: var(--backgrpund-red);
+    border-radius: 6px;
+    margin-bottom: 2em;
+    padding: 16px 16px;
+    color: var(--dark-red);
 }
 © 2022 GitHub, Inc.
 

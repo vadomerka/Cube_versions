@@ -105,7 +105,7 @@ def index():  # основная страница, переадресация н
 
 
 @app.route('/profile_change/<token>', methods=['GET', 'POST'])
-def profile_change(token):
+def profile_change(token):  # первый вход ученика по ссылке
     db_sess = db_session.create_session()
     email = confirm_user_password_token(token)
     if not email:
@@ -148,7 +148,7 @@ def profile_change(token):
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login():  # страница авторизации пользователя
     form = LoginForm(meta={'locales': ['ru']})
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -179,6 +179,9 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+#  File "/home/rad/PycharmProjects/Mofang_Chinese/main.py", line 185, in user_profile
+#     if current_user.id == user_id:
+# AttributeError: 'AnonymousUserMixin' object has no attribute 'id'
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile(user_id):
     db_sess = db_session.create_session()
