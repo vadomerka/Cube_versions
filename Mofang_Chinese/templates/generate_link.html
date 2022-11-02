@@ -66,7 +66,7 @@
         response.json().then(data => {
           console.log(data);
           token = data["token"];
-          link_input.value = "{{ root }}" + "/profile_change/" + token;
+          link_input.value = "{{ root }}" + "/change_profile/" + token;
         });
     }, false)
 

@@ -15,7 +15,7 @@ from data.tests import Tests, TestsToUsers
 
 # flask forms
 from forms.user import MakeUserForm, MakePasswordForm, LoginForm, ForgotPasswordForm, \
-    NamePasswordForm, ChangeProfileForm
+    ChangeProfileForm, ChangePasswordForm, ChangeDataForm, ChangeAuthorisedProfileForm
 from forms.course import CoursesForm, AddItemToSomethingForm
 from forms.lesson import LessonsForm, AddSomethingToLessonForm
 from forms.word import WordsForm
@@ -90,8 +90,35 @@ def list_to_javascript(array):
     return array_js
 
 
+def pupil_js_list(array):
+    array_js = []
+    for i in range(len(array)):
+        pupil = array[i]
+        array_js.append(";".join([str(pupil.id), pupil.name, pupil.email, str(pupil.creator)]))
+    array_js = ";;;".join(array_js)
+    return array_js
+
+
 def delete_extra_spaces(string):
     return " ".join(list(filter(lambda x: x, string.split())))
+
+
+def generate_email_token(email):  # функция, создающая специальный токен
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+
+def confirm_user_password_token(token, expiration=3600):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(  # расшифровываем, если не прошло определенное время
+            token,
+            salt=app.config['SECURITY_PASSWORD_SALT'],
+            max_age=expiration
+        )
+        return email
+    except:
+        return False
 
 
 @app.route("/")
@@ -102,49 +129,6 @@ def index():  # основная страница, переадресация н
         return redirect("/dictionary")
     else:
         return redirect('/login')
-
-
-@app.route('/profile_change/<token>', methods=['GET', 'POST'])
-def profile_change(token):  # первый вход ученика по ссылке
-    db_sess = db_session.create_session()
-    email = confirm_user_password_token(token)
-    if not email:
-        message = 'Ссылка для создания пароля недействительна или срок ее действия истек.'
-        return render_template("wrong_link.html", message=message)
-    user = db_sess.query(User).filter(User.email == email).first()
-    if not user:
-        return render_template("wrong_link.html")
-    login_user(user)
-    form = NamePasswordForm()
-    name_data = user.name
-    last_name_data = user.last_name
-    patronymic_data = user.patronymic
-    about_data = user.about
-    if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            return render_template('change_password.html',
-                                   form=form,
-                                   user=user,
-                                   name_data=name_data,
-                                   last_name_data=last_name_data,
-                                   patronymic_data=patronymic_data,
-                                   about_data=about_data,
-                                   message="Пароли не совпадают")
-        db_sess = db_session.create_session()
-        user = db_sess.query(User).get(user.id)
-        user.name = form.name.data
-        user.last_name = form.last_name.data
-        user.patronymic = form.patronymic.data
-        user.about = form.about.data
-
-        db_sess.add(user)
-        user.set_password(form.password.data)
-        db_sess.merge(user)
-        db_sess.commit()
-        return redirect('/')
-    return render_template("change_password.html", user=user, form=form, name_data=name_data,
-                           last_name_data=last_name_data, patronymic_data=patronymic_data,
-                           about_data=about_data)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -179,70 +163,93 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-#  File "/home/rad/PycharmProjects/Mofang_Chinese/main.py", line 185, in user_profile
-#     if current_user.id == user_id:
-# AttributeError: 'AnonymousUserMixin' object has no attribute 'id'
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile(user_id):
-    db_sess = db_session.create_session()
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html")
     if current_user.id == user_id:
         return render_template('profile.html', user=current_user, is_owner=1)
-    profile_user = db_sess.query(User).get(user_id)
+    profile_user = load_user(user_id)
     return render_template('profile.html', user=profile_user, is_owner=0)
 
 
-@app.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
-@login_required
-def change_password(user_id):
+@app.route('/change_profile/<token>', methods=['GET', 'POST'])
+def change_profile(token):  # первый вход ученика по ссылке
     db_sess = db_session.create_session()
-    user = db_sess.query(User).get(user_id)
-    if user != current_user:
-        return render_template("others_account.html")
-    form = NamePasswordForm()
+    email = confirm_user_password_token(token)
+    if not email:
+        message = 'Ссылка для создания пароля недействительна или срок ее действия истек.'
+        return render_template("wrong_link.html", message=message)
+    user = db_sess.query(User).filter(User.email == email).first()
+    if not user:
+        return render_template("wrong_link.html")
+    login_user(user)
+    form = ChangeProfileForm()
     name_data = user.name
+    if name_data is None:
+        name_data = ""
     last_name_data = user.last_name
+    if last_name_data is None:
+        last_name_data = ""
     patronymic_data = user.patronymic
-    about_data = user.about
-    if user.hashed_password:
-        return redirect('/change_profile')
+    if patronymic_data is None:
+        patronymic_data = ""
+    if user.about:
+        python_data = {
+            "about": user.about.split("\n")
+        }
+    else:
+        python_data = {
+            "about": [""]
+        }
+    email_data = user.email
+    if current_user.hashed_password:
+        form = ChangeAuthorisedProfileForm()
     if form.validate_on_submit():
+        if current_user.hashed_password:
+            # дополнительная проверка пароля нужна, чтобы учитель не мог изменять аккаунт, если ученик уже поставил пароль
+            if not user.check_password(form.old_password.data):
+                return render_template('change_profile.html',
+                                       form=form,
+                                       user=user,
+                                       name_data=name_data,
+                                       last_name_data=last_name_data,
+                                       patronymic_data=patronymic_data,
+                                       python_data=python_data,
+                                       email_data=email_data,
+                                       message="Неправильный пароль")
         if form.password.data != form.password_again.data:
-            return render_template('change_password.html',
+            return render_template('change_profile.html',
                                    form=form,
                                    user=user,
                                    name_data=name_data,
                                    last_name_data=last_name_data,
                                    patronymic_data=patronymic_data,
-                                   about_data=about_data,
+                                   python_data=python_data,
+                                   email_data=email_data,
                                    message="Пароли не совпадают")
         db_sess = db_session.create_session()
-        user = db_sess.query(User).get(user_id)
+        user = db_sess.query(User).get(current_user.id)
         user.name = form.name.data
         user.last_name = form.last_name.data
         user.patronymic = form.patronymic.data
         user.about = form.about.data
-
         db_sess.add(user)
         user.set_password(form.password.data)
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/')
-    return render_template("change_password.html", user=user, form=form, name_data=name_data,
+    return render_template("change_profile.html", user=user, form=form, name_data=name_data,
                            last_name_data=last_name_data, patronymic_data=patronymic_data,
-                           about_data=about_data)
+                           python_data=python_data, email_data=email_data)
 
 
-@app.route('/change_profile', methods=['GET', 'POST'])
+@app.route('/change_password', methods=['GET', 'POST'])
 @login_required
-def change_profile():
-    # db_sess = db_session.create_session()
-    user = current_user
-    name_data = user.name
-    last_name_data = user.last_name
-    patronymic_data = user.patronymic
-    about_data = user.about
-    email_data = user.email
-    form = ChangeProfileForm()
+def change_password():
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html")
+    form = ChangePasswordForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(current_user.id)
@@ -250,35 +257,64 @@ def change_profile():
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
-                                   name_data=name_data,
-                                   last_name_data=last_name_data, patronymic_data=patronymic_data,
-                                   about_data=about_data, email_data=email_data,
                                    message="Неправильный пароль")
         if form.password.data != form.password_again.data:
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
-                                   name_data=name_data,
-                                   last_name_data=last_name_data, patronymic_data=patronymic_data,
-                                   about_data=about_data, email_data=email_data,
                                    message="Пароли не совпадают")
+        db_sess.add(user)
+        user.set_password(form.password.data)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/profile/' + str(current_user.id))
+    return render_template("change_password.html", form=form)
+
+
+@app.route('/change_data', methods=['GET', 'POST'])
+@login_required
+def change_data():
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html")
+    user = load_user(current_user.id)
+    name_data = user.name
+    if name_data is None:
+        name_data = ""
+    last_name_data = user.last_name
+    if last_name_data is None:
+        last_name_data = ""
+    patronymic_data = user.patronymic
+    if patronymic_data is None:
+        patronymic_data = ""
+    if user.about:
+        python_data = {
+            "about": user.about.split("\n")
+        }
+    else:
+        python_data = {
+            "about": [""]
+        }
+    email_data = user.email
+
+    form = ChangeDataForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(current_user.id)
         user.name = form.name.data
         user.last_name = form.last_name.data
         user.patronymic = form.patronymic.data
         user.about = form.about.data
         user.email = form.email.data
-
         db_sess.add(user)
-        user.set_password(form.password.data)
         db_sess.merge(user)
         db_sess.commit()
-        return redirect('/')
-    return render_template("change_password.html", user=user, form=form, name_data=name_data,
+        return redirect('/profile/' + str(current_user.id))
+    return render_template("change_data.html", user=user, form=form, name_data=name_data,
                            last_name_data=last_name_data, patronymic_data=patronymic_data,
-                           about_data=about_data, email_data=email_data)
+                           python_data=python_data, email_data=email_data)
 
 
-def send_email(to, subject, template):
+def send_email(to, subject, template):  # функция отправки почты
     msg = Message(
         subject=subject,
         recipients=[to],
@@ -288,18 +324,13 @@ def send_email(to, subject, template):
     mail.send(msg)
 
 
-def generate_reset_password_token(email):  # функция, создающая специальный токен
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
-
-
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password_email_send():  # сценарий "пользователь забыл пароль"
     form = ForgotPasswordForm()
     if form.validate_on_submit():
         user_email = form.email.data  # пользователь вводит почту, на которую придет специальная ссылка
         with app.app_context():
-            token = generate_reset_password_token(user_email)  # создаем спец токен на основе
+            token = generate_email_token(user_email)  # создаем спец токен
             confirm_url = url_for('reset_password', token=token,
                                   _external=True)  # ссылка вида root/reset_password/<token>
             html = render_template('reset_password_letter.html',
@@ -315,30 +346,17 @@ def reset_password_email_send():  # сценарий "пользователь �
     return render_template("reset_password.html", form=form)
 
 
-def confirm_user_password_token(token, expiration=3600):
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    try:
-        email = serializer.loads(  # расшифровываем, если не прошло определенное время
-            token,
-            salt=app.config['SECURITY_PASSWORD_SALT'],
-            max_age=expiration
-        )
-        return email
-    except:
-        return False
-
-
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):  # если пользователь получил ссылку для сброса пароля
     db_sess = db_session.create_session()
     email = confirm_user_password_token(token)
     if not email:
         message = 'Ссылка для восстановления пароля недействительна или срок ее действия истек.'
-        return render_template("make_password.html", message=message, user=None, form=None)
+        return render_template("wrong_link.html", message=message)
     user = db_sess.query(User).filter(User.email == email).first()
     if not user:
         message = 'Пользователя с такой почтой не существует'
-        return render_template("make_password.html", message=message, user=None, form=None)
+        return render_template("wrong_link.html", message=message)
     user.hashed_password = None
     logout_user()
     form = MakePasswordForm()
@@ -355,15 +373,6 @@ def reset_password(token):  # если пользователь получил �
         db_sess.commit()
         return redirect('/')
     return render_template("make_password.html", user=user, form=form)
-
-
-def pupil_js_list(array):
-    array_js = []
-    for i in range(len(array)):
-        pupil = array[i]
-        array_js.append(";".join([str(pupil.id), pupil.name, pupil.email, str(pupil.creator)]))
-    array_js = ";;;".join(array_js)
-    return array_js
 
 
 @app.route('/pupils', methods=['GET', 'POST'])
@@ -471,7 +480,7 @@ def pupil_courses_view(pupil_id):
 @login_required
 def generate_link(user_id):
     db_sess = db_session.create_session()
-    user = db_sess.query(User).get(user_id)
+    user = load_user(user_id)
     user.hash_token = 1
     return render_template("generate_link.html", user=user, root=root)
 
@@ -480,8 +489,8 @@ def generate_link(user_id):
 @login_required
 def create_token_for_user(user_id):
     db_sess = db_session.create_session()
-    user = db_sess.query(User).get(user_id)
-    token = generate_reset_password_token(user.email)  # создаем спец токен на основе
+    user = load_user(user_id)
+    token = generate_email_token(user.email)  # создаем спец токен на основе
     print(token)
     return {'token': str(token)}
 
@@ -514,6 +523,7 @@ def make_course():
         new_course = Courses()
         new_course.name = form.name.data
         new_course.about = form.about.data
+        print(new_course.about)
         current_user.courses.append(new_course)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -538,16 +548,15 @@ def delete_course(course_id):
 def course_view(course_id):
     course = get(root + '/rest_course/' + str(course_id)
                  ).json()["course"]
-    json_course = get(root + '/rest_course/' + str(course_id)
-                      ).json()
-    json_course = json.dumps(json_course['course']['about'])
-    data_parser_file = open("static/data_parser.js", "w")
-    data_parser_file.write(f"var json_course_about = {json_course}\n")
+    python_data = {
+        "course_about": course['about'].split("\n")
+    }
     course_name = course["name"]
     if not current_user.teacher:
         return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                               back_url="/courses", json_course=json_course,
-                               current_user=current_user, course_name=course_name)
+                               back_url="/courses",
+                               current_user=current_user, course_name=course_name, course_about=course['about'],
+                               python_data=python_data)
     form = CoursesForm()
     db_sess = db_session.create_session()
     course = db_sess.query(Courses).get(course_id)
@@ -558,24 +567,25 @@ def course_view(course_id):
         course.name = form.name.data
         course.about = form.about.data
         course_name = course.name
-        json_course = json.dumps(course.about)
-        data_parser_file = open("static/data_parser.js", "w")
-        data_parser_file.write(f"var json_course_about = {json_course}\n")
+        python_data = {
+            "course_about": course.about.split("\n")
+        }
         user = db_sess.query(User).get(current_user.id)
         user.courses.append(course)
         db_sess.merge(user)
         db_sess.commit()
         return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                               back_url="/courses", json_course=json_course, form=form,
-                               current_user=current_user, course_name=course_name)
+                               back_url="/courses", form=form,
+                               current_user=current_user, course_name=course_name, python_data=python_data)
     return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                           back_url="/courses", json_course=json_course, form=form,
-                           current_user=current_user, course_name=course_name)
+                           back_url="/courses", form=form,
+                           current_user=current_user, course_name=course_name, course_about=course.about.split("\r\n"),
+                           python_data=python_data)
 
 
 def lesson_learned(lesson_id, user_id):
     db_sess = db_session.create_session()
-    user = db_sess.query(User).get(user_id)
+    user = load_user(user_id)
     lesson = db_sess.query(Lessons).get(lesson_id)
     if len(lesson.words) == 0:
         return 0, 0, 0

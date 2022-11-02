@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
+
+    <title>Mofang Chinese</title>
+    <style>
+        .password-form {
+            margin-top: 10vh;
+        }
+    </style>
+</head>
+
+<body>
+<main role="main" class="container">
+    <form class="password-form" action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.name(class="form-control", id="name") }}<br>
+            {% for error in form.name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{ form.last_name.label }}<br>
+            {{ form.last_name(class="form-control", id="last_name") }}<br>
+            {% for error in form.last_name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.patronymic.label }}<br>
+            {{ form.patronymic(class="form-control", id="patronymic") }}<br>
+            {% for error in form.patronymic.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.about.label }}<br>
+            {{ form.about(class="form-control", id="about") }}<br>
+            {% for error in form.about.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.email.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.email(class="form-control", id="email") }}<br>
+            {% for error in form.email.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        {% if message %}
+            <div class="message-container">{{ message }}</div>
+        {% endif %}
+        <script>
+            input = document.getElementById("name");
+            input.value = "{{ name_data }}";
+            input = document.getElementById("last_name");
+            input.value = "{{ last_name_data }}";
+            input = document.getElementById("patronymic");
+            input.value = "{{ patronymic_data }}";
+            string = "";
+            var json_about = {{ python_data|tojson }}.about;
+            if (json_about){
+                for (let i = 0; i < json_about.length; i++){
+                    string += json_about[i];
+                    text_holder = document.getElementById("about");
+                    text_holder.value = string;
+                }
+            }
+            input = document.getElementById("email");
+            input.value = "{{ email_data }}";
+        </script>
+    </form>
+</main>
+</body>
+</html>

@@ -87,6 +87,9 @@
 <div class="column course-lessons">
     <h2>Уроки курса</h2>
     <div class="column lessons">
+    {% if not course_data.lessons %}
+    <h3>На данный момент не добавлено ни одного урока</h3>
+    {% endif %}
     {% for less in course_data.lessons %}
         <div class="lesson-card">
             <!-- style="position: absolute;" -->
@@ -127,34 +130,30 @@
 {% if current_user.teacher  %}
 <button id="save-changes-button" hidden>Сохранить изменения</button>
 {% endif %}
-
-<script type="text/javascript" src="../static/data_parser.js"></script>
 <script>
     input = document.getElementById("course_name");
     input.value = "{{ course_name }}";
     string = "";
+    var json_course_about = {{ python_data|tojson }}.course_about;
     if ("{{ current_user.teacher }}" == "True"){
         if (json_course_about){
-            json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
-
+            // json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
             for (let i = 0; i < json_course_about.length; i++){
                 string += json_course_about[i];
-                console.log(string);
                 text_holder = document.getElementById("course_about");
                 text_holder.value = string;
             }
         }
     } else {
         if (json_course_about){
-            json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
-
-        for (let i = 0; i < json_course_about.length; i++){
-            text_holder = document.getElementById("course_about");
-            new_line = document.createElement('p');
-            new_line.classList.add("text-line");
-            new_line.innerText = json_course_about[i];
-            text_holder.appendChild(new_line);
-        }
+            // json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
+            for (let i = 0; i < json_course_about.length; i++){
+                text_holder = document.getElementById("course_about");
+                new_line = document.createElement('p');
+                new_line.classList.add("text-line");
+                new_line.innerText = json_course_about[i];
+                text_holder.appendChild(new_line);
+            }
         }
     }
 </script>
