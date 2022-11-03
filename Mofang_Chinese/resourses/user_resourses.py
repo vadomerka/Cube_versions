@@ -46,13 +46,26 @@ class UserListResource(Resource):
     def get(self):
         session = db_session.create_session()
         users = session.query(User).all()
-        # print(users)
-        ret = jsonify({'users': [item.to_dict(
-            only=('id', 'email', 'name', 'about', 'hashed_password', 'teacher'))
-            for item in users]})
-        # print(ret)
-
-        return ret
+        # ret = jsonify({'users': [item.to_dict(
+        #     only=('id', 'email', 'name', 'about', 'hashed_password', 'teacher'))
+        #     for item in users]})
+        ret = {"users": []}
+        for user in users:
+            u_item = user.to_dict(only=('id',
+                                        'name',
+                                        'email',
+                                        "about",
+                                        "hashed_password",
+                                        "teacher",
+                                        "creator"))
+            u_item["courses"] = [item.to_dict(only=('id', 'name', "about")) for item in
+                                 list(user.courses)]
+            u_item["words"] = [item.to_dict(only=('id',
+                                                  'hieroglyph',
+                                                  "translation")) for item in
+                               list(user.words)]
+            ret["users"].append(u_item)
+        return jsonify(ret)
 
     def post(self, user_id):
         if not request.json:

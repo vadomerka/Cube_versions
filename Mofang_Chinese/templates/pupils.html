@@ -1,418 +1,127 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    .column {
-        float: left;
-        width: 50%;
-    }
-    .row:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-    .page-but {
-        margin: 5px 5px 5px 5px;
-    }
-    .current_page_button {
-        margin: 0px 0px 0px 0px;
-        border-style: solid;
-        border-color: red;
-        border-width: 5px;
-    }
-    .pupil-button {
-        min-width: 250px;
-    }
-
-</style>
-<h1>Ваши ученики: </h1>
-<div>
-    {% if current_user.teacher %}
-        <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
-            <a class="btn btn-add" href="/add_pupil">Добавить
-                учеников</a>
-        </div>
-    {% endif %}
-	<div style="display: flex;
-			    flex-direction: row;
-			    flex-wrap: wrap;
-			    align-content: center;
-			    justify-content: flex-start;
-			    align-items: center;
-			    margin-bottom: 1rem!important;">
-	<div style="width: 45%;" class="search-group">
-	    <div class="input-group-prepend">
-	        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
-	                                                              x="0px" y="0px"
-	                                                              width="30" height="30"
-	                                                              viewBox="0 0 30 30"
-	                                                              style=" fill:#000000;">
-	            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
-	        </svg></span>
+<div class="main-div-container">
+	<div style="display: block;
+	    		min-width: 355px;">
+	    <h1>Ваши ученики: </h1>
+	</div>
+	<div class="instruments-box" style="">
+		<div class="instruments-group">
+			<div class="instrument input-group" style="max-width: 500px;">
+			    <div class="input-group-prepend">
+			        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+			                                                              x="0px" y="0px"
+			                                                              width="30" height="30"
+			                                                              viewBox="0 0 30 30"
+			                                                              style=" fill:#000000;">
+			            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+			        </svg></span>
+			    </div>
+			    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
+			           aria-describedby="basic-addon1" style="height: 44px;" id="search-field"
+			           value="">
+			</div>
+			<div class="text-change-button">
+				<button id="text-change-button" type="button" class="btn-primary">Включить просмотр почт</button>
+			</div>
+			<div class="instrument sort-button-group">
+				<div class="sort-group-layer">
+			    <button id="alphabet-sort-button" class="btn-primary sort-button"> 
+			        а↑
+			    </button>
+			    <button id="rev_alphabet-sort-button" class="btn-primary sort-button">
+			        а↓
+			    </button>
+			    <button id="time-sort-button" class="btn-primary sort-button">
+			        🕔↓
+			    </button>
+			    <button id="rev_time-sort-button" class="btn-primary sort-button">
+			        🕔↑
+			    </button>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="add-item-group">
+		{% if current_user.teacher %}
+		<!-- ? -->
+	        <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">  
+	            <a class="btn btn-add" href="/add_pupil">Добавить учеников</a>
+	        </div>
+    	{% endif %}
+	</div>
+	<div class="items-row" id="items-row">
+	    <h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
+	</div>
+	<div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+	    <div class="page-buttons-row" id="pages-row">
+	    	<div class="page-buttons-container" id="start-page-buttons-container">
+	    	</div>	
+	    	<div class="page-buttons-container" id="nums-page-buttons-container">
+	    	</div>	
+	    	<div class="page-buttons-container" id="end-page-buttons-container">
+	    	</div>	
 	    </div>
-	    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
-	           aria-describedby="basic-addon1" style="height: 44px;" id="email search field"
-	           value="">
 	</div>
-	<button id="text change button" type="button" class="btn-primary">Включить просмотр почт</button>
-	</div>
-	<div class="sort-button-group" style="width: 45%;">
-	    <button id="alphabet-sort-button" class="btn-primary alphabet-sort-button"> 
-	        а↑
-	    </button>
-	    <button id="rev_alphabet-sort-button" class="btn-primary alphabet-sort-button">
-	        а↓
-	    </button>
-	    <button id="time-sort-button" class="btn-primary alphabet-sort-button">
-	        🕔↓
-	    </button>
-	    <button id="rev_time-sort-button" class="btn-primary alphabet-sort-button">
-	        🕔↑
-	    </button>
-	</div>
-    <div class="row" id="item_row">
-        {% for i in range(column_number) %}
-        <div class="column" id="column {{ i }}"></div>
-        {% endfor %}
-        <h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
-    </div>
-        <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
-            <div class="pages-row" id="pages-row">
-            </div>
-        </div>
 </div>
+<script src="/static/templates_js/items_view.js"></script>
 <script>
-    function searchArrayFilter(item_list){
-        email_search_field = document.getElementById("email search field");
-        val1 = email_search_field.value;
-        ret_array = [];
-        if (val1 != ""){
-            for (var i = 0; i < item_list.length; i++) {
-                if (item_list[i][button_texts[text_button_state]].includes(val1)){
-                    ret_array.push(item_list[i]);
-                }
-            }
-        } else {
-            ret_array = item_list;
-        }
-        return ret_array;
-    }
+	sort_buttons_id =  ["alphabet-sort-button",
+	                    "rev_alphabet-sort-button",
+	                    "time-sort-button",
+	                    "rev_time-sort-button"];
+	for (var i = 0; i < sort_buttons_id.length; i++) {
+	    sort_button = document.getElementById(sort_buttons_id[i]);
+	    if (sort_button != null){
+	        sort_button.addEventListener("click", sortButtonClick, false);
+	    }
+	}
 
-    function showButtons(){
-    	current_item_list = searchArrayFilter(items_lists[filter_button_state]);
-        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
-        	max_items_number_on_one_page * current_page);
-        current_page_max_number = page_numbers[filter_button_state];
+   	var max_items_number_on_one_page = {{ max_items_number_on_one_page }};
+	var items_js = {{ items_js|tojson }};
+	var filter_button_state = 0;
+	var text_button_state = 0;
+	var button_texts = ["name", "email"];
+	var current_page = 1;
 
-        if ((current_page_item_list[0] == "")){
-            current_page_item_list = [];
-        }
-        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
-            current_page = current_page_max_number;
-            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
-            	max_items_number_on_one_page * current_page);
-        }
-        createItemButtons(current_page_item_list);
-        if (current_page_max_number > 1){  // f
-            createPageButtons();
-        }
-    }
-	
-    function sortButtonClick(event){
-    	button_type = event.target.id;
-    	if (button_type == "alphabet_translation-sort-button"){
-	    	current_item_list.sort((firstWord, secondWord) => {
-				  const translation1 = firstWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
-				  const translation2 = secondWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
-				  if (translation1 < translation2) {return -1;}
-				  if (translation1 > translation2) {return 1;}
-				  return 0;
-			});
-	    } else if (button_type == "rev_alphabet_translation-sort-button") {
-	    	current_item_list.sort((firstWord, secondWord) => {
-				  const translation1 = firstWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
-				  const translation2 = secondWord[button_texts[text_button_state]].toUpperCase(); // ignore upper and lowercase
-				  if (translation1 < translation2) {return 1;}
-				  if (translation1 > translation2) {return -1;}
-				  return 0;
-			});
-		} else if (button_type == "time-sort-button") {
-	    	current_item_list.sort((firstWord, secondWord) => {
-				  const translation1 = parseInt(firstWord["id"]); // ignore upper and lowercase
-				  const translation2 = parseInt(secondWord["id"]); // ignore upper and lowercase
-				  if (translation1 < translation2) {return -1;}
-				  if (translation1 > translation2) {return 1;}
-				  return 0;
-			});
-		} else if (button_type == "rev_time-sort-button") {
-	    	current_item_list.sort((firstWord, secondWord) => {
-				  const translation1 = parseInt(firstWord["id"]); // ignore upper and lowercase
-				  const translation2 = parseInt(secondWord["id"]); // ignore upper and lowercase
-				  if (translation1 < translation2) {return 1;}
-				  if (translation1 > translation2) {return -1;}
-				  return 0;
-			});
-		}
-        showButtons();
-    }
+	items_lists = [items_js.all_items];
+	for (let i = 0; i < items_lists.length; i++){
+	    if (items_lists[i][0] == ''){
+	        items_lists[i] = [];
+	    }
+	}
 
-    function filterButtonClick(event){
-        filter_button_state = (filter_button_state + 1) % items_lists.length;
-        filter_button.innerText = filter_button_innerTexts[filter_button_state];
-        showButtons();
-    }
+	page_numbers = []
+	for (let i = 0; i < items_lists.length; i++){
+	    page_number = pageNumberCount(items_lists[i]);
+	    page_numbers.push(page_number);
+	}
+	page_lists = []
+	for (let i = 0; i < items_lists.length; i++){
+	    page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+	    max_items_number_on_one_page * current_page);
+	    page_lists.push(page_items);
+	}
 
-    function javascriptList(list){
-        if (!list) {return [];}
-        list = list.split(";;;");
-        for (let i = 0; i < list.length; i += 1){
-        	list_word = list[i].split(";");
-            list[i] = { "id": list_word[0],
-                        "name": list_word[1],
-                        "email": list_word[2],
-                        "creator": list_word[3],
-                      };
-        }
-        return list;
-    }
+	var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+	current_page_item_list = page_lists[filter_button_state];
+	current_page_max_number = page_numbers[filter_button_state];
 
-    function createItemButtons(item_list){
-        // delete previous buttons
-        for (let i = 0; i < max_items_number_on_one_page; i += 1){
-            prev_but = document.getElementById("button " + i.toString())
-            if (prev_but != null){prev_but.remove();}
-            prev_but = document.getElementById("delete " + i.toString())
-            if (prev_but != null){prev_but.remove();}
-        }
+	createItemButtons(current_page_item_list);
+	if (current_page_max_number > 1){
+	    createPageButtons();
+	}
 
-        if (item_list.length == 0){
-        	document.getElementById("items-not-found-heading").hidden = false;
-        	return;
-        } else {
-        	document.getElementById("items-not-found-heading").hidden = true;
-        }
+	function onTextChangeButtonClick(event){
+	    text_button_state = (text_button_state + 1) % button_texts.length;
+	    event.target.innerText = ["Включить просмотр почт", "Включить просмотр имен"][text_button_state];
+	    showButtons();
+	}
 
-        for (let i = 0; i < item_list.length; i += 1){
-            column = document.getElementById("column " + (i % {{ column_number }}).toString());
-            column.style.cssText += "flex: " + (100 / {{ column_number }}).toString() + "%";
-            button = document.createElement("a");
-            button.id = "button " + i.toString();
-            button.type = "button";
-            // button.addEventListener("click", wordButtonClick, false);
-            button.href = "/profile/" + item_list[i]["id"];
-            // console.log(button.id);
-            button.classList.add("btn");
-            button.classList.add("btn-primary");
-            button.classList.add("pupil-button");
-
-            // button.classList.add("user-word-button");
-
-            button.innerText = item_list[i][button_texts[text_button_state]];
-            column.appendChild(button);
-        }
-    }
-
-
-    function createOnePageButton(row, text, onClickFunction){
-        page_button = document.createElement("button");
-        page_button.onclick = onClickFunction;
-        page_button.id = "page_button " + text;
-        page_button.classList.add("page-but");
-        page_button.classList.add("btn");
-        page_button.classList.add("btn-primary");
-        // alert(text);
-        // alert(current_page);
-        if (text == current_page){
-            page_button.classList.add("current_page_button")
-        } else {
-            page_button.classList.add("page_button");
-        }
-        page_button.innerText = text;
-        row.appendChild(page_button);
-    }
-
-    function deletePageButtons(){
-        prev_but = document.getElementById("page_button <<");
-        if (prev_but != null){prev_but.remove();}
-        prev_but = document.getElementById("page_button <");
-        if (prev_but != null){prev_but.remove();}
-
-        for (let i = 1; i < page_numbers[0] + 1; i++){
-            prev_but = document.getElementById("page_button " + i.toString());
-            if (prev_but != null){prev_but.remove();}
-        }
-
-        prev_but = document.getElementById("page_button >>");
-        if (prev_but != null){prev_but.remove();}
-        prev_but = document.getElementById("page_button >");
-        if (prev_but != null){prev_but.remove();}
-    }
-
-    function pageButtonNumberFunction(event){
-        // alert(event.target.innerText);
-        // alert("pageButtonNumberFunction -1");
-        current_page = parseInt(event.target.innerText, 10);
-        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-        // alert("createItemButtons 1")
-        createItemButtons(current_page_item_list);
-        // alert("createItemButtons 2")
-        if (current_page_max_number > 1){  // f
-            // alert("creating page buttons");
-            createPageButtons();
-        }
-    }
-
-    function pageButtonFunctions(button_text){
-        if (button_text == "<<"){
-            return function(event){
-                current_page = 1;
-                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                createItemButtons(current_page_item_list);
-                if (current_page_max_number > 1){  // f
-                    createPageButtons();
-                }
-            };
-        } else if (button_text == "<"){
-            return function(event){
-                if (current_page != 1) {
-                    current_page -= 1;
-                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                    createItemButtons(current_page_item_list);
-                    if (current_page_max_number > 1){createPageButtons();}
-                }
-            };
-        } else if (button_text == ">"){
-            return function(event) {
-                if (current_page != current_page_max_number) {
-                    current_page += 1;
-                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                    createItemButtons(current_page_item_list);
-                    if (current_page_max_number > 1){  // f
-                        // alert("creating page buttons");
-                        createPageButtons();
-                    }
-                }
-            }
-        } else if (button_text == ">>"){
-            return function(event){
-                current_page = current_page_max_number;
-                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                createItemButtons(current_page_item_list);
-                if (current_page_max_number > 1){  // f
-                    // alert("creating page buttons");
-                    createPageButtons();
-                }
-            };
-        }
-    }
-
-    function createPageButtons(){
-        deletePageButtons();
-        if (current_page_max_number > 1){
-            pages_row = document.getElementById("pages-row");
-            createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
-            createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
-
-            if ((current_page_max_number - current_page) <= 6 && (current_page_max_number - current_page) >= 0) {
-                if (current_page_max_number >= 9){
-                    for (let i = (current_page_max_number - 9); i < current_page_max_number; i++){
-                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                    }
-                } else {
-                    for (let i = 0; i < current_page_max_number; i++){
-                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                    }
-                }
-            } else {
-                if (current_page == 1) {
-                    if (current_page_max_number < 9){
-                        for (let i = 0; i < current_page_max_number; i ++){
-                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                        }
-                    } else {
-                        for (let i = 0; i < 9; i ++){
-                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                        }
-                    }
-                } else {
-                    for (let i = (current_page - 2); i < (current_page + 7); i++) {
-                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                    }
-                }
-            }
-            createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
-            createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
-        }
-    }
-
-    sort_buttons_id =  ["alphabet-sort-button", 
-					    "rev_alphabet-sort-button", 
-					    "time-sort-button",
-					    "rev_time-sort-button"];
-    for (var i = 0; i < sort_buttons_id.length; i++) {
-    	sort_button = document.getElementById(sort_buttons_id[i]);
-    	if (sort_button != null){
-    		sort_button.addEventListener("click", sortButtonClick, false);
-    	}
-    }
-
-    var filter_button_state = 0;
-    var text_button_state = 0;
-    var button_texts = ["name", "email"];
-    var current_page = 1;
-    var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
-
-    items_lists = [all_items = javascriptList("{{ users_pupils_js }}")];
-    for (let i = 0; i < items_lists.length; i++){
-        if (items_lists[i][0] == ''){
-            items_lists[i] = [];
-        }
-    }
-
-    page_numbers = []
-    for (let i = 0; i < items_lists.length; i++){
-        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
-        page_numbers.push(page_number);
-        // console.log(page_numbers[i]);
-    }
-    page_lists = []
-    for (let i = 0; i < items_lists.length; i++){
-        page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
-        max_items_number_on_one_page * current_page);
-        page_lists.push(page_items);
-    }
-
-    var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
-    current_page_item_list = page_lists[filter_button_state];
-    current_page_max_number = page_numbers[filter_button_state];
-
-    item_js_table = {
-    "id": 0,
-    "name": 1,
-    "email": 2,
-    "creator": 3};
-
-    createItemButtons(current_page_item_list);
-    if (current_page_max_number > 1){
-        createPageButtons();
-    }
-
-    function onSearchChange(event){
-        if (event.key != "Control"){
-            current_item_list = searchArrayFilter(items_lists[filter_button_state]);
-            showButtons();
-        }
-    }
-
-    function onTextChangeButtonClick(event){
-        text_button_state = (text_button_state + 1) % button_texts.length;
-        event.target.innerText = ["Включить просмотр почт", "Включить просмотр имен"][text_button_state];
-        showButtons();
-    }
-
-    email_search_field = document.getElementById("email search field");
-    email_search_field.addEventListener("keyup", onSearchChange, false);
-    text_change_button = document.getElementById("text change button");
-    text_change_button.addEventListener("click", onTextChangeButtonClick, false);
+	search_field = document.getElementById("search-field");
+	search_field.addEventListener("keyup", onSearchChange, false);
+	text_change_button = document.getElementById("text-change-button");
+	text_change_button.addEventListener("click", onTextChangeButtonClick, false);
 </script>
 {% endblock %}

@@ -14,15 +14,13 @@
 }
 
 body {
-    font-family: 'Montserrat', sans-serif;
-
+    font-family: font-family: times New Roman;
     font-size: 15px;
     color: #33;
 }
 
 .header {
     width: 100%;
-
     top: 0;
     left: 0;
     right: 0;
@@ -259,47 +257,6 @@ body {
     color: var(--contrast-red);
     background-color: var(--red);
     border-color: var(--red);
-}
-
-.login-page {
-    box-sizing: border-box;
-    border-style: solid;
-    border-color: #3A3542;
-    padding: 15px;
-    background-color: #c9c9c9;
-}
-
-@media (min-width: 500px) {
-    .login-page {
-        width: 475px;
-    }
-}
-@media (max-width: 500px) {
-    .login-page {
-        width: 400px;
-        font-size: 0.8em;
-    }
-    .h1 {
-        font-size: xx-large;
-    }
-}
-@media (max-width: 400px) {
-    .login-page {
-        width: 300px;
-        font-size: 0.8em;
-    }
-    .h1 {
-        font-size: xx-large;
-    }
-}
-@media (max-width: 350px) {
-    .login-page {
-        width: 250px;
-        font-size: 0.8em;
-    }
-    .h1 {
-        font-size: xx-large;
-    }
 }
 
 :root {
@@ -332,6 +289,10 @@ body {
     right: 0;
     z-index: 1000;
 }
+.nav {
+    min-width: 500px;
+    display: block;
+}
 .navbar-brand {
     color: var(--red);
     position: relative;
@@ -341,6 +302,7 @@ body {
     color: var(--contrast-red);
     background-color: var(--red);
 }
+
 .btn {
     margin: 0 10px;
     margin-bottom: 10px;
@@ -565,47 +527,6 @@ body {
     border-color: var(--red);
 }
 
-.login-page {
-    box-sizing: border-box;
-    border-style: solid;
-    border-color: #3A3542;
-    padding: 15px;
-    background-color: #c9c9c9;
-}
-
-@media (min-width: 500px) {
-    .login-page {
-        width: 475px;
-    }
-}
-@media (max-width: 500px) {
-    .login-page {
-        width: 400px;
-        font-size: 0.8em;
-    }
-    .h1 {
-        font-size: xx-large;
-    }
-}
-@media (max-width: 400px) {
-    .login-page {
-        width: 300px;
-        font-size: 0.8em;
-    }
-    .h1 {
-        font-size: xx-large;
-    }
-}
-@media (max-width: 350px) {
-    .login-page {
-        width: 250px;
-        font-size: 0.8em;
-    }
-    .h1 {
-        font-size: xx-large;
-    }
-}
-
 .page-title {
     text-align: center;
 }
@@ -634,3 +555,4 @@ body {
 .unauthorized-message-container {
     margin-top: 10vh;
 }
+

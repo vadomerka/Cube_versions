@@ -378,20 +378,13 @@ def reset_password(token):  # если пользователь получил �
 @app.route('/pupils', methods=['GET', 'POST'])
 @login_required
 def pupils():
-    db_sess = db_session.create_session()
-    users_pupils = []
-    all_users = db_sess.query(User).all()
-    for user in all_users:
-        if user.creator == current_user.id:
-            one_user = get(root + "/rest_user/" + str(user.id)).json()["user"]
-            user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()
-            user_courses = user.courses
-            users_pupils.append(user)
-
-    users_pupils_js = pupil_js_list(users_pupils)
+    all_users = get(root + '/rest_users').json()["users"]
+    users_pupils = list(filter(lambda x: x["creator"] == current_user.id, all_users))
+    items_js = {
+        "all_items": users_pupils
+    }
     return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",
-                           users_pupils_js=users_pupils_js, items_in_column_number=13,
-                           column_number=4)
+                           items_js=items_js, max_items_number_on_one_page=60)
 
 
 @app.route('/add_pupil', methods=['GET', 'POST'])
@@ -479,9 +472,7 @@ def pupil_courses_view(pupil_id):
 @app.route('/generate_link/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def generate_link(user_id):
-    db_sess = db_session.create_session()
     user = load_user(user_id)
-    user.hash_token = 1
     return render_template("generate_link.html", user=user, root=root)
 
 
@@ -1193,16 +1184,17 @@ def dict_view():
         else:
             rest_words.append(word)
     len_all_words = len(all_words)
-
-    my_items_js = list_to_javascript(my_words)
-    rest_items_js = list_to_javascript(rest_words)
-    all_items_js = list_to_javascript(all_words)
+    items_js = {
+        "my_items_js": my_words,
+        "rest_items_js": rest_words,
+        "all_items_js": all_words
+    }
+    max_words_number_on_one_page = 32
     return render_template("dictionary.html", all_words=all_words, current_user=current_user,
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
-                           my_items_js=my_items_js, rest_items_js=rest_items_js,
-                           all_items_js=all_items_js, back_button_hidden="true",
-                           column_number=2, items_in_column_number=15)
+                           back_button_hidden="true", items_js=items_js,
+                           max_items_number_on_one_page=max_words_number_on_one_page)
 
 
 @app.route('/add_word', methods=['GET', 'POST'])

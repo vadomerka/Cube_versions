@@ -10,31 +10,50 @@ class MakeUserForm(FlaskForm):
     last_name = StringField('Фамилия пользователя', validators=[Length(min=0, max=32)])
     patronymic = StringField('Отчество пользователя', validators=[Length(min=0, max=32)])
     teacher = BooleanField('Пользователь является учителем?')
-    about = StringField('О пользователе', validators=[Length(min=0, max=512)])
-
+    about = TextAreaField("О себе", validators=[
+        Length(min=0, max=512, message="Описание должно быть короче 512 символов")])
     submit = SubmitField('Создать')
 
 
-class NamePasswordForm(FlaskForm):
-    name = StringField('Введите имя', validators=[Length(min=0, max=32), DataRequired()])
-    last_name = StringField('Введите фамилию', validators=[Length(min=0, max=32)])
-    patronymic = StringField('Введите отчество', validators=[Length(min=0, max=32)])
-    about = StringField('О себе', validators=[Length(min=0, max=512)])
-    password = PasswordField('Пароль', validators=[Length(min=6, max=32), DataRequired()])
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField('Старый пароль', validators=[Length(min=6, max=32), DataRequired()])
+    password = PasswordField('Новый пароль', validators=[Length(min=6, max=32), DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[Length(min=6, max=32), DataRequired()])
-    submit = SubmitField('Создать')
+    submit = SubmitField('Сохранить')
 
 
-class ChangeProfileForm(FlaskForm):
+class ChangeDataForm(FlaskForm):
     email = EmailField('Почта пользователя', validators=[DataRequired("Пожалуйста, введите вашу почту")])
     name = StringField('Введите имя', validators=[Length(min=0, max=32), DataRequired()])
     last_name = StringField('Введите фамилию', validators=[Length(min=0, max=32)])
     patronymic = StringField('Введите отчество', validators=[Length(min=0, max=32)])
-    about = StringField('О себе', validators=[Length(min=0, max=512)])
-    old_password = PasswordField('Старый пароль', validators=[Length(min=6, max=32), DataRequired()])
-    password = PasswordField('Пароль', validators=[Length(min=6, max=32), DataRequired()])
+    about = TextAreaField("О себе", validators=[
+        Length(min=0, max=512, message="Описание должно быть короче 512 символов")])
+    submit = SubmitField('Сохранить')
+
+
+class ChangeProfileForm(FlaskForm):
+    name = StringField('Введите имя', validators=[Length(min=0, max=32), DataRequired()])
+    last_name = StringField('Введите фамилию', validators=[Length(min=0, max=32)])
+    patronymic = StringField('Введите отчество', validators=[Length(min=0, max=32)])
+    about = TextAreaField("О себе", validators=[
+        Length(min=0, max=512, message="Описание должно быть короче 512 символов")])
+    password = PasswordField('Новый пароль', validators=[Length(min=6, max=32), DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[Length(min=6, max=32), DataRequired()])
-    submit = SubmitField('Создать')
+    submit = SubmitField('Сохранить')
+
+
+class ChangeAuthorisedProfileForm(FlaskForm):
+    email = EmailField('Почта', validators=[DataRequired("Пожалуйста, введите вашу почту")])
+    name = StringField('Введите имя', validators=[Length(min=0, max=32), DataRequired()])
+    last_name = StringField('Введите фамилию', validators=[Length(min=0, max=32)])
+    patronymic = StringField('Введите отчество', validators=[Length(min=0, max=32)])
+    about = TextAreaField("О себе", validators=[
+        Length(min=0, max=512, message="Описание должно быть короче 512 символов")])
+    old_password = PasswordField('Старый пароль', validators=[Length(min=6, max=32), DataRequired()])
+    password = PasswordField('Новый пароль', validators=[Length(min=6, max=32), DataRequired()])
+    password_again = PasswordField('Повторите пароль', validators=[Length(min=6, max=32), DataRequired()])
+    submit = SubmitField('Сохранить')
 
 
 class MakePasswordForm(FlaskForm):
