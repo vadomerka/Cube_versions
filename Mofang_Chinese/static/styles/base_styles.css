@@ -34,11 +34,24 @@ body {
     flex-wrap: nowrap;
     align-items: center;
     width: var(--min-window-size);
+    justify-content: flex-start;
+}
+
+.upper-navbar {
+    display: flex;
+    justify-content: space-between;
+    min-width: var(--min-window-size);
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .navbar-brand {
-    color: var(--red);
-    position: relative;
+    margin: 0px 10px 10px 10px;
+}
+
+.nav-btn {
+    font-size: large;
+    margin: 10px;
 }
 
 .navbar-brand:hover {
@@ -50,4 +63,16 @@ body {
     display: block;
     min-width: var(--min-window-size);
     margin: 0 auto;
+}
+
+.message-container {
+    background-color: var(--backgrpund-red);
+    border-radius: 6px;
+    margin-bottom: 2em;
+    padding: 16px 16px;
+    color: var(--dark-red);
+}
+
+.unauthorized-message-container {
+    margin-top: 10vh;
 }

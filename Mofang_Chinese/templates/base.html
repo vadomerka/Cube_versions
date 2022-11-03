@@ -7,23 +7,31 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <link href="{{ url_for('static', filename='styles/base_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/button_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/courses_view_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/item_view_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/add_items_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/lesson_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/profile_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/login_page_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/base_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
     <title>Mofang Chinese</title>
 </head>
 <body>
+{% if not header_disabled %}
 <header class="header">
     <div class="container">
         <div class="header_inner">
             <nav>
+                <div class="upper-navbar">
+                    <div>
+                    <a class="btn btn-white nav-btn" id="back_button" href="{{ back_url }}" hidden>Назад</a>
+                    </div>
                 {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="/profile/{{ current_user.id }}">
-                    {{ current_user.name}}</a>
+                <a class="btn btn-primary navbar-brand nav-btn" href="/profile/{{ current_user.id }}">{{ current_user.name }}</a>
                 {% endif %}
+                </div>
                 {% if current_user.is_authenticated %}
                 <div class="nav" id="up buttons">
                     <a id="nav button 1" class="btn btn-white" href="/courses">Мои Курсы</a>
@@ -31,8 +39,6 @@
                     {% if current_user.teacher %}
                     <a id="nav button 3" class="btn btn-white" href="/pupils">Мои ученики</a>
                     {% endif %}
-                    <a class="btn btn-primary" id="back_button"
-                       href="{{ back_url }}" hidden>Назад</a>
                 </div>
                 {% endif %}
 
@@ -40,6 +46,7 @@
         </div>
     </div>
 </header>
+{% endif %}
 <main role="main" class="container main-container">
     <div class="main-div-container">
     <script>
@@ -54,12 +61,11 @@
         }
 
         back_button = document.getElementById("back_button")
-        back_button.hidden = {{ back_button_hidden }};
+        back_button.hidden = "{{ back_button_hidden }}";
         document.addEventListener("keydown", function(event) {
             if (event.key == "Backspace" && document.activeElement.nodeName != "INPUT" && document.activeElement.nodeName != "TEXTAREA") {
-            location.href = '{{ back_url }}';
+                location.href = '{{ back_url }}';
             }
-            // console.log(document.activeElement.nodeName);
         })
     </script>
     {% block content %}{% endblock %}

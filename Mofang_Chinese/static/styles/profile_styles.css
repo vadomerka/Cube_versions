@@ -1,0 +1,13 @@
+.page-heading{
+    margin-top: 2.5rem;
+}
+
+.password-form {
+    margin-top: 10vh;
+}
+
+.centered-form {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+}

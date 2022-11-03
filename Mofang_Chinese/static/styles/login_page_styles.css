@@ -1,0 +1,13 @@
+.sign-in-container {
+    display: flex;
+    align-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto 0.5rem;
+}
+
+.remember-me-label {
+    margin: 0.5rem 0rem 0.5rem 0.5rem;
+}

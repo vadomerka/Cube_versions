@@ -143,40 +143,43 @@ def login():  # страница авторизации пользователя
         elif user and user.hashed_password and not user.check_password(form.password.data):
             return render_template('login.html',
                                    message="Неправильный пароль",
-                                   form=form)
+                                   form=form, back_button_hidden="true")
         return render_template('login.html',
                                message="Пользователя с такой почтой не существует",
-                               form=form)
-    return render_template('login.html', title='Авторизация', form=form)
+                               form=form, back_button_hidden="true")
+    return render_template('login.html', title='Авторизация', form=form, back_button_hidden="true")
 
 
 @app.route('/logout')
 @login_required
-def logout():
+def logout():  # выход из аккаунта пользователя
     logout_user()
     return redirect("/")
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id):  # загрузка пользователя из базы данных
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
 
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
-def user_profile(user_id):
+def user_profile(user_id):  # просмотр профиля пользователя
     if not current_user.is_authenticated:
         return render_template("unauthorized.html")
     if current_user.id == user_id:
         python_data = {
             "user_about": current_user.about
         }
-        return render_template('profile.html', user=current_user, is_owner=1, python_data=python_data)
+        return render_template('profile.html', user=current_user, is_owner=1,
+                               python_data=python_data,
+                               back_url="/pupils")
     profile_user = load_user(user_id)
     python_data = {
         "user_about": profile_user.about
     }
-    return render_template('profile.html', user=profile_user, is_owner=0, python_data=python_data)
+    return render_template('profile.html', user=profile_user, is_owner=0, python_data=python_data,
+                           back_url="/pupils")
 
 
 @app.route('/change_profile/<token>', methods=['GET', 'POST'])
@@ -223,7 +226,7 @@ def change_profile(token):  # первый вход ученика по ссыл
                                        patronymic_data=patronymic_data,
                                        python_data=python_data,
                                        email_data=email_data,
-                                       message="Неправильный пароль")
+                                       message="Неправильный пароль", header_disabled="true")
         if form.password.data != form.password_again.data:
             return render_template('change_profile.html',
                                    form=form,
@@ -233,7 +236,7 @@ def change_profile(token):  # первый вход ученика по ссыл
                                    patronymic_data=patronymic_data,
                                    python_data=python_data,
                                    email_data=email_data,
-                                   message="Пароли не совпадают")
+                                   message="Пароли не совпадают", header_disabled="true")
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(current_user.id)
         user.name = form.name.data
@@ -247,12 +250,11 @@ def change_profile(token):  # первый вход ученика по ссыл
         return redirect('/')
     return render_template("change_profile.html", user=user, form=form, name_data=name_data,
                            last_name_data=last_name_data, patronymic_data=patronymic_data,
-                           python_data=python_data, email_data=email_data)
+                           python_data=python_data, email_data=email_data, header_disabled="true")
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
-@login_required
-def change_password():
+def change_password():  # пользователь изменяет пароль
     if not current_user.is_authenticated:
         return render_template("unauthorized.html")
     form = ChangePasswordForm()
@@ -263,23 +265,22 @@ def change_password():
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
-                                   message="Неправильный пароль")
+                                   message="Неправильный пароль", back_url="/profile/" + str(current_user.id))
         if form.password.data != form.password_again.data:
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
-                                   message="Пароли не совпадают")
+                                   message="Пароли не совпадают", back_url="/profile/" + str(current_user.id))
         db_sess.add(user)
         user.set_password(form.password.data)
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/profile/' + str(current_user.id))
-    return render_template("change_password.html", form=form)
+    return render_template("change_password.html", form=form, back_url="/profile/" + str(current_user.id))
 
 
 @app.route('/change_data', methods=['GET', 'POST'])
-@login_required
-def change_data():
+def change_data():  # пользователь изменяет свои данные
     if not current_user.is_authenticated:
         return render_template("unauthorized.html")
     user = load_user(current_user.id)
@@ -317,7 +318,8 @@ def change_data():
         return redirect('/profile/' + str(current_user.id))
     return render_template("change_data.html", user=user, form=form, name_data=name_data,
                            last_name_data=last_name_data, patronymic_data=patronymic_data,
-                           python_data=python_data, email_data=email_data)
+                           python_data=python_data, email_data=email_data,
+                           back_url="/profile/" + str(current_user.id))
 
 
 def send_email(to, subject, template):  # функция отправки почты
@@ -338,7 +340,7 @@ def reset_password_email_send():  # сценарий "пользователь �
         with app.app_context():
             token = generate_email_token(user_email)  # создаем спец токен
             confirm_url = url_for('reset_password', token=token,
-                                  _external=True)  # ссылка вида root/reset_password/<token>
+                                  _external=True, back_url="/")  # ссылка вида root/reset_password/<token>
             html = render_template('reset_password_letter.html',
                                    confirm_url=confirm_url)  # тело письма
             subject = "Сброс пароля Mofang Chinese"  # тема письма
@@ -347,9 +349,10 @@ def reset_password_email_send():  # сценарий "пользователь �
             except Exception as e:
                 print(str(e))
                 return render_template("reset_password.html", form=form,
-                                       message="не удалось отправить письмо, пожалуйста, повторите попытку позже")
+                                       message="не удалось отправить письмо, пожалуйста, повторите попытку позже",
+                                       back_url="/")
         return redirect('/')
-    return render_template("reset_password.html", form=form)
+    return render_template("reset_password.html", form=form, back_url="/")
 
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -372,23 +375,26 @@ def reset_password(token):  # если пользователь получил �
                                    form=form,
                                    user=user,
                                    message="Пароли не совпадают",
-                                   forgot_password=True)
+                                   forgot_password=True, back_button_hidden="true")
         db_sess = db_session.create_session()
         user.set_password(form.password.data)
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/')
-    return render_template("make_password.html", user=user, form=form)
+    return render_template("make_password.html", user=user, form=form, back_button_hidden="true")
 
 
 @app.route('/pupils', methods=['GET', 'POST'])
-@login_required
-def pupils():
-    all_users = get(root + '/rest_users').json()["users"]
+def pupils():  # список учеников учителя
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html")
+    if not current_user.teacher:
+        return render_template("access_denied.html")
+    server_response = get(root + '/rest_users').json()
+    # if server_response == {}
+    all_users = server_response["users"]  # response
     users_pupils = list(filter(lambda x: x["creator"] == current_user.id, all_users))
-    items_js = {
-        "all_items": users_pupils
-    }
+    items_js = {"all_items": users_pupils}
     return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",
                            items_js=items_js, max_items_number_on_one_page=60)
 
@@ -422,7 +428,7 @@ def make_pupil():
             ))
         db_sess.commit()
         return redirect('/generate_link/' + str(user.id))
-    return render_template('make_pupil.html', back_button_hidden="false", back_url="/pupils",
+    return render_template('make_pupil.html', back_url="/pupils",
                            form=form)
 
 
@@ -470,7 +476,7 @@ def pupil_courses_view(pupil_id):
     data_parser_file.write(f"var not_pupil_courses_js = {not_pupil_courses_js}\n")
     data_parser_file.close()
     return render_template('pupil_courses.html',
-                           back_button_hidden='false', back_url="/pupils",
+                           back_url="/pupils",
                            items_in_column_number=13, column_number=4,
                            form=form)
 
@@ -526,7 +532,7 @@ def make_course():
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, function="Добавить курс",
-                           back_button_hidden='false', back_url="/courses")
+                           back_url="/courses")
 
 
 @app.route('/courses_delete/<int:course_id>', methods=['GET', 'POST'])
@@ -555,9 +561,9 @@ def course_view(course_id):
         }
     course_name = course["name"]
     if not current_user.teacher:
-        return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                               back_url="/courses",
-                               current_user=current_user, course_name=course_name, course_about=course['about'],
+        return render_template('course_view.html', course_data=course, back_url="/courses",
+                               current_user=current_user, course_name=course_name,
+                               course_about=course['about'],
                                python_data=python_data)
     form = CoursesForm()
     db_sess = db_session.create_session()
@@ -581,12 +587,13 @@ def course_view(course_id):
         user.courses.append(course)
         db_sess.merge(user)
         db_sess.commit()
-        return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                               back_url="/courses", form=form,
-                               current_user=current_user, course_name=course_name, python_data=python_data)
-    return render_template('course_view.html', course_data=course, back_button_hidden='false',
-                           back_url="/courses", form=form,
-                           current_user=current_user, course_name=course_name, course_about=course.about.split("\r\n"),
+        return render_template('course_view.html', course_data=course, back_url="/courses",
+                               form=form,
+                               current_user=current_user, course_name=course_name,
+                               python_data=python_data)
+    return render_template('course_view.html', course_data=course, back_url="/courses", form=form,
+                           current_user=current_user, course_name=course_name,
+                           course_about=course.about.split("\r\n"),
                            python_data=python_data)
 
 
@@ -646,9 +653,11 @@ def course_statistics(course_id):
                 else:
                     started_lesson += 1
         lesson_percentage = int(lesson_percentage / pupil_count)
-        lessons_data[lesson.id] = (lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
+        lessons_data[lesson.id] = (
+        lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
     return render_template("course_statistics.html", course=course, lessons_data=lessons_data,
-                           len_course_lessons=len(course.lessons), len_course_pupils=pupil_count)  # ff
+                           len_course_lessons=len(course.lessons),
+                           len_course_pupils=pupil_count)  # ff
 
 
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
@@ -691,7 +700,7 @@ def course_pupils_view(course_id):
     course_pupils_js = pupil_js_list(course_pupils)
     not_course_pupils_js = pupil_js_list(not_course_pupils)
     return render_template('course_pupils.html', course=course, course_items=all_pupils,
-                           back_button_hidden='false', back_url="/courses/" + str(course_id),
+                           back_url="/courses/" + str(course_id),
                            items_in_column_number=13, column_number=4, all_items_js=all_pupils_js,
                            # my_items_js=my_pupils_js, rest_items_js=rest_pupils_js,
                            course_items_js=course_pupils_js,
@@ -755,7 +764,7 @@ def lesson_view(course_id, lesson_id):
             db_sess.merge(current_course)
             db_sess.commit()
             return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
-                                   back_button_hidden='false', back_url=f"/courses/{course_id}",
+                                   back_url=f"/courses/{course_id}",
                                    lesson_words_js=lesson_words_js, column_number=column_number,
                                    items_in_column_number=items_in_column_number,
                                    test_results=test_results,
@@ -764,7 +773,7 @@ def lesson_view(course_id, lesson_id):
                                    words_learn_states=words_learn_states, form=form,
                                    lesson_name=lesson_name)
         return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
-                               back_button_hidden='false', back_url=f"/courses/{course_id}",
+                               back_url=f"/courses/{course_id}",
                                lesson_words_js=lesson_words_js, column_number=column_number,
                                items_in_column_number=items_in_column_number,
                                test_results=test_results,
@@ -774,7 +783,7 @@ def lesson_view(course_id, lesson_id):
                                lesson_name=lesson_name)
 
     return render_template('lesson_view.html', lesson_data=lesson, course_id=course_id,
-                           back_button_hidden='false', back_url=f"/courses/{course_id}",
+                           back_url=f"/courses/{course_id}",
                            lesson_words_js=lesson_words_js, column_number=column_number,
                            items_in_column_number=items_in_column_number, test_results=test_results,
                            trainer_results=trainer_results,
@@ -1045,7 +1054,7 @@ def lesson_statistics(course_id, lesson_id):
             print(res)
             lesson_percentage += res
     return render_template("lesson_statistics.html", lesson_name=lesson["name"],
-                           back_button_hidden='false', back_url=f"/courses/{course_id}",
+                           back_url=f"/courses/{course_id}",
                            lesson_words_len=len(lesson["words"]),
                            lesson_trainers_len=len(lesson["trainers"]),
                            lesson_tests_len=len(lesson["tests"]),
@@ -1098,7 +1107,6 @@ def lesson_pupil_statistics(course_id, lesson_id, pupil_id):
         else:
             tests_uncompleted += 1
     return render_template("lesson_pupil_statistics.html", pupil=pupil,
-                           back_button_hidden='false',
                            back_url=f"/courses/{course_id}/lesson_statistics/{lesson_id}",
                            # lesson_words_len=lesson_words_len,
                            # lesson_trainers_len=lesson_trainers_len,
@@ -1281,7 +1289,7 @@ def add_word():
         return redirect('/dictionary')
     return render_template('make_word.html', form=form, filename="tmp",
                            image_start_preview=image_start_preview,
-                           back_button_hidden="false", back_url="/dictionary",
+                           back_url="/dictionary",
                            all_words=all_words)
 
 
@@ -1492,7 +1500,7 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):
     return render_template('trainer_view.html', course=course, lesson=lesson, trainer=trainer,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                           back_button_hidden="false", all_words=lesson_all_words,
+                           all_words=lesson_all_words,
                            is_last_trainer=is_last_trainer, next_trainer_href=next_trainer_href,
                            next_test_href=next_test_href)
 
@@ -1565,13 +1573,13 @@ def lesson_test_view(course_id, lesson_id, test_id):
         return render_template('ultimate_test_view.html', course=course, lesson=lesson, test=test,
                                lesson_words=lesson_words, answer_button_number=answer_button_number,
                                back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                               back_button_hidden="false", all_words=lesson_all_words,
+                               all_words=lesson_all_words,
                                tests_list=tests_list, is_last_test=is_last_test,
                                next_test_href=next_test_href)
     return render_template('test_view.html', course=course, lesson=lesson, test=test,
                            lesson_words=lesson_words, answer_button_number=answer_button_number,
                            back_url=f"/courses/{course_id}/lesson/{lesson_id}",
-                           back_button_hidden="false", all_words=lesson_all_words,
+                           all_words=lesson_all_words,
                            is_last_test=is_last_test, next_test_href=next_test_href)
 
 

@@ -5,6 +5,7 @@
 }
 
 .btn-primary {
+    font-size: medium;
     white-space: nowrap;
     text-align: center;
     min-width: 45px;
@@ -58,6 +59,7 @@
 }
 
 .btn-white {
+    font-size: medium;
     display: inline-block;
     vertical-align: top;
     color: var(--red);
@@ -144,4 +146,8 @@
 .info-button:hover {
     border: solid 3px var(--blue);
     background-color: var(--blue);
+}
+
+.info-svg {
+    fill:var(--contrast-blue);
 }
