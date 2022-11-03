@@ -168,9 +168,15 @@ def user_profile(user_id):
     if not current_user.is_authenticated:
         return render_template("unauthorized.html")
     if current_user.id == user_id:
-        return render_template('profile.html', user=current_user, is_owner=1)
+        python_data = {
+            "user_about": current_user.about
+        }
+        return render_template('profile.html', user=current_user, is_owner=1, python_data=python_data)
     profile_user = load_user(user_id)
-    return render_template('profile.html', user=profile_user, is_owner=0)
+    python_data = {
+        "user_about": profile_user.about
+    }
+    return render_template('profile.html', user=profile_user, is_owner=0, python_data=python_data)
 
 
 @app.route('/change_profile/<token>', methods=['GET', 'POST'])
@@ -387,14 +393,14 @@ def pupils():
                            items_js=items_js, max_items_number_on_one_page=60)
 
 
-@app.route('/add_pupil', methods=['GET', 'POST'])
+@app.route('/make_pupil', methods=['GET', 'POST'])
 @login_required
-def add_pupil():
+def make_pupil():
     form = MakeUserForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('add_pupil.html',
+            return render_template('make_pupil.html',
                                    form=form,
                                    message="Такой пользователь уже есть")
         user = User(
@@ -416,7 +422,7 @@ def add_pupil():
             ))
         db_sess.commit()
         return redirect('/generate_link/' + str(user.id))
-    return render_template('add_pupil.html', back_button_hidden="false", back_url="/pupils",
+    return render_template('make_pupil.html', back_button_hidden="false", back_url="/pupils",
                            form=form)
 
 
@@ -539,9 +545,14 @@ def delete_course(course_id):
 def course_view(course_id):
     course = get(root + '/rest_course/' + str(course_id)
                  ).json()["course"]
-    python_data = {
-        "course_about": course['about'].split("\n")
-    }
+    if course['about']:
+        python_data = {
+            "course_about": course['about'].split("\n")
+        }
+    else:
+        python_data = {
+            "course_about": []
+        }
     course_name = course["name"]
     if not current_user.teacher:
         return render_template('course_view.html', course_data=course, back_button_hidden='false',
@@ -558,9 +569,14 @@ def course_view(course_id):
         course.name = form.name.data
         course.about = form.about.data
         course_name = course.name
-        python_data = {
-            "course_about": course.about.split("\n")
-        }
+        if course['about']:
+            python_data = {
+                "course_about": course['about'].split("\n")
+            }
+        else:
+            python_data = {
+                "course_about": []
+            }
         user = db_sess.query(User).get(current_user.id)
         user.courses.append(course)
         db_sess.merge(user)

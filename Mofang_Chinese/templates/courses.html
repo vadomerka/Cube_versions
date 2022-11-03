@@ -10,20 +10,15 @@
         flex-wrap: nowrap;
     }
 </style>
-<div style="vertical-align: middle;
-            display: flex;
-            justify-content: center;
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-items: center;">
+<div class="courses-container">
     {% if not courses %}
-    {% if not current_user.teacher %}
-    <h1>На данный момент вы не подключены ни к одному курсу.
-        Свяжитесь с вашим учителем, чтобы он добавил вас</h1>
-    {% else %}
-    <h1>На данный момент вы не создали ни одного курса.
-        Чтобы создать курс, нажмите кнопку "Добавить курс"</h1>
-    {% endif %}
+        {% if not current_user.teacher %}
+            <h1>На данный момент вы не подключены ни к одному курсу.</h1>
+            <h3>Для подключения к курсу обратитесь к своему преподавателю</h3>
+        {% else %}
+            <h1>На данный момент вы не создали ни одного курса.</h1>
+            <h3>Для создания курса, нажмите на кнопку "Добавить курс"</h3>
+        {% endif %}
     {% endif %}
     {% for item in courses %}
         <div class="course-card">
@@ -55,10 +50,7 @@
     {% endfor %}
 
     {% if current_user.teacher %}
-        <div style="width: 400px;
-                    display: flex;
-                    justify-content: center;
-                    margin: 10px 10px 10px 10px;">
+        <div class="course-card add-course-container">
         <a style="" class="btn btn-add" href="/make_course">Добавить курс</a>
         </div>
     {% endif %}

@@ -1,0 +1,53 @@
+:root {
+  --red: #9C1313;
+  --backgrpund-red: #f8d7da;
+  --dark-red: #721c24;
+  --orange: #FF660C;
+  --yellow: #ffc107;
+  --green: #158903;
+  --blue: #006AFF;
+  --contrast-red: white;
+  --contrast-orange: white;
+  --contrast-yellow: #3E2314;
+  --contrast-green: white;
+  --contrast-blue: white;
+
+  --min-window-size: 400px;
+}
+
+body {
+    font-family: font-family: times New Roman;
+    font-size: 15px;
+    color: #33;
+}
+
+.header {
+    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: var(--min-window-size);
+}
+
+.navbar-brand {
+    color: var(--red);
+    position: relative;
+}
+
+.navbar-brand:hover {
+    color: var(--contrast-red);
+    background-color: var(--red);
+}
+
+.main-div-container {
+    display: block;
+    min-width: var(--min-window-size);
+    margin: 0 auto;
+}

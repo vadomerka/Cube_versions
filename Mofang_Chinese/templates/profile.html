@@ -24,7 +24,9 @@
     {% endif %}
 
     {% if user.about %}
-        <h3>О пользователе {{ user.about }}</h3>
+        <h3>О пользователе</h3>
+        <div id="user-about" class="user-about">
+        </div>
     {% endif %}
 {% endif %}
 
@@ -45,6 +47,10 @@
     {% endif %}
 {% endif %}
 <script>
-
+    var user_about = {{ python_data|tojson }}.user_about;
+    if (user_about){
+        text_holder = document.getElementById("user-about");
+        text_holder.innerText = user_about;
+    }
 </script>
 {% endblock %}

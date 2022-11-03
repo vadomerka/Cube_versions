@@ -137,7 +137,6 @@
     var json_course_about = {{ python_data|tojson }}.course_about;
     if ("{{ current_user.teacher }}" == "True"){
         if (json_course_about){
-            // json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
             for (let i = 0; i < json_course_about.length; i++){
                 string += json_course_about[i];
                 text_holder = document.getElementById("course_about");
@@ -146,7 +145,6 @@
         }
     } else {
         if (json_course_about){
-            // json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
             for (let i = 0; i < json_course_about.length; i++){
                 text_holder = document.getElementById("course_about");
                 new_line = document.createElement('p');

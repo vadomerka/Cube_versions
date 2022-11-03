@@ -1,0 +1,40 @@
+.courses-container {
+    vertical-align: middle;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+
+.course-card {
+    width: 360px;
+    height: auto;
+    margin: 10px 10px 10px 10px;
+    display: inline-block;
+}
+
+.add-course-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-body{
+    background-color: white;
+    border: solid 3px var(--red);
+}
+
+.card-title{
+    text-align: center;
+    width: 100%;
+}
+
+.card-text{
+    width: 260px;
+    height: 22.5px;
+    overflow:hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

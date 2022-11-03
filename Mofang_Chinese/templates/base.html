@@ -7,8 +7,12 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/base_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/button_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/courses_view_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/item_view_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/login_page_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
     <title>Mofang Chinese</title>
 </head>
 <body>
@@ -37,6 +41,7 @@
     </div>
 </header>
 <main role="main" class="container main-container">
+    <div class="main-div-container">
     <script>
         for (let i = 1; i < 4; i++){
             nav_button = document.getElementById("nav button " + i.toString());
@@ -58,6 +63,7 @@
         })
     </script>
     {% block content %}{% endblock %}
+    </div>
 </main>
 </body>
 </html>
