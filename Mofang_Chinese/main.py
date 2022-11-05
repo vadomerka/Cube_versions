@@ -62,7 +62,7 @@ api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
-api.add_resource(LessonListResource, "/rest_lessons/<int:lesson_id>")
+api.add_resource(LessonListResource, "/rest_lessons/<req>/<int:item_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
 api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/<int:user_id>/<int:word_id>')
@@ -133,6 +133,8 @@ def index():  # основная страница, переадресация н
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():  # страница авторизации пользователя
+    if current_user.is_authenticated:
+        logout_user()
     form = LoginForm(meta={'locales': ['ru']})
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -143,11 +145,12 @@ def login():  # страница авторизации пользователя
         elif user and user.hashed_password and not user.check_password(form.password.data):
             return render_template('login.html',
                                    message="Неправильный пароль",
-                                   form=form, back_button_hidden="true")
+                                   form=form, back_button_hidden="true", header_disabled="true")
         return render_template('login.html',
                                message="Пользователя с такой почтой не существует",
-                               form=form, back_button_hidden="true")
-    return render_template('login.html', title='Авторизация', form=form, back_button_hidden="true")
+                               form=form, back_button_hidden="true", header_disabled="true")
+    return render_template('login.html', title='Авторизация', form=form, back_button_hidden="true",
+                           header_disabled="true")
 
 
 @app.route('/logout')
@@ -166,7 +169,7 @@ def load_user(user_id):  # загрузка пользователя из баз
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile(user_id):  # просмотр профиля пользователя
     if not current_user.is_authenticated:
-        return render_template("unauthorized.html")
+        return render_template("unauthorized.html", back_button_hidden="true")
     if current_user.id == user_id:
         python_data = {
             "user_about": current_user.about
@@ -188,10 +191,10 @@ def change_profile(token):  # первый вход ученика по ссыл
     email = confirm_user_password_token(token)
     if not email:
         message = 'Ссылка для создания пароля недействительна или срок ее действия истек.'
-        return render_template("wrong_link.html", message=message)
+        return render_template("wrong_link.html", message=message, back_button_hidden="true")
     user = db_sess.query(User).filter(User.email == email).first()
     if not user:
-        return render_template("wrong_link.html")
+        return render_template("wrong_link.html", back_button_hidden="true")
     login_user(user)
     form = ChangeProfileForm()
     name_data = user.name
@@ -256,7 +259,7 @@ def change_profile(token):  # первый вход ученика по ссыл
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():  # пользователь изменяет пароль
     if not current_user.is_authenticated:
-        return render_template("unauthorized.html")
+        return render_template("unauthorized.html", back_button_hidden="true")
     form = ChangePasswordForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -265,24 +268,27 @@ def change_password():  # пользователь изменяет пароль
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
-                                   message="Неправильный пароль", back_url="/profile/" + str(current_user.id))
+                                   message="Неправильный пароль",
+                                   back_url="/profile/" + str(current_user.id))
         if form.password.data != form.password_again.data:
             return render_template('change_password.html',
                                    form=form,
                                    user=user,
-                                   message="Пароли не совпадают", back_url="/profile/" + str(current_user.id))
+                                   message="Пароли не совпадают",
+                                   back_url="/profile/" + str(current_user.id))
         db_sess.add(user)
         user.set_password(form.password.data)
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/profile/' + str(current_user.id))
-    return render_template("change_password.html", form=form, back_url="/profile/" + str(current_user.id))
+    return render_template("change_password.html", form=form,
+                           back_url="/profile/" + str(current_user.id))
 
 
 @app.route('/change_data', methods=['GET', 'POST'])
 def change_data():  # пользователь изменяет свои данные
     if not current_user.is_authenticated:
-        return render_template("unauthorized.html")
+        return render_template("unauthorized.html", back_button_hidden="true")
     user = load_user(current_user.id)
     name_data = user.name
     if name_data is None:
@@ -340,7 +346,8 @@ def reset_password_email_send():  # сценарий "пользователь �
         with app.app_context():
             token = generate_email_token(user_email)  # создаем спец токен
             confirm_url = url_for('reset_password', token=token,
-                                  _external=True, back_url="/")  # ссылка вида root/reset_password/<token>
+                                  _external=True,
+                                  back_url="/")  # ссылка вида root/reset_password/<token>
             html = render_template('reset_password_letter.html',
                                    confirm_url=confirm_url)  # тело письма
             subject = "Сброс пароля Mofang Chinese"  # тема письма
@@ -361,11 +368,11 @@ def reset_password(token):  # если пользователь получил �
     email = confirm_user_password_token(token)
     if not email:
         message = 'Ссылка для восстановления пароля недействительна или срок ее действия истек.'
-        return render_template("wrong_link.html", message=message)
+        return render_template("wrong_link.html", message=message, back_button_hidden="true")
     user = db_sess.query(User).filter(User.email == email).first()
     if not user:
         message = 'Пользователя с такой почтой не существует'
-        return render_template("wrong_link.html", message=message)
+        return render_template("wrong_link.html", message=message, back_button_hidden="true")
     user.hashed_password = None
     logout_user()
     form = MakePasswordForm()
@@ -387,9 +394,9 @@ def reset_password(token):  # если пользователь получил �
 @app.route('/pupils', methods=['GET', 'POST'])
 def pupils():  # список учеников учителя
     if not current_user.is_authenticated:
-        return render_template("unauthorized.html")
+        return render_template("unauthorized.html", back_button_hidden="true")
     if not current_user.teacher:
-        return render_template("access_denied.html")
+        return render_template("access_denied.html", back_button_hidden="true")
     server_response = get(root + '/rest_users').json()
     # if server_response == {}
     all_users = server_response["users"]  # response
@@ -400,15 +407,18 @@ def pupils():  # список учеников учителя
 
 
 @app.route('/make_pupil', methods=['GET', 'POST'])
-@login_required
-def make_pupil():
+def make_pupil():  # создание нового пользователя
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    if not current_user.teacher:
+        return render_template("access_denied.html", back_button_hidden="true")
     form = MakeUserForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('make_pupil.html',
                                    form=form,
-                                   message="Такой пользователь уже есть")
+                                   message="Такой пользователь уже есть", back_url="/pupils")
         user = User(
             name=form.name.data,
             last_name=form.last_name.data,
@@ -432,29 +442,48 @@ def make_pupil():
                            form=form)
 
 
+@app.route('/generate_link/<int:user_id>', methods=['GET', 'POST'])
+def generate_link(user_id):  # создает ссылку на вход для пользователя
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    if not current_user.teacher:
+        return render_template("access_denied.html", back_button_hidden="true")
+    user = load_user(user_id)
+    if user.creator != current_user.id:
+        return render_template("access_denied.html", back_button_hidden="true")
+    return render_template("generate_link.html", user=user, root=root)
+
+
 @app.route('/pupil/<int:pupil_id>/courses', methods=['GET', 'POST'])
-@login_required
-def pupil_courses_view(pupil_id):
+def pupil_courses_view(pupil_id):  # добавление курсов к ученику
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    if not current_user.teacher:
+        return render_template("access_denied.html", back_button_hidden="true")
+    if load_user(pupil_id).creator != current_user.id:
+        return render_template("access_denied.html", back_button_hidden="true")
+    if pupil_id == current_user.id:
+        redirect("/courses")
     form = AddItemToSomethingForm()
-    db_sess = db_session.create_session()
-    pupil = db_sess.query(User).get(pupil_id)
-    all_courses = []
-    pupil_courses = []
-    not_pupil_courses = []
-    cur_user = db_sess.query(User).get(current_user.id)
-    for course in cur_user.courses:
-        course_js = {"id": course.id,
-                     "name": course.name,
-                     "about": course.about}
-        all_courses.append(course_js)
-        if course in pupil.courses:
-            pupil_courses.append(course_js)
-        else:
-            not_pupil_courses.append(course_js)
+    cur_user_response = get(root + '/rest_user/' + str(current_user.id)).json()    # request
+    pupil_response = get(root + '/rest_user/' + str(pupil_id)).json()    # request
+    cur_user = cur_user_response["user"]
+    pupil = pupil_response["user"]
+    all_items = cur_user["courses"]
+    max_id = max([item["id"] for item in all_items])
+    added_items = list(filter(lambda x: x in pupil["courses"], all_items))
+    not_added_items = list(filter(lambda x: x not in pupil["courses"], all_items))
+    items_js = {
+        "all_items": all_courses,
+        "added_items": added_items,
+        "not_added_items": not_added_items,
+        "max_id": max_id
+    }
     if form.validate_on_submit():
+        db_sess = db_session.create_session()
         courses_js = request.form.getlist('form-res')
         str_arr = courses_js[0]
-
+        pupil = db_sess.query(User).get(pupil_id)
         ans_arr = [int(item) for item in str_arr.split(",")]
         for course_js in all_courses:
             course = db_sess.query(Courses).get(course_js["id"])
@@ -465,54 +494,42 @@ def pupil_courses_view(pupil_id):
                     pupil.courses.remove(course)
         db_sess.merge(pupil)
         db_sess.commit()
-
         return redirect("/profile/" + str(pupil_id))
-    all_items_js = json.dumps(all_courses)
-    pupil_courses_js = json.dumps(pupil_courses)
-    not_pupil_courses_js = json.dumps(not_pupil_courses)
-    data_parser_file = open("static/data_parser.js", "w")
-    data_parser_file.write(f"var all_items_js = {all_items_js}\n")
-    data_parser_file.write(f"var pupil_courses_js = {pupil_courses_js}\n")
-    data_parser_file.write(f"var not_pupil_courses_js = {not_pupil_courses_js}\n")
-    data_parser_file.close()
     return render_template('pupil_courses.html',
                            back_url="/pupils",
-                           items_in_column_number=13, column_number=4,
-                           form=form)
-
-
-@app.route('/generate_link/<int:user_id>', methods=['GET', 'POST'])
-@login_required
-def generate_link(user_id):
-    user = load_user(user_id)
-    return render_template("generate_link.html", user=user, root=root)
+                           max_items_number_on_one_page=60,
+                           form=form, items_js=items_js)
 
 
 @app.route('/create_token_for_user/<int:user_id>', methods=['GET', 'POST'])
-@login_required
-def create_token_for_user(user_id):
-    db_sess = db_session.create_session()
-    user = load_user(user_id)
-    token = generate_email_token(user.email)  # создаем спец токен на основе
-    print(token)
-    return {'token': str(token)}
+def create_token_for_user(user_id):  # создание токена для спец ссылки (используется в generate_link.html)
+    if request.method == 'POST':
+        user = load_user(user_id)
+        token = generate_email_token(user.email)
+        return {'token': str(token)}
+    else:
+        return render_template("access_denied.html", back_button_hidden="true")
 
 
 @app.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
-@login_required
-def delete_user(user_id):
-    ret = delete(root + "/rest_user/" + str(user_id)).json()
+def delete_user(user_id):  # удалить профиль пользователя
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    if not current_user.id != user_id:
+        return render_template("access_denied.html", back_button_hidden="true")
+    ret = delete(root + "/rest_user/" + str(user_id)).json()    # request
     if ret == {'success': 'OK'}:
         return redirect("/")
     else:
-        return ret
+        message = "Что-то пошло не так при удалении пользователя"
+        return render_template("delete_error.html", message=message)
 
 
 @app.route('/courses', methods=['GET', 'POST'])
-@login_required
 def courses():
-    user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()[
-        "courses"]
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()  # request
     return render_template('courses.html', courses=user_courses, new_id=len(user_courses) + 1,
                            back_button_hidden='true', back_url='/dictionary')
 
@@ -654,58 +671,57 @@ def course_statistics(course_id):
                     started_lesson += 1
         lesson_percentage = int(lesson_percentage / pupil_count)
         lessons_data[lesson.id] = (
-        lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
+            lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
     return render_template("course_statistics.html", course=course, lessons_data=lessons_data,
                            len_course_lessons=len(course.lessons),
-                           len_course_pupils=pupil_count)  # ff
+                           len_course_pupils=pupil_count)
 
 
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
-@login_required
 def course_pupils_view(course_id):
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    if not current_user.teacher:
+        return render_template("access_denied.html", back_button_hidden="true")
+    if course_id not in [c.id for c in current_user.courses]:
+        return render_template("access_denied.html", back_button_hidden="true")
     form = AddItemToSomethingForm()
-    db_sess = db_session.create_session()
-    course = db_sess.query(Courses).get(course_id)
-    all_pupils = []
-    course_pupils = []
-    not_course_pupils = []
-    db_sess.query(User).all()
-    for user in db_sess.query(User).all():
-        if not user.teacher:
-            all_pupils.append(user)
-            if user in course.users:
-                course_pupils.append(user)
-            else:
-                not_course_pupils.append(user)
+    course_response = get(root + '/rest_course/' + str(course_id)).json()
+    all_users_response = get(root + '/rest_users').json()
+    all_users = all_users_response["users"]
+    course = course_response["course"]
+    all_items = list(filter(lambda x: x["creator"] == current_user.id, all_users))
+    max_id = max([item["id"] for item in all_items])
+    course_users_ids = [u["id"] for u in course["users"]]
+    added_items = list(filter(lambda x: x["id"] in course_users_ids, all_items))
+    not_added_items = list(filter(lambda x: x not in course["users"], all_items))
+    items_js = {
+        "all_items": all_items,
+        "added_items": added_items,
+        "not_added_items": not_added_items,
+        "max_id": max_id
+    }
     if form.validate_on_submit():
+        db_sess = db_session.create_session()
         pupils_js = request.form.getlist('form-res')
         str_arr = pupils_js[0]
-
+        course = db_sess.query(Courses).get(course_id)
         ans_arr = [int(item) for item in str_arr.split(",")]
-        for pupil_js in all_pupils:
-            if ans_arr[pupil_js.id]:
-                pupil = db_sess.query(User).get(int(pupil_js.id))
+        for pupil_js in all_items:
+            pupil = db_sess.query(User).get(pupil_js["id"])
+            if ans_arr[pupil_js["id"]]:
                 pupil.courses.append(course)
                 db_sess.merge(pupil)
             else:
-                pupil = db_sess.query(User).get(int(pupil_js.id))
-                if course in pupil.courses:
+                if pupil in course.users:
                     pupil.courses.remove(course)
-
-                db_sess.merge(pupil)
+                    db_sess.merge(pupil)
         db_sess.commit()
-
         return redirect("/courses/" + str(course_id))
-    all_pupils_js = pupil_js_list(all_pupils)
-    course_pupils_js = pupil_js_list(course_pupils)
-    not_course_pupils_js = pupil_js_list(not_course_pupils)
-    return render_template('course_pupils.html', course=course, course_items=all_pupils,
+    return render_template('course_pupils.html',
                            back_url="/courses/" + str(course_id),
-                           items_in_column_number=13, column_number=4, all_items_js=all_pupils_js,
-                           # my_items_js=my_pupils_js, rest_items_js=rest_pupils_js,
-                           course_items_js=course_pupils_js,
-                           not_course_items_js=not_course_pupils_js,
-                           form=form)
+                           max_items_number_on_one_page=60,
+                           form=form, items_js=items_js)
 
 
 def lesson_words_js_list(array):
@@ -885,85 +901,75 @@ def add_tests_to_lesson(lesson_id):
                            lesson_tests=lesson_tests, unused_tests=unused_tests)
 
 
-def add_words_js_list(array):
-    array_js = []
-    for i in range(len(array)):
-        word = array[i]
-        array_js.append(";".join([str(word.id), word.hieroglyph, word.translation]))
-    array_js = ";;;".join(array_js)
-    return array_js
-
-
 @app.route('/add_words_to_lesson/<int:lesson_id>', methods=['GET', 'POST'])
-@login_required
-def add_words_to_lesson(lesson_id):
+def add_words_to_lesson(lesson_id):  # добавляет слова к уроку
+    if not current_user.is_authenticated:
+        return render_template("unauthorized.html", back_button_hidden="true")
+    if not current_user.teacher:
+        return render_template("access_denied.html", back_button_hidden="true")
+    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    user_lessons = lessons_response["user_lessons"]
+    lessons = [item["id"] for item in user_lessons]
+    if lesson_id not in lessons:
+        return render_template("access_denied.html", back_button_hidden="true")
     form = AddSomethingToLessonForm()
+    lesson_response = get(root + "/rest_lesson/" + str(lesson_id)).json()
+    lesson = lesson_response["lesson"]
+    current_course_id = lesson["course"]["id"]
+    all_items_response = get(root + "/rest_dict").json()
+    all_items = all_items_response["words"]
+    max_id = max([item["id"] for item in all_items])
+    my_items = list(filter(lambda x: x["author"] == current_user.id, all_items))
+    rest_items = list(filter(lambda x: x["author"] != current_user.id, all_items))
+    added_items = lesson["words"]
+    not_added_items = list(filter(lambda x: x not in added_items, all_items))
+    other_user_lessons = list(filter(lambda x: x["id"] != lesson_id, user_lessons))
+    other_lesson_words = []
+    for les in other_user_lessons:
+        for word in les["words"]:
+            if word not in other_lesson_words:
+                other_lesson_words.append(word)
+    course_items = other_lesson_words
+    not_course_items = list(filter(lambda x: x not in course_items, all_items))
+    items_js = {
+        "max_id": max_id,
+        "all_items": all_items,
+        "my_items": my_items,
+        "rest_items": rest_items,
+        "added_items": added_items,
+        "not_added_items": not_added_items,
+        "course_items": course_items,
+        "not_course_items": not_course_items
+    }
     db_sess = db_session.create_session()
+    current_course = db_sess.query(Courses).get(current_course_id)
     lesson = db_sess.query(Lessons).get(lesson_id)
-    current_course = 0
-    course_words = set()
-    for c in db_sess.query(User).get(current_user.id).courses:
-        if lesson in c.lessons:
-            current_course = c
-        for les in c.lessons:
-            if les != lesson:
-                for word in les.words:
-                    course_words.add(word)
-
-    all_words = db_sess.query(Words).all()
-    my_words = []
-    rest_words = []
-    for word in all_words:
-        if word.author == current_user.id:
-            my_words.append(word)
-        else:
-            rest_words.append(word)
-    lesson_words = lesson.words
-    unused_words = sorted(list(set(all_words).difference(set(lesson_words))), key=lambda x: x.id)
-    course_words = sorted(list(course_words), key=lambda x: x.id)
-    not_course_words = sorted(list(set(all_words).difference(set(course_words))), key=lambda x: x.id)
-
-    all_words_js = add_words_js_list(all_words)
-    my_words_js = add_words_js_list(my_words)
-    rest_words_js = add_words_js_list(rest_words)
-    lesson_words_js = add_words_js_list(lesson_words)
-    unused_words_js = add_words_js_list(unused_words)
-    course_words_js = add_words_js_list(course_words)
-    not_course_words_js = add_words_js_list(not_course_words)
     if form.validate_on_submit():
         items_js = request.form.getlist('form-res')
         str_arr = items_js[0]
-
         ans_arr = [int(item) for item in str_arr.split(",")]
-
-        removed_word = False
-        for i in range(len(ans_arr)):
-            word = db_sess.query(Words).get(i)
-            if ans_arr[i] == 0:
-                if word and word in lesson.words:
+        removed_word = True
+        for word_js in all_items:
+            word = db_sess.query(Words).get(word_js["id"])
+            if ans_arr[word_js["id"]]:
+                lesson.words.append(word)
+            else:
+                if word in lesson.words:
                     lesson.words.remove(word)
                     removed_word = True
-            else:
-                lesson.words.append(word)
         if removed_word:
             test_results = db_sess.query(TestsToUsers).filter(
-                TestsToUsers.course_id == current_course.id,
-                TestsToUsers.lesson_id == lesson_id,
-                TestsToUsers.user_id == current_user.id).all()
-            for test in test_results:
-                db_sess.delete(test)
+                    TestsToUsers.course_id == current_course_id,
+                    TestsToUsers.lesson_id == lesson_id).all()
+            for test_res in test_results:
+                db_sess.delete(test_res)
         current_course.lessons.append(lesson)
         db_sess.merge(current_course)
         db_sess.commit()
-        return redirect('/courses/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('add_words_to_lesson.html', lesson_words=lesson_words,
-                           unused_words=unused_words,
-                           dictionary=all_words, form=form, len_dictionary=len(all_words),
-                           course_words=course_words, items_in_column_number=13, column_number=4,
-                           all_items_js=all_words_js, my_items_js=my_words_js,
-                           rest_items_js=rest_words_js, lesson_items_js=lesson_words_js,
-                           unused_items_js=unused_words_js, course_items_js=course_words_js,
-                           not_course_items_js=not_course_words_js)
+        return redirect('/courses/' + str(current_course_id) + '/lesson/' + str(lesson_id))
+    return render_template('add_words_to_lesson.html', back_url='/courses/' + str(current_course_id) + '/lesson/' + str(lesson_id),
+                           max_items_number_on_one_page=60,
+                           form=form, items_js=items_js)
 
 
 @app.route('/change_lesson/<int:lesson_id>', methods=['GET', 'POST'])

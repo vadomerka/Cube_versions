@@ -8,7 +8,7 @@
 	</div>
 	<div class="instruments-box">
 		<div class="instruments-group">
-			<div class="instrument input-group" style="max-width: 500px;">
+			<div class="instrument input-group" style="max-width: var(--min-window-size);">
 		    <div class="input-group-prepend">
 		        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
 		                                                              x="0px" y="0px"
@@ -56,13 +56,15 @@
 	</div>
 	<div class="add-item-group">
 		{% if current_user.teacher %}
-			<a href="/add_word" class="btn btn-add">Добавить слово</a>
+			<div class="add-item-box">
+				<a href="/add_word" class="btn btn-add">Добавить слово</a>
+			</div>
 		{% endif %}
 	</div>
 	<div class="items-row" id="items-row">
 	    <h3 id="items-not-found-heading" hidden>Слова не найдены</h3>
 	</div>
-	<div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+	<div class="page-buttons-box">
 	    <div class="page-buttons-row" id="pages-row">
 	    	<div class="page-buttons-container" id="start-page-buttons-container">
 	    	</div>	
@@ -74,82 +76,8 @@
 	</div>
 </div>
 <script src="/static/templates_js/items_view.js"></script>
+<script src="/static/templates_js/word_items_funtions.js"></script>
 <script type="text/javascript">
-	function searchArrayFilter(item_list){
-	    translation_search_field = document.getElementById("translation search field");
-	    hieroglyph_search_field = document.getElementById("hieroglyph search field");
-	    val1 = translation_search_field.value;
-	    val2 = hieroglyph_search_field.value;
-	    name_vals = ["translation", "hieroglyph"];
-	    ret_array = [];
-	    if (val1 != "" || val2 != ""){
-	        for (var i = 0; i < item_list.length; i++) {
-	            if ( (val1 == "" || item_list[i].translation.includes(val1) ) &&
-	                (val2 == "" || item_list[i].hieroglyph.includes(val2)) ){
-	                ret_array.push(item_list[i]);
-	            }
-	        }
-	    } else {
-	        ret_array = item_list;
-	    }
-	    return ret_array;
-	}
-
-	function sortButtonClick(event){
-	    button_type = event.target.id;
-	    current_item_list = searchArrayFilter(items_lists[filter_button_state]);
-	    if (button_type == "alphabet_translation-sort-button"){
-	        current_item_list.sort((firstItem, secondItem) => {
-	              const string1 = firstItem.translation.toUpperCase();
-	              const string2 = secondItem.translation.toUpperCase();
-	              if (string1 < string2) {return -1;}
-	              if (string1 > string2) {return 1;}
-	              return 0;
-	        });
-	    } else if (button_type == "rev_alphabet_translation-sort-button") {
-	        current_item_list.sort((firstItem, secondItem) => {
-	              const string1 = firstItem.translation.toUpperCase();
-	              const string2 = secondItem.translation.toUpperCase();
-	              if (string1 < string2) {return 1;}
-	              if (string1 > string2) {return -1;}
-	              return 0;
-	        });
-	    } else if (button_type == "alphabet_hieroglyph-sort-button") {
-	        current_item_list.sort((firstItem, secondItem) => {
-	              const string1 = firstItem.hieroglyph.toUpperCase();
-	              const string2 = secondItem.hieroglyph.toUpperCase();
-	              if (string1 < string2) {return -1;}
-	              if (string1 > string2) {return 1;}
-	              return 0;
-	        });
-	    } else if (button_type == "rev_alphabet_hieroglyph-sort-button") {
-	        current_item_list.sort((firstItem, secondItem) => {
-	              const string1 = firstItem.hieroglyph.toUpperCase();
-	              const string2 = secondItem.hieroglyph.toUpperCase();
-	              if (string1 < string2) {return 1;}
-	              if (string1 > string2) {return -1;}
-	              return 0;
-	        });
-	    } else if (button_type == "time-sort-button") {
-	        current_item_list.sort((firstItem, secondItem) => {
-	              const string1 = parseInt(firstItem.id);
-	              const string2 = parseInt(secondItem.id);
-	              if (string1 < string2) {return -1;}
-	              if (string1 > string2) {return 1;}
-	              return 0;
-	        });
-	    } else if (button_type == "rev_time-sort-button") {
-	        current_item_list.sort((firstItem, secondItem) => {
-	              const string1 = parseInt(firstItem.id);
-	              const string2 = parseInt(secondItem.id);
-	              if (string1 < string2) {return 1;}
-	              if (string1 > string2) {return -1;}
-	              return 0;
-	        });
-	    }
-	    pagerUpdate();
-	}
-
 	function createItemButtons(item_list){
 		deleteItemButtons();
 	    if (item_list.length == 0){
@@ -257,12 +185,6 @@
 	               items_js.my_items_js,
 	               items_js.rest_items_js]
 
-	for (let i = 0; i < items_lists.length; i++){
-	    if (items_lists[i][0] == ''){
-	        items_lists[i] = [];
-	    }
-	}
-
 	page_numbers = []
 	for (let i = 0; i < items_lists.length; i++){
 	    page_number = pageNumberCount(items_lists[i]);
@@ -288,6 +210,5 @@
 	hieroglyph_search_field = document.getElementById("hieroglyph search field");
 	translation_search_field.addEventListener("keyup", onSearchChange, false);
 	hieroglyph_search_field.addEventListener("keyup", onSearchChange, false);
-
 </script>
 {% endblock %}

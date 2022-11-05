@@ -89,3 +89,28 @@
     min-width: var(--min-window-size);
     display: block;"
 }
+
+.page-buttons-box {
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+}
+
+.add-item-box {
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    margin: 5px 5px 5px 5px;
+}
+
+.not-course-item {
+    background-color: var(--orange);
+    color: var(--contrast-orange);
+}
+
+.course-item {
+    background-color: var(--yellow);
+    color: var(--contrast-yellow);
+}

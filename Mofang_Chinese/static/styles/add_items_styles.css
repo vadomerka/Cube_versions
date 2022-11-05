@@ -1,6 +1,5 @@
 .added-item {
     background-color: var(--green);
-    width: 100%;
 }
 
 .added-item:not(:disabled):not(.disabled):active {
@@ -23,7 +22,6 @@
 
 .not-added-item {
     background-color: var(--red);
-    width: 100%;
 }
 
 .not-added-item:not(:disabled):not(.disabled):active {

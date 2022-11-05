@@ -154,8 +154,8 @@ function createPageButtons() {  // функция создает кнопки п
 }
 
 function searchArrayFilter(item_list) {  //  функция ищет объекты, в тексте которых присутвует нужная строка
-    email_search_field = document.getElementById("search-field");
-    val = email_search_field.value;
+    search_field = document.getElementById("search-field");
+    val = search_field.value;
     ret_array = [];
     if (val != ""){
         for (var i = 0; i < item_list.length; i++) {
@@ -252,5 +252,11 @@ function onSearchChange(event) {  // функция обновляет теку�
         current_item_list = searchArrayFilter(items_lists[filter_button_state]);
         showButtons();
     }
+}
+
+function onTextChangeButtonClick(event) {  // изменяет текст, который показывается на кнопках
+    text_button_state = (text_button_state + 1) % button_texts.length;
+    event.target.innerText = ["Включить просмотр почт", "Включить просмотр имен"][text_button_state];
+    showButtons();
 }
 

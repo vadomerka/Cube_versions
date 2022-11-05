@@ -8,7 +8,7 @@
 	</div>
 	<div class="instruments-box" style="">
 		<div class="instruments-group">
-			<div class="instrument input-group" style="max-width: 500px;">
+			<div class="instrument input-group" style="max-width: var(--min-window-size);">
 			    <div class="input-group-prepend">
 			        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
 			                                                              x="0px" y="0px"
@@ -46,7 +46,7 @@
 	<div class="add-item-group">
 		{% if current_user.teacher %}
 		<!-- ? -->
-	        <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">  
+	        <div class="add-item-box">
 	            <a class="btn btn-add" href="/make_pupil">Добавить учеников</a>
 	        </div>
     	{% endif %}
@@ -54,7 +54,7 @@
 	<div class="items-row" id="items-row">
 	    <h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
 	</div>
-	<div style="align-items: center; width: 100%; justify-content: center; display: flex;">
+	<div class="page-buttons-box">
 	    <div class="page-buttons-row" id="pages-row">
 	    	<div class="page-buttons-container" id="start-page-buttons-container">
 	    	</div>	

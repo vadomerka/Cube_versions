@@ -1,65 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<style>
-    .row {
-      display: flex;
-    }
-
-    .column {
-      flex: 50%;
-    }
-
-    .pages-row {
-        display: inline-block;
-
-    }
-
-    .page_button {
-        margin: 5px 5px 5px 5px;
-        color: white;
-    }
-
-    .current_page_button {
-        margin: 0px 0px 0px 0px;
-        border-style: solid;
-        border-color: red;
-        border-width: 5px;
-    }
-    .item_button{
-        width: 250px;
-        height: 36px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .user-word-button {
-        color: white;
-        margin-left: 5px;
-        position: relative;
-
-    }
-    .not-course-word {
-        background-color: var(--orange);
-        color: var(--contrast-orange);
-        width: 250px;
-    }
-
-    .course-word {
-        width: 250px;
-        background-color: var(--yellow);
-        color: var(--contrast-yellow);
-    }
-
-</style>
-<h1>Слова</h1>
-<form action="" method="post">
-    {{ form.hidden_tag() }}
-    <div style="display: flex;">
-        {% if current_user.teacher %}
-        <button id="filter_button" class="btn btn-add" type="button"></button>
-        {% endif %}
-        <div class="input-group mb-3" style="width: 45%;">
+<div class="main-div-container">
+    <div style="display: block;
+                min-width: 355px;">
+        <h2 style="margin: 4vh;">Слова словаря</h2>
+    </div>
+    <div class="instruments-box">
+        <div class="instruments-group">
+            <div class="instrument input-group" style="max-width: var(--min-window-size);">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
                                                                       x="0px" y="0px"
@@ -74,384 +23,130 @@
                    value="">
             <input type="text" class="form-control" placeholder="Поиск по иероглифу" aria-label="Поиск"
                    aria-describedby="basic-addon1" style="height: 44px;" id="hieroglyph search field"
-                   value="">
-        </div>
-        <div class="sort-button-group" style="width: 45%;">
-            <button id="alphabet_translation-sort-button" class="btn-primary alphabet-sort-button" type="button"> 
-                а↑
-            </button>
-            <button id="rev_alphabet_translation-sort-button" class="btn-primary alphabet-sort-button" type="button">
-                а↓
-            </button>
-            <button id="alphabet_hieroglyph-sort-button" class="btn-primary alphabet-sort-button" type="button"> 
-                信↑
-            </button>
-            <button id="rev_alphabet_hieroglyph-sort-button" class="btn-primary alphabet-sort-button" type="button">
-                信↓
-            </button>
-            <button id="time-sort-button" class="btn-primary alphabet-sort-button" type="button">
-                🕔↓
-            </button>
-            <button id="rev_time-sort-button" class="btn-primary alphabet-sort-button" type="button">
-                🕔↑
-            </button>
+                       value="">
+            </div>
+            <div class="instrument sort-button-group">
+                <div class="sort-group-layer">
+                <button id="alphabet_translation-sort-button" class="btn-primary sort-button"> 
+                    а↑
+                </button>
+                <button id="rev_alphabet_translation-sort-button" class="btn-primary sort-button">
+                    а↓
+                </button>
+                <button id="alphabet_hieroglyph-sort-button" class="btn-primary sort-button"> 
+                    信↑
+                </button>
+                </div>
+                <div class="sort-group-layer">
+                <button id="rev_alphabet_hieroglyph-sort-button" class="btn-primary sort-button">
+                    信↓
+                </button>
+                <button id="time-sort-button" class="btn-primary sort-button">
+                    🕔↓
+                </button>
+                <button id="rev_time-sort-button" class="btn-primary sort-button">
+                    🕔↑
+                </button>
+                </div>
+            </div>
+            <div class="instrument filter-button-group">
+                <button id="filter_button" class="btn btn-add" style="margin: 0px;">Показать только свои слова</button>
+            </div>
         </div>
     </div>
-
-    <!--<h2>Страниц в словаре: {{ pages_number }}</h2>-->
-
-    <div class="row" id="item_row">
-        {% for i in range(column_number) %}
-        <div class="column" id="column {{ i }}"></div>
-        {% endfor %}
+    <div class="items-row" id="items-row">
         <h3 id="items-not-found-heading" hidden>Слова не найдены</h3>
     </div>
-
-    <div style="align-items: center; width: 100%; justify-content: center; display: flex;">
-        <div class="pages-row" id="pages-row">
+    <div class="page-buttons-box">
+        <div class="page-buttons-row" id="pages-row">
+            <div class="page-buttons-container" id="start-page-buttons-container">
+            </div>  
+            <div class="page-buttons-container" id="nums-page-buttons-container">
+            </div>  
+            <div class="page-buttons-container" id="end-page-buttons-container">
+            </div>  
         </div>
     </div>
-    <!--    <div name="form-res" id="form-res"></div>-->
-    <input hidden id="form-res" name="form-res">
-    <p>{{ form.submit(type="submit", class="btn btn-primary", style="margin-top: 20px;",
-        id="submit-button") }}</p>
-    {{message}}
-</form>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <input hidden id="form-res" name="form-res">
+        <p>{{ form.submit(type="submit", class="btn btn-primary", style="margin-top: 20px;",
+            id="submit-button") }}</p>
+        {% if message %}
+            <div class="message-container">{{ message }}</div>
+        {% endif %}
+    </form>
+</div>
+<script src="/static/templates_js/items_view.js"></script>
+<script src="/static/templates_js/add_items.js"></script>
+<script src="/static/templates_js/word_items_funtions.js"></script>
 <script>
-    function searchArrayFilter(item_list){
-        translation_search_field = document.getElementById("translation search field");
-        hieroglyph_search_field = document.getElementById("hieroglyph search field");
-        val1 = translation_search_field.value;
-        val2 = hieroglyph_search_field.value;
-        // console.log(val1, val2);
-        name_vals = ["translation", "hieroglyph"];
-        ret_array = [];
-        if (val1 != "" || val2 != ""){
-            for (var i = 0; i < item_list.length; i++) {
-                if ( (val1 == "" || item_list[i].translation.includes(val1) ) && 
-                    (val2 == "" || item_list[i].hieroglyph.includes(val2)) ){
-                    ret_array.push(item_list[i]);
-                }
-            }
-        } else {
-            ret_array = item_list;
-        }
-        // console.log(ret_array);
-        return ret_array;
-    }
-
-    function filterButtonClick(event){
-    	filter_button_state = (filter_button_state + 1) % items_lists.length;
-        filter_button.innerText = filter_button_innerTexts[filter_button_state];
-        showButtons();
-    }
-
-    function sortButtonClick(event){
-        button_type = event.target.id;
-        current_item_list = searchArrayFilter(items_lists[filter_button_state]);
-        if (button_type == "alphabet_translation-sort-button"){
-            current_item_list.sort((firstWord, secondWord) => {
-                  const translation1 = firstWord.translation.toUpperCase(); // ignore upper and lowercase
-                  const translation2 = secondWord.translation.toUpperCase(); // ignore upper and lowercase
-                  if (translation1 < translation2) {return -1;}
-                  if (translation1 > translation2) {return 1;}
-                  return 0;
-            });
-        } else if (button_type == "rev_alphabet_translation-sort-button") {
-            current_item_list.sort((firstWord, secondWord) => {
-                  const translation1 = firstWord.translation.toUpperCase(); // ignore upper and lowercase
-                  const translation2 = secondWord.translation.toUpperCase(); // ignore upper and lowercase
-                  if (translation1 < translation2) {return 1;}
-                  if (translation1 > translation2) {return -1;}
-                  return 0;
-            });
-        } else if (button_type == "alphabet_hieroglyph-sort-button") {
-            current_item_list.sort((firstWord, secondWord) => {
-                  const translation1 = firstWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
-                  const translation2 = secondWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
-                  if (translation1 < translation2) {return -1;}
-                  if (translation1 > translation2) {return 1;}
-                  return 0;
-            });
-        } else if (button_type == "rev_alphabet_hieroglyph-sort-button") {
-            current_item_list.sort((firstWord, secondWord) => {
-                  const translation1 = firstWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
-                  const translation2 = secondWord.hieroglyph.toUpperCase(); // ignore upper and lowercase
-                  if (translation1 < translation2) {return 1;}
-                  if (translation1 > translation2) {return -1;}
-                  return 0;
-            });
-        } else if (button_type == "time-sort-button") {
-            current_item_list.sort((firstWord, secondWord) => {
-                  const translation1 = parseInt(firstWord.id); // ignore upper and lowercase
-                  const translation2 = parseInt(secondWord.id); // ignore upper and lowercase
-                  if (translation1 < translation2) {return -1;}
-                  if (translation1 > translation2) {return 1;}
-                  return 0;
-            });
-        } else if (button_type == "rev_time-sort-button") {
-            current_item_list.sort((firstWord, secondWord) => {
-                  const translation1 = parseInt(firstWord.id); // ignore upper and lowercase
-                  const translation2 = parseInt(secondWord.id); // ignore upper and lowercase
-                  if (translation1 < translation2) {return 1;}
-                  if (translation1 > translation2) {return -1;}
-                  return 0;
-            });
-        }
-        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
-            max_items_number_on_one_page * current_page);
-        current_page_max_number = page_numbers[filter_button_state];
-
-        if ((current_page_item_list[0] == "")){
-            current_page_item_list = [];
-        }
-        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
-            current_page = current_page_max_number;
-            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-        }
-        createitemButtons(current_page_item_list);
-        if (current_page_max_number > 1){  // f
-            createPageButtons();
-        }
-    }
-
-    function showButtons(){
-        current_item_list = searchArrayFilter(items_lists[filter_button_state]);
-        current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), 
-            max_items_number_on_one_page * current_page);
-        current_page_max_number = page_numbers[filter_button_state];
-
-        if ((current_page_item_list[0] == "")){
-            current_page_item_list = [];
-        }
-        if (current_page_item_list.length == 0 && current_page > current_page_max_number) {
-            current_page = current_page_max_number;
-            current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-        }
-        createitemButtons(current_page_item_list);
-        if (current_page_max_number > 1){  // f
-            createPageButtons();
-        }
-    }
-    
-
-    function javascriptList(list){
-        if (!list) {return [];}
-        list = list.split(";;;");
-        for (let i = 0; i < list.length; i += 1){
-            list_word = list[i].split(";");
-            list[i] = { id: list_word[0],
-                        hieroglyph: list_word[1],
-                        translation: list_word[2]
-                      };
-        }
-        return list;
-    }
-
     function itemButtonClick(event){
         prev_name = event.target.name
-        if (prev_name == "lesson_item") {
-            // alert(event.target.style.cssText);
-            event.target.name = "not_lesson_item";
-            event.target.style = '';
-            // event.target.style = 'width: 250px';
-            bool_lesson_items[parseInt(event.target.value, 10)] = 0;
+        button_id = parseInt(event.target.value, 10)
+        if (prev_name == "added_item") {
+            event.target.name = "not_added_item";
+            event.target.classList.remove("added-item");
+            if (bool_course_items[button_id] == 1){
+                event.target.classList.add("course-item");
+            } else {
+                event.target.classList.add("not-course-item");
+            }
+            bool_added_items[button_id] = 0;
         } else {
-            event.target.name = "lesson_item";
-            event.target.style = event.target.style.cssText + "background-color: var(--green); color: var(--contrast-green)";
-            bool_lesson_items[parseInt(event.target.value, 10)] = 1;
+            event.target.name = "added_item";
+            event.target.classList.remove("course-item");
+            event.target.classList.remove("not-course-item");
+            event.target.classList.add("added-item");
+            bool_added_items[button_id] = 1;
         }
     }
+    function createEmptyItemButton(num, item_list) {
+        column = document.createElement("div")
+        column.id = "item-container " + (num).toString();
+        column.classList.add("item-container");
 
-    function createitemButtons(item_list){
-        // delete previous buttons
-        for (let i = 0; i < max_items_number_on_one_page; i += 1){
-            prev_but = document.getElementById("item_button " + i.toString())
-            if (prev_but != null){prev_but.remove();}
+        item_button = document.createElement("button");
+        item_button.id = "item_button " + num.toString();
+        item_button.type = "button";
+        item_button.addEventListener("click", itemButtonClick, false);
+        item_button.classList.add("btn");
+        item_button.classList.add("btn-primary");
+        item_button.classList.add("item-button");
+        item_button.classList.add("user-item-button");
+        button_id = item_list[num].id;
+        item_button.value = button_id;
+        if (bool_added_items[button_id] == 1) {
+            item_button.classList.add("added-item")
+            bool_added_items[button_id] = 1;
+            item_button.name = "added_item";
+        } else {
+            if (bool_course_items[button_id] == 1){
+                item_button.classList.add("course-item");
+            } else {
+                item_button.classList.add("not-course-item");
+            }
+            bool_added_items[button_id] = 0;
+            item_button.name = "not_added_item";
         }
+        return item_button
+    }
+    function createItemButtons(item_list){
+        deleteItemButtons();
         if (item_list.length == 0){
             document.getElementById("items-not-found-heading").hidden = false;
             return;
         } else {
             document.getElementById("items-not-found-heading").hidden = true;
         }
-        for (let i = 0; i < item_list.length; i += 1){
-            // console.log(i);
-            column = document.getElementById("column " + (i % {{ column_number }}).toString());
-            column.style = "flex: " + (100 / {{ column_number }}).toString() + "%";
-            item_button = document.createElement("button");
-            item_button.id = "item_button " + i.toString();
-            item_button.type = "button";
-            item_button.addEventListener("click", itemButtonClick, false);
-            item_button.classList.add("btn");
-            item_button.classList.add("btn-primary");
-            item_button.classList.add("item_button");
-
-            // item_button.classList.add("not-course-word");
+        for (let i = 0; i < item_list.length; i++){
+            item_button = createEmptyItemButton(i, item_list);
             button_id = item_list[i].id;
-            if (bool_course_items[button_id] == 1){
-                item_button.classList.add("course-word");
-            } else {
-                item_button.classList.add("not-course-word");
-            }
-            item_button.value = button_id;
-            if (bool_lesson_items[button_id] == 1){
-            	item_button.style = "width: 250px; background-color: var(--green); color: var(--contrast-green)";
-            	bool_lesson_items[button_id] = 1;
-            	item_button.name = "lesson_item";
-            } else {
-                if (bool_course_items[button_id] == 1){item_button.style = "width: 250px; background-color: var(--yellow); color: var(--contrast-yellow)";}
-                else{item_button.style = "width: 250px; background-color: var(--orange); color: var(--contrast-orange)";}
-            	item_button.name = "not_lesson_item";
-            	bool_lesson_items[button_id] = 0;
-            }
-            // console.log(i, bool_lesson_items, bool_lesson_items[button_id]);
-            item_button.classList.add("user-word-button");
-            // item_button.href = "/dict_word/" + item_list[i].id;
-            // item_button.style = "width: 250px";  // padding-right: 100p; display: block; position: relative; text-align: left;
-            item_button.innerText = item_list[i].hieroglyph + ' '
-            + item_list[i].translation;
 
+            item_button.innerText = item_list[i].hieroglyph + ' ' + item_list[i].translation;
             column.appendChild(item_button);
+            document.getElementById("items-row").appendChild(column);
         }
-    }
-
-    function createOnePageButton(row, text, onClickFunction){
-        page_button = document.createElement("button");
-        page_button.onclick = onClickFunction;
-        page_button.id = "page_button " + text;
-        page_button.classList.add("btn");
-        page_button.classList.add("btn-primary");
-        // alert(text);
-        // alert(current_page);
-        if (text == current_page){
-            page_button.classList.add("current_page_button")
-        } else {
-            page_button.classList.add("page_button");
-        }
-        page_button.innerText = text;
-        row.appendChild(page_button);
-    }
-
-    function deletePageButtons(){
-        prev_but = document.getElementById("page_button <<");
-        if (prev_but != null){prev_but.remove();}
-        prev_but = document.getElementById("page_button <");
-        if (prev_but != null){prev_but.remove();}
-
-        for (let i = 1; i < page_numbers[0] + 1; i++){
-            prev_but = document.getElementById("page_button " + i.toString());
-            if (prev_but != null){prev_but.remove();}
-        }
-
-        prev_but = document.getElementById("page_button >>");
-        if (prev_but != null){prev_but.remove();}
-        prev_but = document.getElementById("page_button >");
-        if (prev_but != null){prev_but.remove();}
-    }
-
-    function pageButtonNumberFunction(event){
-        current_page = parseInt(event.target.innerText, 10);
-        showButtons();
-    }
-
-    function pageButtonFunctions(button_text){
-        if (button_text == "<<"){
-            return function(event){
-                current_page = 1;
-                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                createitemButtons(current_page_item_list);
-                if (current_page_max_number > 1){  // f
-                    createPageButtons();
-                }
-            };
-        } else if (button_text == "<"){
-            return function(event){
-                if (current_page != 1) {
-                    current_page -= 1;
-                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                    createitemButtons(current_page_item_list);
-                    if (current_page_max_number > 1){createPageButtons();}
-                }
-            };
-        } else if (button_text == ">"){
-            return function(event) {
-                if (current_page != current_page_max_number) {
-                    current_page += 1;
-                    current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                    createitemButtons(current_page_item_list);
-                    if (current_page_max_number > 1){  // f
-                        // alert("creating page buttons");
-                        createPageButtons();
-                    }
-                }
-            }
-        } else if (button_text == ">>"){
-            return function(event){
-                current_page = current_page_max_number;
-                current_page_item_list = current_item_list.slice(max_items_number_on_one_page * (current_page - 1), max_items_number_on_one_page * current_page);
-                createitemButtons(current_page_item_list);
-                if (current_page_max_number > 1){  // f
-                    // alert("creating page buttons");
-                    createPageButtons();
-                }
-            };
-        }
-    }
-
-    function createPageButtons(){
-        deletePageButtons();
-        if (current_page_max_number > 1){
-            pages_row = document.getElementById("pages-row");
-            createOnePageButton(pages_row, "<<", pageButtonFunctions("<<"));
-            createOnePageButton(pages_row, "<", pageButtonFunctions("<"));
-
-            if ((current_page_max_number - current_page) <= 6 && (current_page_max_number - current_page) >= 0) {
-                if (current_page_max_number >= 9){
-                    for (let i = (current_page_max_number - 9); i < current_page_max_number; i++){
-                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                    }
-                } else {
-                    for (let i = 0; i < current_page_max_number; i++){
-                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                    }
-                }
-            } else {
-                if (current_page == 1) {
-                    if (current_page_max_number < 9){
-                        for (let i = 0; i < current_page_max_number; i ++){
-                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                        }
-                    } else {
-                        for (let i = 0; i < 9; i ++){
-                            createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                        }
-                    }
-                } else {
-                    for (let i = (current_page - 2); i < (current_page + 7); i++) {
-                        createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-                    }
-                }
-            }
-            // alert()
-            // for (let i = 0; i < current_page_max_number; i ++){
-            //     createOnePageButton(pages_row, i + 1, pageButtonNumberFunction);
-            // }
-            createOnePageButton(pages_row, ">", pageButtonFunctions(">"));
-            createOnePageButton(pages_row, ">>", pageButtonFunctions(">>"));
-        }
-    }
-
-    function onSubmitButtonClick(event){
-    	form_res = document.getElementById("form-res");
-    	for (let i = 0; i < bool_lesson_items.length; i++){
-    	    if (bool_lesson_items[i] != 0 && bool_lesson_items[i] != 1) {
-    	        bool_lesson_items[i] = 0;
-    	    }
-    	}
-    	// alert(bool_lesson_items);
-        // console.log(bool_lesson_items)
-    	form_res.value = bool_lesson_items;
     }
 
     sort_buttons_id =  ["alphabet_translation-sort-button", 
@@ -468,7 +163,6 @@
     }
 
     filter_button = document.getElementById("filter_button");
-    // alert(filter_button);
     if (filter_button != null){
         filter_button.addEventListener("click", filterButtonClick, false);
     }
@@ -483,41 +177,26 @@
 
     var filter_button_state = 0;
     var current_page = 1;
-    var max_items_number_on_one_page = {{ column_number }} * {{ items_in_column_number }};
+    var max_items_number_on_one_page = {{ max_items_number_on_one_page}};
 
+    var items_js = {{ items_js|tojson }}
+    items_lists =  [items_js.all_items, 
+                    items_js.my_items,
+                    items_js.rest_items,
+                    items_js.added_items,
+                    items_js.not_added_items,
+                    items_js.course_items,
+                    items_js.not_course_items];
+    var max_id = items_js.max_id;
 
-    items_lists = [all_items = javascriptList("{{ all_items_js }}"),
-                    my_items = javascriptList("{{ my_items_js }}"),
-                    rest_items = javascriptList("{{ rest_items_js }}"),
-                    lesson_items = javascriptList("{{ lesson_items_js }}"),
-                    not_lesson_items = javascriptList("{{ unused_items_js }}"),
-                    course_items = javascriptList("{{ course_items_js }}"),
-                    not_course_items = javascriptList("{{ not_course_items_js }}")];
-    for (let i = 0; i < items_lists.length; i++){
-        if (items_lists[i][0] == ''){
-            items_lists[i] = [];
-        }
-        // console.log(items_lists[i]);
-    }
-
-    // var a = [0, 0, 0];
-    // a[1] = 1;
-    // a[2] = 2;
-    // a[5] = 3;
-    // console.log(a);
-
-    bool_lesson_items = []
-    for (let i = 0; i < items_lists[0].length; i++) {
-    	bool_lesson_items.push(0);
+    bool_added_items = []
+    bool_course_items = []
+    for (let i = 0; i < max_id; i++) {
+        bool_added_items[i] = 0;
+        bool_course_items.push(0);
     }
     for (let i = 0; i < items_lists[3].length; i++) {
-    	bool_lesson_items[parseInt(items_lists[3][i].id)] = 1;
-    }
-    // alert(bool_lesson_items);
-
-    bool_course_items = []
-    for (let i = 0; i < items_lists[0].length; i++) {
-    	bool_course_items.push(0);
+        bool_added_items[parseInt(items_lists[3][i].id)] = 1;
     }
     for (let i = 0; i < items_lists[5].length; i++) {
     	bool_course_items[parseInt(items_lists[5][i].id)] = 1;
@@ -525,9 +204,8 @@
 
     page_numbers = []
     for (let i = 0; i < items_lists.length; i++){
-        page_number = Math.floor(items_lists[i].length / max_items_number_on_one_page) + 1;
+        page_number = pageNumberCount(items_lists[i]);
         page_numbers.push(page_number);
-        // console.log(page_numbers[i]);
     }
     page_lists = []
     for (let i = 0; i < items_lists.length; i++){
@@ -536,11 +214,11 @@
         page_lists.push(page_items);
     }
 
-    current_item_list = items_lists[filter_button_state];
+    var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
     current_page_item_list = page_lists[filter_button_state];
     current_page_max_number = page_numbers[filter_button_state];
 
-    createitemButtons(current_page_item_list);
+    createItemButtons(current_page_item_list);
     if (current_page_max_number > 1){
         createPageButtons();
     }
@@ -557,8 +235,5 @@
     translation_search_field.addEventListener("keyup", onSearchChange, false);
     hieroglyph_search_field.addEventListener("keyup", onSearchChange, false);
     document.getElementById("submit-button").addEventListener("click", onSubmitButtonClick, false);
-    // form_res = document.getElementById("form-res");
-    // form_res.value = bool_course_items;
-
 </script>
 {% endblock %}

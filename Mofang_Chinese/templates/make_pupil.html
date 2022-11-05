@@ -51,6 +51,8 @@
     </p>
     <p>{{ form.teacher() }} {{ form.teacher.label }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    {{message}}
+    {% if message %}
+        <div class="message-container">{{ message }}</div>
+    {% endif %}
 </form>
 {% endblock %}

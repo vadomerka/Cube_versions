@@ -13,5 +13,4 @@ class CoursesForm(FlaskForm):
 
 
 class AddItemToSomethingForm(FlaskForm):
-    # name = StringField('Название курса', validators=[DataRequired(), Length(min=1, max=20, message="Название курса должно быть короче 20 символов")])
-    submit = SubmitField('Применить')
+    submit = SubmitField('Сохранить')

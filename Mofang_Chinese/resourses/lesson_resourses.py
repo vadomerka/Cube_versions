@@ -3,6 +3,7 @@ from flask import jsonify
 from data import db_session
 from data.lessons import Lessons, lessons_to_course
 from data.courses import Courses
+from data.users import User
 from resourses.parser import parserAdd
 
 
@@ -39,15 +40,26 @@ class LessonResource(Resource):
         return jsonify({'success': 'OK'})
 
 
-# not working
 class LessonListResource(Resource):
-    def get(self, user_id):
-        session = db_session.create_session()
-        cur_user = session.query(User).filter(User.id == user_id).first()
-        return jsonify({'courses': [item.to_dict(
-            only=('id', 'name', 'about')) for item in cur_user.courses]})
+    def get(self, req, item_id):
+        if req == "user_lessons":
+            user_id = item_id
+            session = db_session.create_session()
+            cur_user = session.query(User).get(user_id)
+            user_lessons = {"user_lessons": []}
+            for c in cur_user.courses:
+                for lesson in c.lessons:
+                    course_lesson = lesson.to_dict(only=('id', 'name'))
+                    course_lesson["words"] = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+                    user_lessons["user_lessons"].append(course_lesson)
+            return jsonify(user_lessons)
+        else:  # not working
+            session = db_session.create_session()
+            cur_user = session.query(User).filter(User.id == user_id).first()
+            return jsonify({'courses': [item.to_dict(
+                only=('id', 'name', 'about')) for item in cur_user.courses]})
 
-    def post(self):
+    def post(self):  # not working
         args = parserAdd.parse_args()
         session = db_session.create_session()
         course = Courses(

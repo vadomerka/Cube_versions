@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if message %}
+<h1>{{ message }}</h1>
+{% else %}
+<h1>Что-то пошло не так при удалении объекта</h1>
+<h3>Пвторите попытку позже</h3>
+{% endif %}
+<a class="btn btn-primary" href="/">Вернуться на главную страницу</a>
+{% endblock %}
