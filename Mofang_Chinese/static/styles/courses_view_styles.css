@@ -38,3 +38,72 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+.course-buttons{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.lesson-card {
+    max-width: 500px;
+    border-style: solid;
+    border-color: var(--red);
+    margin: 10px 10px 10px 10px;
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-center-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lesson-name {
+    overflow:hidden;
+    margin: 1rem;
+}
+
+.lesson-button{
+    margin: 10px 10px 10px 10px;
+}
+
+.lesson-buttons{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.text-line {
+    display: block;
+    width: 100%;
+    height: auto;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: normal;
+    margin-bottom: 5px;
+}
+
+.course-data{
+    margin-bottom: 6vh;
+}
+
+.course-about {
+    background-color: white;
+    padding: 10px;
+}
+
+.course-lessons{}
+
+.lessons {
+    margin: 4vh 0px 4vh 0px;
+}

@@ -138,7 +138,8 @@ class WordViewRecordingResource(Resource):
                                                           WordsToUsers.words == word_id).first()
         if not word_to_user:
             abort(404, message=f"User {user_id} or word {word_id} not found")
-        word_to_user.learn_state = 1
+        if word_to_user.learn_state == 0:
+            word_to_user.learn_state = 1
         session.merge(word_to_user)
         session.commit()
         session.close()

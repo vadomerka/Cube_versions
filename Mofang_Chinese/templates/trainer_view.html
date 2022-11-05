@@ -1,26 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<style type="text/css">
-    .bottom-trainer{
-        margin: 50px 10px 10px 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .bottom-trainer-first-layer{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-around;
-        width: 100%;
-    }
-    .long-buttons{
-        width: fit-content;
-    }
-</style>
-
 <h1 style="color: white;">Выберете правильный вариант ответа</h1>
 <div class="trainer">
     <div class="task-box" style="position: relative; height: 150px;
@@ -43,13 +23,11 @@
         {% endif %}
 
         {% else %}
-        <button style="width: 50px;
-                       height: 50px;
-                       margin-top: 50px;" id="audio_but" class="c-button" name="task-field">
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
-                <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
-            </svg>
-        </button>
+        <button id="audio_but" class="c-button task-audio" name="task-field">
+             <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                 <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
+             </svg>
+         </button>
         {% endif %}
     </div>
     
@@ -57,15 +35,28 @@
         display: flex;
         justify-content: center;">
         {% if trainer.ans_side < 6 %}
-        {% for i in range(answer_button_number) %}
-        <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
-            {% if trainer.ans_side == 5 %}
-            <img name="{{ i }}" src="" id="id {{ i }}"/>  <!--value="myimage"-->
-            {% else %}
-            <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
-            {% endif %}
-        </button>
+        <div calss="answer-box-layer">
+        {% for i in range(answer_button_number_first_line) %}
+            <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+                {% if trainer.ans_side == 5 %}
+                <img name="{{ i }}" src="" id="id {{ i }}"/>  <!--value="myimage"-->
+                {% else %}
+                <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
+                {% endif %}
+            </button>
         {% endfor %}
+        </div>
+        <div calss="answer-box-layer">
+        {% for i in range(answer_button_number_first_line, answer_button_number_first_line + answer_button_number_second_line) %}
+            <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+                {% if trainer.ans_side == 5 %}
+                <img name="{{ i }}" src="" id="id {{ i }}"/>  <!--value="myimage"-->
+                {% else %}
+                <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
+                {% endif %}
+            </button>
+        {% endfor %}
+        </div>
         {% endif %}
     </div>
     <div class="bottom-trainer">
@@ -90,18 +81,10 @@
     var height = window.innerHeight
     var extra_size_ansbut = 50;
     var img_size = 100;
-
-    var lesson = "{{ lesson_words }}";
-    lesson = lesson.split(";;;");
-    for (let i = 0; i < lesson.length; i += 1){
-        lesson[i] = lesson[i].split(";");
-    }
-    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
-    var all_words = "{{ all_words }}";
-    all_words = all_words.split(";;;");
-    for (let i = 0; i < all_words.length; i += 1){
-        all_words[i] = all_words[i].split(";");
-    }
+    python_data = {{ python_data|tojson }};
+    var all_words = python_data.all_words;
+    var lesson = python_data.lesson_words;
+    if (lesson  == []) {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
 
     var task_audio;
     var audio_playing = false;

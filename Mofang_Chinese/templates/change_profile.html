@@ -4,7 +4,7 @@
     <form class="password-form" action="" method="post">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.name.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.name(class="form-control", id="name") }}<br>
             {% for error in form.name.errors %}
             <p class="alert alert-danger" role="alert">
@@ -43,7 +43,7 @@
         <!--  чтобы учитель не мог сам зайти в аккаунт ученика, если тот поставил пароль  -->
         {% if current_user.hashed_password %}
         <p>
-            {{ form.email.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.email.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.email(class="form-control", id="email") }}<br>
             {% for error in form.email.errors %}
             <p class="alert alert-danger" role="alert">
@@ -53,7 +53,7 @@
         </p>
         <h1>Подтвердите пароль</h1>
         <p>
-            {{ form.old_password.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.old_password.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.old_password(class="form-control") }}<br>
             {% for error in form.old_password.errors %}
             <p class="alert alert-danger" role="alert">
@@ -64,7 +64,7 @@
         {% endif %}
         <h1>Придумайте пароль</h1>
         <p>
-            {{ form.password.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.password.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.password(class="form-control") }}<br>
             {% for error in form.password.errors %}
             <p class="alert alert-danger" role="alert">
@@ -73,7 +73,7 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.password_again.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.password_again.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.password_again(class="form-control") }}<br>
             {% for error in form.password_again.errors %}
         <p class="alert alert-danger" role="alert">

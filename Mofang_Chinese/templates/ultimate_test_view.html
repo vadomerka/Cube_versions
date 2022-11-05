@@ -1,34 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    .task-box {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-    .task-field-canvas {
-        height: 150px;
-        width: 150px;
-        margain-bottom: 10px;
-        border: solid 3px #9c1313;
-    }
-    .task-field-image {
-        height: 150px;
-        width: 150px;
-    }
-    .mistakes-holder {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-</style>
 <h1 id="test-header">Выберете правильный вариант ответа</h1>
+<div class="test-box">
 <div class="test">
     <div id="task-box" class="task-box";>
-        <button style="width: 50px;
-                       height: 50px;
-                       margin-top: 50px;" id="audio_but" class="c-button" name="task-field" hidden="True">
+        <button id="audio_but" class="c-button task-audio" name="task-field" hidden="True">
              <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
                  <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
              </svg>
@@ -37,7 +14,10 @@
     <div id="answer-box" class="answer-box" style="
         display: flex;
         justify-content: center;">
-        
+        <div calss="answer-box-layer" id="first-layer">
+        </div>
+        <div calss="answer-box-layer" id="second-layer">
+        </div>
     </div>
     <div id="mistakes-holder" class="mistakes-holder" hidden>
         <h3 id="mistakes-text">Слова, требующие повторения</h3>
@@ -54,6 +34,7 @@
             {% endif %}
         </div>  
     </div>
+</div>
 </div>
 <script src="/static/templates_js/cube_side_text.js"></script>
 <script src="/static/templates_js/lesson_test.js"></script>
@@ -91,7 +72,9 @@
 
     function generate_ans_fields(ans_vars){
         if (cur_ans_side < 6) {
-            for (var i = 0; i < {{ answer_button_number }}; i++) {
+            start_num = {{ answer_button_number_first_line }};
+            end_num = {{ answer_button_number }};
+            for (var i = 0; i < end_num; i++) {
                 ans_but = document.createElement("button");
                 ans_but.id = i.toString();
                 ans_but.classList.add("ans-button")
@@ -125,7 +108,11 @@
                 ans_but.style.minHeight = Number(img_size + extra_size_ansbut).toString() + "px";
                 ans_but.style.backgroundColor = 'white';
                 ans_but.disabled = false;
-                document.getElementById("answer-box").appendChild(ans_but);
+                container_id = "first-layer";
+                if (i >= start_num){
+                    container_id = "second-layer";
+                }
+                document.getElementById(container_id).appendChild(ans_but);
             }
         }
     }
@@ -217,17 +204,10 @@
     var back_url = "{{ back_url }}";
     var result_url = "/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
 
-    var lesson = "{{ lesson_words }}";
-    lesson = lesson.split(";;;");
-    for (let i = 0; i < lesson.length; i += 1){
-        lesson[i] = lesson[i].split(";");
-    }
+    python_data = {{ python_data|tojson }};
+    var all_words = python_data.all_words;
+    var lesson = python_data.lesson_words;
     if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
-    var all_words = "{{ all_words }}";
-    all_words = all_words.split(";;;");
-    for (let i = 0; i < all_words.length; i += 1){
-        all_words[i] = all_words[i].split(";");
-    }
 
     var task_audio;
     var audio_playing = false;

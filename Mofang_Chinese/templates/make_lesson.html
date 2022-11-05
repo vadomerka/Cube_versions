@@ -5,7 +5,7 @@
 <form action="" method="post" name="checks">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.name.label }}<span class="vnumgf required-field-span">*</span><br>
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
     <p content="alert alert-danger" role="alert">
@@ -13,32 +13,28 @@
     </p>
     {% endfor %}
     </p>
-    <h1>Выберите тренажеры урока</h1>
-    <div style="display: flex;
-                flex-wrap: wrap;
-                flex-direction: column;
-                align-content: center;">
-        {% for i in range(len_trainers) %}
-        <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary" style="width: 475px;"
-                value="{{ trainers[i].id }}">{{ trainers[i].name }}
-        </button>
-        <input id="input of train {{ i }}" hidden type="checkbox" checked="checked"
-               name="not_lesson_trainer" value='{{ trainers[i].id }}'>
-        {% endfor %}
+    <div class="lesson-tasks">
+        <div class="lesson-task-column">
+            <h1 style="text-align: center;">Выберите тренажеры урока</h1>
+            {% for i in range(len_trainers) %}
+            <button id="train {{ i }}" name="not_lesson_trainer" type="button" class="btn btn-primary lesson-task-button"
+                    value="{{ trainers[i].id }}">{{ trainers[i].name }}
+            </button>
+            <input id="input of train {{ i }}" hidden type="checkbox" checked="checked"
+                   name="not_lesson_trainer" value='{{ trainers[i].id }}'>
+            {% endfor %}
 
-    </div>
-    <h1>Выберите тесты урока</h1>
-    <div style="display: flex;
-                flex-wrap: wrap;
-                flex-direction: column;
-                align-content: center;">
-        {% for i in range(len_tests) %}
-        <button id="test {{ i }}" name="not_lesson_test" type="button" class="btn btn-primary" style="width: 475px;"
-                value="{{ tests[i].id }}">{{ tests[i].name }}
-        </button>
-        <input id="input of test {{ i }}" hidden type="checkbox" checked="checked"
-               name="not_lesson_test" value='{{ tests[i].id }}'>
-        {% endfor %}
+        </div>
+        <div class="lesson-task-column">
+            <h1 style="text-align: center;">Выберите тесты урока</h1>
+            {% for i in range(len_tests) %}
+            <button id="test {{ i }}" name="not_lesson_test" type="button" class="btn btn-primary lesson-task-button"
+                    value="{{ tests[i].id }}">{{ tests[i].name }}
+            </button>
+            <input id="input of test {{ i }}" hidden type="checkbox" checked="checked"
+                   name="not_lesson_test" value='{{ tests[i].id }}'>
+            {% endfor %}
+        </div>
     </div>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}

@@ -2,11 +2,8 @@
 
 {% block content %}
 
-<h1>Статистика ученика: {{ pupil.name }}</h1>
-<h3>Количество слов: {{ lesson_words_len }}</h3>
-<h3>Количество тренажеров: {{ lesson_trainers_len }}</h3>
-<h3>Количество тестов: {{ lesson_tests_len }}</h3>
-
+<h1>Статистика ученика {{ pupil.name }}</h1>
+<h2>по уроку {{ lesson_name }}</h2>
 <div style="display: flex;
 		    flex-direction: column;
 		    flex-wrap: wrap;

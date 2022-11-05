@@ -33,7 +33,7 @@
 <form method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.hieroglyph.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.hieroglyph.label }}<span class="vnumgf required-field-span">*</span><br>
         {{ form.hieroglyph(class="form-control", id="hieroglyph") }}<br>
         {% for error in form.hieroglyph.errors %}
     <p content="alert alert-danger" role="alert">
@@ -42,7 +42,7 @@
     {% endfor %}
     
     <p>
-    {{ form.translation.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+    {{ form.translation.label }}<span class="vnumgf required-field-span">*</span><br>
     {{ form.translation(class="form-control", id="translation") }}<br>
     {% for error in form.translation.errors %}
     <p content="alert alert-danger" role="alert">
@@ -51,7 +51,7 @@
     {% endfor %}
 
     <p>
-        {{ form.transcription.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.transcription.label }}<span class="vnumgf required-field-span">*</span><br>
         {{ form.transcription(class="form-control", id="transcription") }}<br>
         {% for error in form.transcription.errors %}
     <p content="alert alert-danger" role="alert">
@@ -59,7 +59,7 @@
     </p>
     {% endfor %}
     <p>
-        {{ form.phrase_ch.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.phrase_ch.label }}<span class="vnumgf required-field-span">*</span><br>
         {{ form.phrase_ch(class="form-control", id="phrase_ch") }}<br>
         {% for error in form.phrase_ch.errors %}
     <p content="alert alert-danger" role="alert">
@@ -67,7 +67,7 @@
     </p>
     {% endfor %}
     <p>
-        {{ form.phrase_ru.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.phrase_ru.label }}<span class="vnumgf required-field-span">*</span><br>
         {{ form.phrase_ru(class="form-control", id="phrase_ru") }}<br>
         {% for error in form.phrase_ru.errors %}
     <p content="alert alert-danger" role="alert">
@@ -228,7 +228,8 @@
     }
 
     function checkWordUniqueness(){
-    	all_words = json_all_words;
+        var python_data = {{ python_data|tojson }};
+    	all_words = python_data.json_all_words;
     	hieroglyph = document.getElementById("hieroglyph").value;
     	translation = document.getElementById("translation").value;
     	res = 0;

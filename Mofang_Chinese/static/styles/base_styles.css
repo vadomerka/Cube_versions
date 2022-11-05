@@ -1,6 +1,7 @@
 :root {
   --red: #9C1313;
   --backgrpund-red: #f8d7da;
+  --bright-red: #d93025;
   --dark-red: #721c24;
   --orange: #FF660C;
   --yellow: #ffc107;
@@ -75,4 +76,8 @@ body {
 
 .unauthorized-message-container {
     margin-top: 10vh;
+}
+
+.required-field-span {
+    color: var(--bright-red);
 }

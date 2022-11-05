@@ -4,7 +4,7 @@
     <form class="password-form" action="" method="post">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.name.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.name(class="form-control", id="name") }}<br>
             {% for error in form.name.errors %}
             <p class="alert alert-danger" role="alert">
@@ -41,7 +41,7 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.email.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+            {{ form.email.label }}<span class="vnumgf required-field-span">*</span><br>
             {{ form.email(class="form-control", id="email") }}<br>
             {% for error in form.email.errors %}
             <p class="alert alert-danger" role="alert">

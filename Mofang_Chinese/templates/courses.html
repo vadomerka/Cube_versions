@@ -1,15 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style type="text/css">
-    .course-buttons{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: row;
-        flex-wrap: nowrap;
-    }
-</style>
 <div class="courses-container">
     {% if not courses %}
         {% if not current_user.teacher %}
@@ -23,8 +14,16 @@
     {% for item in courses %}
         <div class="course-card">
             <div class="card-body">
-                <h5 class="card-title">{{ item.name }}</h5>
-                <p class="card-text">{{ item.about }}</p>
+                <h5 class="card-title">
+                    {% if item.name %}
+                        {{ item.name }}
+                    {% endif %}
+                </h5>
+                <p class="card-text">
+                    {% if item.about %}
+                        {{ item.about }}
+                    {% endif %}
+                </p>
                 <div class="course-buttons">
                 <a href="/courses/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
                 {% if current_user.teacher %}

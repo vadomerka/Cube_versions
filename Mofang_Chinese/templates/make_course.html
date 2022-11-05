@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ function }}</h1>
+
+<h1>Создать курс</h1>
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
+        {{ form.name.label }}<span class="vnumgf required-field-span">*</span><br>
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
             <p content="alert alert-danger" role="alert">
