@@ -5,7 +5,6 @@ parserAdd.add_argument('name', required=True)
 parserAdd.add_argument('about', required=True)
 
 parserAddWord = reqparse.RequestParser()
-# parserAddWord.add_argument("word", required=True)
 parserAddWord.add_argument("author", required=True)
 parserAddWord.add_argument("hieroglyph", required=True)
 parserAddWord.add_argument("translation", required=True)

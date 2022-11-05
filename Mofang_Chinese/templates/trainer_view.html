@@ -3,10 +3,7 @@
 {% block content %}
 <h1 style="color: white;">Выберете правильный вариант ответа</h1>
 <div class="trainer">
-    <div class="task-box" style="position: relative; height: 150px;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 10px;">
+    <div class="task-box">
         {% if trainer.check_side < 6 %}
         {% if trainer.check_side == 5 %}
         <img src="" class="task-field-image" id="task-field-image" name="task-field-image" style="

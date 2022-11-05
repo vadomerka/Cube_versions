@@ -25,6 +25,7 @@ from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource
 from resourses.lesson_resourses import LessonResource, LessonListResource
 from resourses.user_resourses import UserResource, UserListResource
+# from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
 import requests
 import json
@@ -65,38 +66,11 @@ api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
 api.add_resource(LessonListResource, "/rest_lessons/<req>/<int:item_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
+# api.add_resource(TestRequest, "/rest_test")
 api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/<int:user_id>/<int:word_id>')
 login_manager = LoginManager()
 login_manager.init_app(app)
 root = "http://localhost:5000"
-
-
-def list_to_javascript(array):
-    array_js = []
-    for i in range(len(array)):
-        word = array[i]
-        array_js.append(";".join([str(word["id"]),
-                                  word["hieroglyph"],
-                                  word["translation"],
-                                  word["transcription"],  # иероглиф
-                                  word["phrase_ch"],  # перевод
-                                  word["phrase_ru"],  # транскрипция
-                                  word["image"],  # картинка  # словосочетание
-                                  word["front_side_audio"],
-                                  word["up_side_audio"],
-                                  word["left_side_audio"],
-                                  str(word["author"])]))
-    array_js = ";;;".join(array_js)
-    return array_js
-
-
-def pupil_js_list(array):
-    array_js = []
-    for i in range(len(array)):
-        pupil = array[i]
-        array_js.append(";".join([str(pupil.id), pupil.name, pupil.email, str(pupil.creator)]))
-    array_js = ";;;".join(array_js)
-    return array_js
 
 
 def delete_extra_spaces(string):
@@ -404,6 +378,7 @@ def pupils():  # список учеников учителя
     server_response = get(root + '/rest_users').json()
     # if server_response == {}
     all_users = server_response["users"]  # response
+    print(all_users)
     users_pupils = list(filter(lambda x: x["creator"] == current_user.id, all_users))
     items_js = {"all_items": users_pupils}
     return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",

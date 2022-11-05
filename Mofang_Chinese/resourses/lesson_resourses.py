@@ -58,16 +58,3 @@ class LessonListResource(Resource):
             cur_user = session.query(User).filter(User.id == user_id).first()
             return jsonify({'courses': [item.to_dict(
                 only=('id', 'name', 'about')) for item in cur_user.courses]})
-
-    def post(self):  # not working
-        args = parserAdd.parse_args()
-        session = db_session.create_session()
-        course = Courses(
-            id=args['id'],
-            name=args['name'],
-            about=args['about'],
-            author=args["author"]
-        )
-        session.add(course)
-        session.commit()
-        return jsonify({'success': 'OK'})

@@ -9,11 +9,11 @@ from flask import request
 import os
 
 
-def abort_if_not_found(word_id):
+def abort_if_not_found(id):
     session = db_session.create_session()
-    word = session.query(Words).get(word_id)
+    word = session.query(Words).get(id)
     if not word:
-        abort(404, message=f"Word {word_id} not found")
+        abort(404, message="Object not found", id=id)
 
 
 class DictResourse(Resource):
@@ -36,49 +36,6 @@ class DictResourse(Resource):
                   "up_side_audio",
                   "down_side_audio")) for item in dictionary]}
         return jsonify(ret)
-
-    def post(self):
-        # print(request.json)
-        if not request.json:
-            return jsonify({'error': 'Empty request'})
-        elif not all(key in request.json for key in
-                     ["author",
-                      "hieroglyph",
-                      "translation",
-                      "transcription",
-                      "phrase_ch",
-                      "phrase_ru",
-                      "image",
-                      "front_side_audio",
-                      "left_side_audio",
-                      "right_side_audio",
-                      "up_side_audio",
-                      "down_side_audio"]):
-            # print(2)
-            return jsonify({'error': 'Bad request'})
-        # print(3)
-        args = parserAddWord.parse_args()
-        session = db_session.create_session()
-        # print(args)
-        word = Words(author=args["author"],
-                     hieroglyph=args["hieroglyph"],
-                     translation=args["translation"],
-                     front_side=args["transcription"],
-                     left_side=args["phrase_ch"],
-                     right_side=args["phrase_ru"],
-                     up_side=args["image"],
-                     front_side_audio=args["front_side_audio"],
-                     left_side_audio=args["left_side_audio"],
-                     right_side_audio=args["right_side_audio"],
-                     up_side_audio=args["up_side_audio"],
-                     down_side_audio=args["down_side_audio"]
-                     )
-        # print(word)
-        # print(4)
-        session.add(word)
-        session.commit()
-        # print(5)
-        return jsonify({'success': 'OK'})
 
 
 class WordResourse(Resource):

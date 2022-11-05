@@ -11,7 +11,7 @@ def abort_if_not_found(id):
     session = db_session.create_session()
     user = session.query(User).get(id)
     if not user:
-        abort(404, message=f"User {id} not found")
+        abort(404, message="Object not found", id=id)
 
 
 class UserResource(Resource):
@@ -46,9 +46,6 @@ class UserListResource(Resource):
     def get(self):
         session = db_session.create_session()
         users = session.query(User).all()
-        # ret = jsonify({'users': [item.to_dict(
-        #     only=('id', 'email', 'name', 'about', 'hashed_password', 'teacher'))
-        #     for item in users]})
         ret = {"users": []}
         for user in users:
             u_item = user.to_dict(only=('id',
@@ -66,21 +63,3 @@ class UserListResource(Resource):
                                list(user.words)]
             ret["users"].append(u_item)
         return jsonify(ret)
-
-    def post(self, user_id):
-        if not request.json:
-            return jsonify({'error': 'Empty request'})
-        elif not all(key in request.json for key in
-                     ['name', 'about']):
-            return jsonify({'error': 'Bad request'})
-        args = parserAdd.parse_args()
-        session = db_session.create_session()
-        new_id = max([c.id for c in session.query(Courses)]) + 1
-        course = Courses(
-            id=new_id,
-            name=args['name'],
-            about=args['about']
-        )
-        session.add(course)
-        session.commit()
-        return jsonify({'success': 'OK'})
