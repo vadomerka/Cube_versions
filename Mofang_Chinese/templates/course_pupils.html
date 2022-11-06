@@ -104,9 +104,9 @@
     }
 
     filter_button = document.getElementById("filter-button");
-    filter_button_innerTexts = ["Показать курсы ученика", 
-                                 "Показать курсы, к которым ученик не подключен", 
-                                 "Показать все курсы"];
+    filter_button_innerTexts = ["Показать учеников курса",
+                                 "Показать учеников, которые не подключены к курсу",
+                                 "Показать всех учеников"];
     if (filter_button != null){
         filter_button.addEventListener("click", filterButtonClick, false);
         filter_button.innerText = filter_button_innerTexts[0];

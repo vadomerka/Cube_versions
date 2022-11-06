@@ -410,7 +410,8 @@ def pupils():  # список учеников учителя
             all_users[i]["name"] = "Имя не указано"
         if not all_users[i]["email"]:
             all_users[i]["email"] = "Почта не указана"
-    users_pupils = list(filter(lambda x: x["creator"] == current_user.id, all_users))
+    users_pupils = list(filter(lambda x: x["creator"] == current_user.id and not x["teacher"],
+                               all_users))
     items_js = {"all_items": users_pupils}
     return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",
                            items_js=items_js, max_items_number_on_one_page=60)
@@ -669,12 +670,16 @@ def course_statistics(course_id):  # статистика курса
                     unstarted_lesson += 1
                 else:
                     started_lesson += 1
-        lesson_percentage = int(lesson_percentage / pupil_count)
+        if pupil_count:
+            lesson_percentage = int(lesson_percentage / pupil_count)
+        else:
+            lesson_percentage = 0
         lessons_data[lesson.id] = (
             lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
     return render_template("course_statistics.html", course=course, lessons_data=lessons_data,
                            len_course_lessons=len(course.lessons),
-                           len_course_pupils=pupil_count, python_data=python_data)
+                           len_course_pupils=pupil_count, python_data=python_data,
+                           back_url=f"/courses")
 
 
 @app.route('/course/<int:course_id>/pupils', methods=['GET', 'POST'])
@@ -684,16 +689,19 @@ def course_pupils_view(course_id):  # добавление учеников к �
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(current_user.id)
     course_response = get(root + '/rest_course/' + str(course_id)).json()
     if course_response == {'message': 'Object not found'}:
         return render_template("object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Курс")
     course = course_response["course"]
-    if course_id not in [c.id for c in current_user.courses]:
+    if course_id not in [c.id for c in user.courses]:
         return render_template("access_denied.html", back_button_hidden="true")
     form = AddItemToSomethingForm()
     all_users = get(root + '/rest_users').json()["users"]
-    all_items = list(filter(lambda x: x["creator"] == current_user.id, all_users))
+    all_items = list(filter(lambda x: x["creator"] == current_user.id and not x["teacher"],
+                            all_users))
     max_id = max([item["id"] for item in all_items])
     course_users_ids = [u["id"] for u in course["users"]]
     added_items = list(filter(lambda x: x["id"] in course_users_ids, all_items))
@@ -720,7 +728,7 @@ def course_pupils_view(course_id):  # добавление учеников к �
                     pupil.courses.remove(course)
                     db_sess.merge(pupil)
         db_sess.commit()
-        return redirect("/courses/" + str(course_id))
+        return redirect("/course/" + str(course_id))
     return render_template('course_pupils.html',
                            back_url="/course/" + str(course_id),
                            max_items_number_on_one_page=60,
@@ -1032,7 +1040,7 @@ def delete_lesson(course_id, lesson_id):  # удаление урока
         return render_template("access_denied.html", back_button_hidden="true")
     ret = delete(root + "/rest_lesson/" + str(lesson_id)).json()
     if ret == {'success': 'OK'}:
-        return redirect("/courses/" + str(course_id))
+        return redirect("/course/" + str(course_id))
     else:
         return render_template("delete_error.html", message="Что-то пошло не так при удалении урока",
                                back_button_hidden="true")
@@ -1485,7 +1493,7 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
             break
     if len(lesson["trainers"]) != 0:
         first_trainer_id = lesson["trainers"][0]['id']
-        trainer_href = f"/courses/{course_id}/lesson/{lesson_id}/trainer/{first_trainer_id}"
+        trainer_href = f"/course/{course_id}/lesson/{lesson_id}/trainer/{first_trainer_id}"
     else:
         trainer_href = ""
         words_learn_state = 0
@@ -1527,8 +1535,8 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
                            dict=lesson_words,
                            prev_button_visibility=prev_button_visibility,
                            next_button_visibility=next_button_visibility,
-                           prev_word_url=f"/courses/{str(course_id)}/lesson_word/{str(lesson_id)}/word/{str(prev_id)}",
-                           next_word_url=f"/courses/{str(course_id)}/lesson_word/{str(lesson_id)}/word/{str(next_id)}",
+                           prev_word_url=f"/course/{str(course_id)}/lesson_word/{str(lesson_id)}/word/{str(prev_id)}",
+                           next_word_url=f"/course/{str(course_id)}/lesson_word/{str(lesson_id)}/word/{str(next_id)}",
                            words_learn_state=words_learn_state, trainer_href=trainer_href,
                            hints_enabled=int(current_user.hints_enabled))
 
@@ -1564,13 +1572,13 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
         is_last_trainer = True
         if len(lesson_tests) != 0:
             next_test_href = \
-                f"/courses/{course_id}/lesson/{lesson_id}/test/{lesson_tests[0]['id']}"
+                f"/course/{course_id}/lesson/{lesson_id}/test/{lesson_tests[0]['id']}"
     else:
         for i in range(len(lesson_trainers)):
             t = lesson_trainers[i]
             if t["id"] == trainer_id:
                 next_trainer_href = \
-                    f"/courses/{course_id}/lesson/{lesson_id}/trainer/{lesson_trainers[i + 1]['id']}"
+                    f"/course/{course_id}/lesson/{lesson_id}/trainer/{lesson_trainers[i + 1]['id']}"
                 break
     prev_result = db_sess.query(TrainersToUsers).filter(TrainersToUsers.trainer_id == trainer_id,
                                                         TrainersToUsers.course_id == course_id,
@@ -1666,7 +1674,7 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
             t = lesson_tests[i]
             if t["id"] == test_id:
                 next_test_href = \
-                    f"/courses/{course_id}/lesson/{lesson_id}/test/{lesson_tests[i + 1]['id']}"
+                    f"/course/{course_id}/lesson/{lesson_id}/test/{lesson_tests[i + 1]['id']}"
                 break
 
     tests_list = []

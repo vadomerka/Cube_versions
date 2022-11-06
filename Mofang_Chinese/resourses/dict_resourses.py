@@ -72,7 +72,7 @@ class WordResourse(Resource):
                   word.right_side_audio,
                   word.down_side_audio,
                   word.up_side_audio]:
-            if "undefined" not in x:
+            if x and "undefined" not in x:
                 side_list.append(x)
         for name in side_list:
             filename = path + str(name)

@@ -155,11 +155,11 @@ function createPageButtons() {  // функция создает кнопки п
 
 function searchArrayFilter(item_list) {  //  функция ищет объекты, в тексте которых присутвует нужная строка
     search_field = document.getElementById("search-field");
-    val = search_field.value;
+    val = search_field.value.toUpperCase();
     ret_array = [];
     if (val != ""){
         for (var i = 0; i < item_list.length; i++) {
-            if (item_list[i][button_texts[text_button_state]].includes(val)){
+            if (item_list[i][button_texts[text_button_state]].toUpperCase().includes(val)){
                 ret_array.push(item_list[i]);
             }
         }

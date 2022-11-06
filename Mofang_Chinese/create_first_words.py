@@ -104,3 +104,7 @@ def create_one_word():
         ))
     session.commit()
     session.close()
+    
+    
+if __name__ == '__main__':
+    create_first_words()

@@ -67,3 +67,7 @@ def create_one_user(name, email):
         user.set_password("123456")
     db_sess.merge(user)
     db_sess.commit()
+
+
+if __name__ == '__main__':
+    create_first_users()

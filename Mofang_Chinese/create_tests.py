@@ -55,3 +55,7 @@ def create_tests():
         session.add(new_trainer)
     session.commit()
     session.close()
+
+
+if __name__ == '__main__':
+    create_tests()

@@ -59,3 +59,7 @@ def create_one_lesson():
     current_course.lessons.append(new_lesson)
     db_sess.merge(current_course)
     db_sess.commit()
+
+
+if __name__ == '__main__':
+    create_first_course()

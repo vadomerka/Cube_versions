@@ -1,14 +1,14 @@
 function searchArrayFilter(item_list){
     translation_search_field = document.getElementById("translation search field");
     hieroglyph_search_field = document.getElementById("hieroglyph search field");
-    val1 = translation_search_field.value;
-    val2 = hieroglyph_search_field.value;
+    val1 = translation_search_field.value.toUpperCase();
+    val2 = hieroglyph_search_field.value.toUpperCase();
     name_vals = ["translation", "hieroglyph"];
     ret_array = [];
     if (val1 != "" || val2 != ""){
         for (var i = 0; i < item_list.length; i++) {
-            if ( (val1 == "" || item_list[i].translation.includes(val1) ) &&
-                (val2 == "" || item_list[i].hieroglyph.includes(val2)) ){
+            if ( (val1 == "" || item_list[i].translation.toUpperCase().includes(val1) ) &&
+                (val2 == "" || item_list[i].hieroglyph.toUpperCase().includes(val2)) ){
                 ret_array.push(item_list[i]);
             }
         }

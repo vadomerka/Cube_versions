@@ -74,6 +74,7 @@
     </div>
 {% endif %}
     <div class="add-item-group">
+        <h2 style="text-align: center;" id="items-heading">Материалы урока</h2>
         {% if current_user.teacher %}
             <div class="add-item-box">
                 <a class="btn btn-add" href="/add_words_to_lesson/{{ lesson_data.id }}">Добавить слова</a>
@@ -95,7 +96,11 @@
     </div>
     <div class="lesson-tasks">
         <div class="lesson-task-column">
-            <h2>Тренажеры урока</h2>
+            {% if not lesson_data.trainers %}
+            <h3 style="text-align: center;">Тренажеры не добавлены</h3>
+            {% else %}
+            <h2 style="text-align: center;">Тренажеры урока</h2>
+            {% endif %}
             {% for trainer in lesson_data.trainers %}
             <div class="trainer-buttons">
                 <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
@@ -123,7 +128,11 @@
             {% endif %}
         </div>
         <div class="lesson-task-column">
+            {% if not lesson_data.tests %}
+            <h3 style="text-align: center;">Тесты не добавлены</h3>
+            {% else %}
             <h2 style="text-align: center;">Тесты урока</h2>
+            {% endif %}
             <div class="row">
             <div style="display: flex;
                         direction: row;
@@ -174,9 +183,11 @@
         deleteItemButtons();
         if (item_list.length == 0) {
             document.getElementById("items-not-found-heading").hidden = false;
+            document.getElementById("items-heading").hidden = true;
             return;
         } else {
             document.getElementById("items-not-found-heading").hidden = true;
+            document.getElementById("items-heading").hidden = false;
         }
         for (let i = 0; i < item_list.length; i += 1){
             column = document.createElement("div")
