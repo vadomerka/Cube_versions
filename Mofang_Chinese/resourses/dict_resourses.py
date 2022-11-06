@@ -74,27 +74,39 @@ class WordResourse(Resource):
                   word.up_side_audio]:
             if "undefined" not in x:
                 side_list.append(x)
-
         for name in side_list:
             filename = path + str(name)
-            # print(filename)
             if os.path.exists(filename):
                 os.remove(filename)
-            else:
-                pass
-                # print(f"The file {filename} does not exist")
+        this_word_to_users = session.query(WordsToUsers).filter(WordsToUsers.words == word_id).all()
+        if this_word_to_users:
+            for wtu in this_word_to_users:
+                session.delete(wtu)
         session.delete(word)
         session.commit()
         return jsonify({'success': 'OK'})
 
 
 class WordViewRecordingResource(Resource):
+    def get(self, user_id, word_id):
+        session = db_session.create_session()
+        word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
+                                                          WordsToUsers.words == word_id).first()
+        if not word_to_user:
+            abort(404, message=f"User or word not found", user_id=user_id, word_id=word_id)
+        ret = {"word_to_user": {"id": word_to_user.id,
+                                "words": word_to_user.words,
+                                "users": word_to_user.users,
+                                "learn_state": word_to_user.learn_state}}
+        session.close()
+        return jsonify(ret)
+
     def post(self, user_id, word_id):
         session = db_session.create_session()
         word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
                                                           WordsToUsers.words == word_id).first()
         if not word_to_user:
-            abort(404, message=f"User {user_id} or word {word_id} not found")
+            abort(404, message=f"User or word not found", user_id=user_id, word_id=word_id)
         if word_to_user.learn_state == 0:
             word_to_user.learn_state = 1
         session.merge(word_to_user)

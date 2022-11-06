@@ -23,7 +23,7 @@ from forms.word import WordsForm
 # flask resourses
 from resourses.course_resourses import CourseListResource, CourseResource
 from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource
-from resourses.lesson_resourses import LessonResource, LessonListResource
+from resourses.lesson_resourses import LessonResource, LessonListResource, UserLessonListResource
 from resourses.user_resourses import UserResource, UserListResource
 # from resourses.user_resourses import UserResource, UserListResource
 from requests import get, post, delete, put
@@ -63,7 +63,8 @@ api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
-api.add_resource(LessonListResource, "/rest_lessons/<req>/<int:item_id>")
+api.add_resource(LessonListResource, "/rest_lessons")
+api.add_resource(UserLessonListResource, "/rest_user_lessons/<int:user_id>")
 api.add_resource(UserResource, "/rest_user/<int:user_id>")
 api.add_resource(UserListResource, "/rest_users")
 # api.add_resource(TestRequest, "/rest_test")
@@ -378,7 +379,6 @@ def pupils():  # список учеников учителя
     server_response = get(root + '/rest_users').json()
     # if server_response == {}
     all_users = server_response["users"]  # response
-    print(all_users)
     users_pupils = list(filter(lambda x: x["creator"] == current_user.id, all_users))
     items_js = {"all_items": users_pupils}
     return render_template('pupils.html', pupils=users_pupils, back_button_hidden="true",
@@ -909,7 +909,7 @@ def add_words_to_lesson(lesson_id):  # добавляет слова к урок
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -983,7 +983,7 @@ def delete_lesson(course_id, lesson_id):  # удаление урока
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1003,7 +1003,7 @@ def lesson_statistics(course_id, lesson_id):  # статистика урока
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1076,7 +1076,7 @@ def lesson_pupil_statistics(course_id, lesson_id, pupil_id):
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1139,7 +1139,7 @@ def delete_word_from_lesson(lesson_id, word_id):  # удаление слова 
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1170,7 +1170,7 @@ def delete_trainer_from_lesson(lesson_id, trainer_id):  # удаление тр�
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1195,7 +1195,7 @@ def delete_test_from_lesson(lesson_id, test_id):  # удаление теста 
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("access_denied.html", back_button_hidden="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1383,7 +1383,7 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
     if not current_user.is_authenticated:
         return render_template("unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1475,7 +1475,7 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
     if not current_user.is_authenticated:
         return render_template("unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1570,7 +1570,7 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
     if not current_user.is_authenticated:
         return render_template("unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    lessons_response = get(root + '/rest_lessons/user_lessons/' + str(current_user.id)).json()
+    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:

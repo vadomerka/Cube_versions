@@ -11,7 +11,7 @@ def abort_if_not_found(lesson_id):
     session = db_session.create_session()
     lesson = session.query(Lessons).get(lesson_id)
     if not lesson:
-        abort(404, message=f"lesson {lesson_id} not found")
+        abort(404, message="Object not found", id=lesson_id)
 
 
 class LessonResource(Resource):
@@ -40,21 +40,30 @@ class LessonResource(Resource):
         return jsonify({'success': 'OK'})
 
 
+class UserLessonListResource(Resource):
+    def get(self, user_id):
+        abort_if_not_found(user_id)
+        session = db_session.create_session()
+        cur_user = session.query(User).get(user_id)
+        user_lessons = {"user_lessons": []}
+        for c in cur_user.courses:
+            for lesson in c.lessons:
+                course_lesson = lesson.to_dict(only=('id', 'name'))
+                course_lesson["words"] = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+                user_lessons["user_lessons"].append(course_lesson)
+        return jsonify(user_lessons)
+
+
 class LessonListResource(Resource):
-    def get(self, req, item_id):
-        if req == "user_lessons":
-            user_id = item_id
-            session = db_session.create_session()
-            cur_user = session.query(User).get(user_id)
-            user_lessons = {"user_lessons": []}
-            for c in cur_user.courses:
-                for lesson in c.lessons:
-                    course_lesson = lesson.to_dict(only=('id', 'name'))
-                    course_lesson["words"] = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
-                    user_lessons["user_lessons"].append(course_lesson)
-            return jsonify(user_lessons)
-        else:  # not working
-            session = db_session.create_session()
-            cur_user = session.query(User).filter(User.id == user_id).first()
-            return jsonify({'courses': [item.to_dict(
-                only=('id', 'name', 'about')) for item in cur_user.courses]})
+    def get(self):
+        session = db_session.create_session()
+        ret = {"lessons": []}
+        all_lessons = session.query(Lessons).all()
+        for lesson in all_lessons:
+            js_les = {lesson.to_dict(only=('id', 'name'))}
+            js_les["words"] = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+            js_les["trainers"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.trainers)]
+            js_les["tests"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.tests)]
+            js_les["course"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.courses)][0]
+            ret["lessons"].append(js_les)
+        return jsonify(ret)

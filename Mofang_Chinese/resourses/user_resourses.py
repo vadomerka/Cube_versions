@@ -3,6 +3,7 @@ from flask import jsonify
 from data import db_session
 from data.courses import Courses, users_to_course
 from data.users import User
+from data.words import Words, WordsToUsers
 from resourses.parser import parserAdd
 from flask import request
 
@@ -37,6 +38,10 @@ class UserResource(Resource):
         abort_if_not_found(user_id)
         session = db_session.create_session()
         user = session.query(User).get(user_id)
+        words_to_this_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id).all()
+        if words_to_this_user:
+            for wtu in words_to_this_user:
+                session.delete(wtu)
         session.delete(user)
         session.commit()
         return jsonify({'success': 'OK'})
