@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Профиль пользователя</h1>
 {% if not user.name and not user.last_name and not user.patronymic %}
-    <h3>данные не указаны</h3>
+    <h3>Данные не указаны</h3>
 {% else %}
     {% if user.name %}
         <h3>Имя: {{ user.name }}</h3>

@@ -13,7 +13,7 @@ def abort_if_not_found(id):
     session = db_session.create_session()
     course = session.query(Courses).get(id)
     if not course:
-        abort(404, message="Object not found", id=id)
+        abort(404, message="Object not found")
 
 
 class CourseResource(Resource):
@@ -46,8 +46,8 @@ class CourseResource(Resource):
 class CourseListResource(Resource):
     def get(self, user_id):
         session = db_session.create_session()
-        cur_user = session.query(User).filter(User.id == user_id).first()
+        cur_user = session.query(User).get(user_id)
         if cur_user:
             return jsonify({'courses': [item.to_dict(
                 only=('id', 'name', 'about')) for item in cur_user.courses]})
-        return abort(404, message=f"User {user_id} not found")
+        return abort(404, message=f"Object not found")

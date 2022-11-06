@@ -121,7 +121,7 @@
 			item_but.classList.add("btn");
 			item_but.classList.add("btn-primary");
 			item_but.classList.add("pupil-statistics-button");
-			item_but.href = "/courses/{{ course_id }}/lesson_statistics/{{ lesson_id }}/pupil/" + current_item_list[i]["id"].toString();
+			item_but.href = "/course/{{ course_id }}/lesson_statistics/{{ lesson_id }}/pupil/" + current_item_list[i]["id"].toString();
 			item_but.innerText = current_item_list[i][[button_texts[text_button_state]]];
 			pupil_stats_holder.appendChild(item_but);
 			

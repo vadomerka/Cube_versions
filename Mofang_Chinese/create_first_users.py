@@ -10,7 +10,7 @@ def create_first_users():
     if email_users:
         print("user already exists")
         user = email_users[0]
-        user.set_password("1")
+        user.set_password("123456")
         user.teacher = 1
     else:
         user = User(
@@ -19,7 +19,7 @@ def create_first_users():
             teacher=1,
             hints_enabled=1,
         )
-        user.set_password("1")
+        user.set_password("123456")
     db_sess.merge(user)
     db_sess.commit()
     db_sess = db_session.create_session()
@@ -29,7 +29,7 @@ def create_first_users():
     if email_users:
         print("user already exists")
         user = email_users[0]
-        user.set_password("1")
+        user.set_password("123456")
         user.teacher = 0
         user.creator = teacher_id
     else:
@@ -40,8 +40,11 @@ def create_first_users():
             hints_enabled=1,
             creator=teacher_id
         )
-        user.set_password("1")
+        user.set_password("123456")
     db_sess.merge(user)
+
+    empty_user = User(creator=teacher_id)
+    db_sess.merge(empty_user)
     db_sess.commit()
 
 
@@ -52,7 +55,7 @@ def create_one_user(name, email):
     if email_users:
         print("user already exists")
         user = email_users[0]
-        user.set_password("1")
+        user.set_password("123456")
         user.teacher = 0
     else:
         user = User(
@@ -61,6 +64,6 @@ def create_one_user(name, email):
             teacher=0,
             hints_enabled=1,
         )
-        user.set_password("1")
+        user.set_password("123456")
     db_sess.merge(user)
     db_sess.commit()

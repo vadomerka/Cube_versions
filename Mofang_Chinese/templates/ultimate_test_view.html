@@ -202,7 +202,7 @@
     var img_size = 100;
     var answer_button_number = {{ answer_button_number }};
     var back_url = "{{ back_url }}";
-    var result_url = "/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
+    var result_url = "/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
 
     python_data = {{ python_data|tojson }};
     var all_words = python_data.all_words;

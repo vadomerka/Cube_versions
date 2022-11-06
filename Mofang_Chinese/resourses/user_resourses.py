@@ -12,7 +12,7 @@ def abort_if_not_found(id):
     session = db_session.create_session()
     user = session.query(User).get(id)
     if not user:
-        abort(404, message="Object not found", id=id)
+        abort(404, message="Object not found")
 
 
 class UserResource(Resource):

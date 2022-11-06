@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="unauthorized-message-container">
+<div class="message-page-container">
     {% if message %}
-    <h1>{{ message }}</h1>
+        <h1 class="message-page-header">{{ message }}</h1>
     {% else %}
-    <h1>Вы не авторизованны </h1>
-    <h2>Пожалуйста войдите в свой аккаунт</h2>
+        <h1 class="message-page-header">Вы не авторизованны </h1>
+        <h2 class="message-page-text">Пожалуйста войдите в свой аккаунт</h2>
     {% endif %}
-    <h3>Если у вас еще нет аккаунта, обратитесь к своему учителю</h3>
+    <h3 class="message-page-help-text">Если у вас еще нет аккаунта, обратитесь к своему учителю</h3>
     <a class="btn btn-primary" href="/">Вернуться на главную страницу</a>
 </div>
 {% endblock %}

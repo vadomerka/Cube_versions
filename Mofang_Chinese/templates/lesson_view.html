@@ -98,7 +98,7 @@
             <h2>Тренажеры урока</h2>
             {% for trainer in lesson_data.trainers %}
             <div class="trainer-buttons">
-                <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
+                <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
                    class="btn btn-primary item-button" style="min-width: 250px; margin-bottom: 10px;" id="trainer {{ trainer.id }}">
                     {{ trainer.name }}
                 </a>
@@ -133,7 +133,7 @@
                         align-content: center;">
                 {% for test in lesson_data.tests %}
                     <div class="test-buttons">
-                        <a href="/courses/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
+                        <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
                            class="btn btn-primary item-button unstarted-trainer" style="min-width: 250px" id="test {{ test.id }}">
                             {{ test.name }}
                         </a>
@@ -186,7 +186,7 @@
             item_button = document.createElement("a");
             item_button.id = "item_button " + i.toString();
             item_button.type = "button";
-            item_button.href = "/courses/{{ course_id }}/lesson_word/{{ lesson_data.id }}/word/" + item_list[i]["id"];
+            item_button.href = "/course/{{ course_id }}/lesson_word/{{ lesson_data.id }}/word/" + item_list[i]["id"];
             item_button.classList.add("btn");
             item_button.classList.add("btn-primary");
             item_button.classList.add("item-button");

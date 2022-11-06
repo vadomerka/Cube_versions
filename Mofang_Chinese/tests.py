@@ -1,9 +1,10 @@
-from create_first_course import create_first_course
+from create_first_course import create_first_course, create_one_lesson
 from create_first_words import create_first_words, create_one_word
 from create_first_users import create_first_users, create_one_user
 from create_tests import create_tests
 import unittest
 from requests import get, post, delete, put
+
 root = "http://localhost:5000"
 
 
@@ -22,7 +23,7 @@ class Test1UserResourses(unittest.TestCase):
     def test_2_get_wrong_user(self):
         wrong_user_id = 1000
         req = get(root + '/rest_user/' + str(wrong_user_id)).json()
-        self.assertEqual(req, {'message': 'Object not found', 'id': wrong_user_id})
+        self.assertEqual(req, {'message': 'Object not found'})
 
     def test_3_get_user(self):
         create_one_user("test_user", "test_user@gmail.com")
@@ -33,7 +34,7 @@ class Test1UserResourses(unittest.TestCase):
     def test_4_delete_wrong_user(self):
         wrong_user_id = 1000
         req = delete(root + f'/rest_user/{wrong_user_id}').json()
-        self.assertEqual(req,  {'message': 'Object not found', 'id': wrong_user_id})
+        self.assertEqual(req, {'message': 'Object not found'})
 
     def test_5_delete_user(self):
         user_id = 1
@@ -43,7 +44,7 @@ class Test1UserResourses(unittest.TestCase):
     def test_6_check_users_number(self):
         create_first_users()
         req = len(get(root + '/rest_users').json()["users"])
-        self.assertEqual(req, 2)
+        self.assertEqual(req, 3)
 
 
 class Test2DictResourses(unittest.TestCase):
@@ -54,19 +55,18 @@ class Test2DictResourses(unittest.TestCase):
     def test_2_get_wrong_word(self):
         wrong_id = 1000
         req = get(root + f'/rest_word/{wrong_id}').json()
-        self.assertEqual(req, {'message': 'Object not found', 'id': wrong_id})
+        self.assertEqual(req, {'message': 'Object not found'})
 
     def test_3_get_word(self):
         create_one_word()
         word_id = 1
-        # print(get(root + f'/rest_word/{word_id}').json())
         req = get(root + f'/rest_word/{word_id}').json()["word"]["id"]
         self.assertEqual(req, word_id)
 
     def test_4_delete_wrong_word(self):
         wrong_id = 1000
         req = delete(root + f'/rest_word/{wrong_id}').json()
-        self.assertEqual(req,  {'message': 'Object not found', 'id': wrong_id})
+        self.assertEqual(req, {'message': 'Object not found'})
 
     def test_5_delete_word(self):
         word_id = 1
@@ -78,72 +78,126 @@ class Test2DictResourses(unittest.TestCase):
         self.assertEqual(req, 0)
 
 
-class Test3CourseResourses(unittest.TestCase):
-    def test_1_get_user_courses(self):
+class Test3WordToUserResourses(unittest.TestCase):
+    def test_1_get_wrong_word_to_user(self):
+        wrong_user_id = 1000
+        wrong_word_id = 1000
+        req = get(root + f'/rest_word_view_recording/{wrong_user_id}/{wrong_word_id}').json()
+        self.assertEqual(req, {'message': 'Object not found'})
+
+    def test_2_get_word_to_user(self):
+        create_one_word()
+        user_id = 1
+        word_id = 1
+        req = get(root + f'/rest_word_view_recording/{user_id}/{word_id}').json()["word_to_user"]
+        self.assertEqual([req["users"], req["words"], req["learn_state"]],
+                         [user_id, word_id, 0])
+
+    def test_3_post_wrong_word_to_user(self):
+        wrong_user_id = 1000
+        wrong_word_id = 1000
+        req = post(root + f'/rest_word_view_recording/{wrong_user_id}/{wrong_word_id}').json()
+        self.assertEqual(req, {'message': 'Object not found'})
+
+    def test_4_post_word_to_user(self):
+        user_id = 1
+        word_id = 1
+        req = post(root + f'/rest_word_view_recording/{user_id}/{word_id}').json()
+        self.assertEqual(req, {'success': 'OK'})
+
+    def test_5_get_word_to_user(self):
+        user_id = 1
+        word_id = 1
+        req = get(root + f'/rest_word_view_recording/{user_id}/{word_id}').json()["word_to_user"]
+        self.assertEqual([req["users"], req["words"], req["learn_state"]],
+                         [user_id, word_id, 1])
+
+    def test_7_check_word_to_user(self):
+        user_id = 1
+        word_id = 1
+        deleting_word = delete(root + f'/rest_word/{word_id}').json()
+        req = get(root + f'/rest_word_view_recording/{user_id}/{word_id}').json()
+        self.assertEqual(req, {'message': 'Object not found'})
+
+
+class Test4CourseResourses(unittest.TestCase):
+    def test_1_get_wrong_user_courses(self):
+        wrong_id = 1000
+        req = get(root + f'/rest_courses/{wrong_id}').json()
+        self.assertEqual(req, {'message': 'Object not found'})
+
+    def test_2_get_user_courses(self):
         user_id = 1
         req = len(get(root + f'/rest_courses/{user_id}').json()["courses"])
         self.assertEqual(req, 0)
 
-    def test_2_get_wrong_course(self):
+    def test_3_get_wrong_course(self):
         wrong_id = 1000
         req = get(root + f'/rest_course/{wrong_id}').json()
-        self.assertEqual(req, {'message': 'Object not found', 'id': wrong_id})
+        self.assertEqual(req, {'message': 'Object not found'})
 
-    def test_3_get_course(self):
+    def test_4_get_course(self):
         create_first_course()
         course_id = 1
         req = get(root + f'/rest_course/{course_id}').json()["course"]["id"]
         self.assertEqual(req, course_id)
 
-    def test_4_delete_wrong_course(self):
+    def test_5_delete_wrong_course(self):
         wrong_id = 1000
         req = delete(root + f'/rest_course/{wrong_id}').json()
-        self.assertEqual(req,  {'message': 'Object not found', 'id': wrong_id})
+        self.assertEqual(req, {'message': 'Object not found'})
 
-    def test_5_delete_word(self):
+    def test_6_delete_course(self):
         course_id = 1
         req = delete(root + f'/rest_course/{course_id}').json()
         self.assertEqual(req, {'success': 'OK'})
 
-    def test_6_check_words_number(self):
+    def test_7_check_courses_number(self):
         user_id = 1
         req = len(get(root + f'/rest_courses/{user_id}').json()["courses"])
+        self.assertEqual(req, 1)
+
+
+class Test5LessonResourses(unittest.TestCase):
+    def test_1_get_all_lessons(self):
+        req = len(get(root + f'/rest_lessons').json()["lessons"])
+        self.assertEqual(req, 0)
+
+    def test_2_get_wrong_user_lessons(self):
+        wrong_user_id = 1000
+        req = get(root + f'/rest_user_lessons/{wrong_user_id}').json()
+        self.assertEqual(req, {"message": "Object not found"})
+
+    def test_3_get_user_lessons(self):
+        create_one_lesson()
+        user_id = 1
+        req = len(get(root + f'/rest_user_lessons/{user_id}').json()["user_lessons"])
+        self.assertEqual(req, 1)
+
+    def test_4_get_wrong_lesson(self):
+        wrong_id = 1000
+        req = get(root + f'/rest_lesson/{wrong_id}').json()
+        self.assertEqual(req, {'message': 'Object not found'})
+
+    def test_5_get_lesson(self):
+        lesson_id = 1
+        req = get(root + f'/rest_lesson/{lesson_id}').json()["lesson"]["id"]
+        self.assertEqual(req, lesson_id)
+
+    def test_6_delete_wrong_lesson(self):
+        wrong_id = 1000
+        req = delete(root + f'/rest_lesson/{wrong_id}').json()
+        self.assertEqual(req,  {'message': 'Object not found'})
+
+    def test_7_delete_lesson(self):
+        lesson_id = 1
+        req = delete(root + f'/rest_lesson/{lesson_id}').json()
+        self.assertEqual(req, {'success': 'OK'})
+
+    def test_8_check_lessons_number(self):
+        req = len(get(root + f'/rest_lessons').json()["lessons"])
         self.assertEqual(req, 0)
 
 
-"""
-class TestCourseResourses(unittest.TestCase):
-    def test_1empty_post_course(self):
-        self.assertEqual(post('http://localhost:5000/rest_courses/1').json(),
-                         {'error': 'Empty request'})
-
-    def test_2bad_post_course(self):
-        self.assertEqual(post('http://localhost:5000/rest_courses/1', json={'id': 2}).json(),
-                         {'error': 'Bad request'})
-
-    def test_3post_course(self):
-        self.assertEqual(post('http://localhost:5000/rest_courses/1',
-                              json={'name': 'post course',
-                                    'about': "1"}).json(), {'success': 'OK'})
-
-    def test_4get_course_1(self):
-        # session = db_session.create_session()
-        # id = max([c.id for c in session.query(Courses)])
-        self.assertEqual(get('http://localhost:5000/rest_course/' + str(id)).json(),
-                         {'course': {'about': '1', 'id': id, 'lessons': [], 'name': 'post course'}})
-
-    def test_5delete_course(self):
-        # session = db_session.create_session()
-        # id = max([c.id for c in session.query(Courses)])
-        self.assertEqual(delete('http://localhost:5000/rest_course/' + str(id)).json(),
-                         {'success': 'OK'})
-
-    def test_6get_course_2(self):
-        # session = db_session.create_session()
-        # id = max([c.id for c in session.query(Courses)])
-        self.assertEqual(get('http://localhost:5000/rest_course/' + str(id)).json(),
-                         {'message': 'Course ' + str(id) + ' not found'})
-"""
 if __name__ == '__main__':
     unittest.main()
-

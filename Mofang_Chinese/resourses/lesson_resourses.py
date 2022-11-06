@@ -11,7 +11,7 @@ def abort_if_not_found(lesson_id):
     session = db_session.create_session()
     lesson = session.query(Lessons).get(lesson_id)
     if not lesson:
-        abort(404, message="Object not found", id=lesson_id)
+        abort(404, message="Object not found")
 
 
 class LessonResource(Resource):

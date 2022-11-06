@@ -210,7 +210,7 @@
             if (next_trainer_button) {
                 next_trainer_button.hidden = false;
                 next_trainer_button.addEventListener("click", async function(event){
-                    const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result", {
+                    const response = await fetch("/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result", {
                     method: 'POST',
                     headers: {
                       'Accept': 'application/json',
@@ -234,7 +234,7 @@
             continue_button.removeEventListener("click", continueButtonClick, false);
 
             continue_button.addEventListener("click", async function(event){
-                const response = await fetch("/courses/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result", {
+                const response = await fetch("/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result", {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

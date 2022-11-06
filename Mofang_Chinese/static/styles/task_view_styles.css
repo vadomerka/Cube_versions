@@ -33,6 +33,7 @@
 }
 
 .task-box {
+    min-width: 460px;
     position: relative;
     height: 150px;
     display: flex;

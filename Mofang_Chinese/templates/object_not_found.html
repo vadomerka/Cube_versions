@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="message-page-container">
+    {% if message %}
+        <h1 class="message-page-header">{{ message }}</h1>
+    {% else %}
+        {% if object %}
+            <h1 class="message-page-header">{{ object }} не найден</h1>
+        {% else %}
+            <h1 class="message-page-header">Объект не найден</h1>
+        {% endif %}
+        <h3 class="message-page-help-text">Проверьте, верно ли составлен запрос</h3>
+    {% endif %}
+    <a class="btn btn-primary" href="/">Вернуться на главную страницу</a>
+</div>
+{% endblock %}

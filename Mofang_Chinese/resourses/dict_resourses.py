@@ -13,7 +13,7 @@ def abort_if_not_found(id):
     session = db_session.create_session()
     word = session.query(Words).get(id)
     if not word:
-        abort(404, message="Object not found", id=id)
+        abort(404, message="Object not found")
 
 
 class DictResourse(Resource):
@@ -93,7 +93,7 @@ class WordViewRecordingResource(Resource):
         word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
                                                           WordsToUsers.words == word_id).first()
         if not word_to_user:
-            abort(404, message=f"User or word not found", user_id=user_id, word_id=word_id)
+            abort(404, message=f"Object not found")
         ret = {"word_to_user": {"id": word_to_user.id,
                                 "words": word_to_user.words,
                                 "users": word_to_user.users,
@@ -106,7 +106,7 @@ class WordViewRecordingResource(Resource):
         word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
                                                           WordsToUsers.words == word_id).first()
         if not word_to_user:
-            abort(404, message=f"User or word not found", user_id=user_id, word_id=word_id)
+            abort(404, message=f"Object not found")
         if word_to_user.learn_state == 0:
             word_to_user.learn_state = 1
         session.merge(word_to_user)

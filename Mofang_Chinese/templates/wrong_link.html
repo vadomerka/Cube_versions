@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if message %}
-<h1>{{ message }}</h1>
-{% else %}
-<h1>К сожалению, эта ссылка недействительна</h1>
-{% endif %}
-<h1>Обратитесь к своему учителю, для создания новой</h1>
-<a class="btn btn-primary" href="/">Вернуться на главную страницу</a>
+<div class="message-page-container">
+    {% if message %}
+        <h1 class="message-page-header">{{ message }}</h1>
+    {% else %}
+        <h1 class="message-page-header">К сожалению, эта ссылка недействительна</h1>
+    {% endif %}
+    <h3 class="message-page-help-text">Обратитесь к своему учителю, для создания новой</h3>
+    <a class="btn btn-primary" href="/">Вернуться на главную страницу</a>
+</div>
 {% endblock %}

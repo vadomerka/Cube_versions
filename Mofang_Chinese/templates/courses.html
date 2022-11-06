@@ -25,9 +25,9 @@
                     {% endif %}
                 </p>
                 <div class="course-buttons">
-                <a href="/courses/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
+                <a href="/course/{{ item.id }}" class="btn btn-primary">Перейти на курс</a>
                 {% if current_user.teacher %}
-                <a href="/courses_delete/{{ item.id }}"
+                <a href="/delete_course/{{ item.id }}"
                    class="btn btn-danger btn-delete lesson-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor"
                          class="bi bi-trash" viewBox="0 0 16 16">

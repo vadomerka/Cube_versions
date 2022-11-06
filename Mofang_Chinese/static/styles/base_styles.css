@@ -74,10 +74,29 @@ body {
     color: var(--dark-red);
 }
 
-.unauthorized-message-container {
+.message-page-container {
     margin-top: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .required-field-span {
     color: var(--bright-red);
+}
+
+.message-page-header {
+    margin: 2.5rem;
+    font-size: xxx-large;
+    text-align: center;
+}
+
+.message-page-text {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.message-page-help-text {
+    text-align: center;
+    margin-bottom: 2.5rem;
 }

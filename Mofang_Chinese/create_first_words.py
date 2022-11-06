@@ -68,7 +68,11 @@ def create_first_words():
                 learn_state=0
             ))
         session.commit()
-        session.close()
+    empty_word = Words()
+    cur_user = session.query(User).get(author)
+    cur_user.words.append(empty_word)
+    session.commit()
+    session.close()
 
 
 def create_one_word():
