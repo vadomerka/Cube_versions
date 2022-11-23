@@ -43,8 +43,8 @@ def create_first_users():
         user.set_password("123456")
     db_sess.merge(user)
 
-    empty_user = User(creator=teacher_id)
-    db_sess.merge(empty_user)
+    # empty_user = User(creator=teacher_id)
+    # db_sess.merge(empty_user)
     db_sess.commit()
 
 

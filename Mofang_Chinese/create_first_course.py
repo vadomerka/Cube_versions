@@ -18,12 +18,12 @@ def create_first_course():
     new_course.about = "Описание нового курса"
     teacher = session.query(User).filter(User.teacher == 1).all()[-1]
 
-    empty_lesson = Lessons()
-    new_course.lessons.append(empty_lesson)
-    teacher.courses.append(new_course)
-
-    empty_course = Courses()
-    teacher.courses.append(empty_course)
+    # empty_lesson = Lessons()
+    # new_course.lessons.append(empty_lesson)
+    # teacher.courses.append(new_course)
+    #
+    # empty_course = Courses()
+    # teacher.courses.append(empty_course)
 
     session.merge(teacher)
     session.commit()

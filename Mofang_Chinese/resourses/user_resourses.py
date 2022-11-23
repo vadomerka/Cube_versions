@@ -4,6 +4,8 @@ from data import db_session
 from data.courses import Courses, users_to_course
 from data.users import User
 from data.words import Words, WordsToUsers
+from data.tests import TestsToUsers
+from data.trainers import TrainersToUsers
 from resourses.parser import parserAdd
 from flask import request
 
@@ -42,6 +44,14 @@ class UserResource(Resource):
         if words_to_this_user:
             for wtu in words_to_this_user:
                 session.delete(wtu)
+        tests_to_this_user = session.query(TestsToUsers).filter(TestsToUsers.user_id == user_id).all()
+        if tests_to_this_user:
+            for tu in tests_to_this_user:
+                session.delete(tu)
+        trainers_to_this_user = session.query(TrainersToUsers).filter(TrainersToUsers.user_id == user_id).all()
+        if trainers_to_this_user:
+            for tu in trainers_to_this_user:
+                session.delete(tu)
         session.delete(user)
         session.commit()
         return jsonify({'success': 'OK'})

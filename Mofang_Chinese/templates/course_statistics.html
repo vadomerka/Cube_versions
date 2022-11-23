@@ -51,18 +51,16 @@
     </div>
     {% endfor %}
 </div>
-<script type="text/javascript" src="/static/data_parser.js"></script>
 <script>
+    var json_course_about = {{ python_data|tojson }}.course_about;
     if (json_course_about) {
-        json_course_about = json_course_about.split('&lt;&lt;&lt;&lt;');
-
-	    for (let i = 0; i < json_course_about.length; i++){
-	        text_holder = document.getElementById("course_about");
-	        new_line = document.createElement('p');
-	        new_line.classList.add("text-line");
-	        new_line.innerText = json_course_about[i];
-	        text_holder.appendChild(new_line);
-	    }
+        for (let i = 0; i < json_course_about.length; i++){
+            text_holder = document.getElementById("course_about");
+            new_line = document.createElement('p');
+            new_line.classList.add("text-line");
+            new_line.innerText = json_course_about[i];
+            text_holder.appendChild(new_line);
+        }
     }
 </script>
 {% endblock %}

@@ -160,7 +160,9 @@ def t_word_to_javascript(array):  # перевод списка слов в сп
 @app.route("/")
 def index():  # основная страница, переадресация на курсы/словарь либо на страницу авторизации
     if current_user.is_authenticated:
-        if current_user.courses:
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(current_user.id)
+        if user.courses:
             return redirect("/courses")
         return redirect("/dictionary")
     else:
@@ -577,11 +579,12 @@ def make_course():  # создание нового курса
     form = CoursesForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
+        user = db_sess.query(User).get(current_user.id)
         new_course = Courses()
         new_course.name = form.name.data
         new_course.about = form.about.data
-        current_user.courses.append(new_course)
-        db_sess.merge(current_user)
+        user.courses.append(new_course)
+        db_sess.merge(user)
         db_sess.commit()
         return redirect('/courses')
     return render_template('make_course.html', form=form, back_url="/courses")
@@ -765,7 +768,9 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
     if not current_user.is_authenticated:
         return render_template("unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    if course_id not in [c.id for c in current_user.courses]:
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(current_user.id)
+    if course_id not in [c.id for c in user.courses]:
         return render_template("access_denied.html", back_button_hidden="true")
     lesson_response = get(root + '/rest_lesson/' + str(lesson_id)).json()
     if lesson_response == {'message': 'Object not found'}:
@@ -850,7 +855,8 @@ def make_lesson(course_id):  # создать урок
     if not current_course:
         return render_template("object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Курс")
-    if course_id not in [c.id for c in current_user.courses]:
+    user = db_sess.query(User).get(current_user.id)
+    if course_id not in [c.id for c in user.courses]:
         return render_template("access_denied.html", back_button_hidden="true")
     form = LessonsForm()
     all_trainers = db_sess.query(Trainers).all()
@@ -888,7 +894,8 @@ def add_trainers_to_lesson(lesson_id):  # добавление тренажер�
         return render_template("object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
     current_course = lesson.courses[0]
-    if current_course.id not in [c.id for c in current_user.courses]:
+    user = db_sess.query(User).get(current_user.id)
+    if current_course.id not in [c.id for c in user.courses]:
         return render_template("access_denied.html", back_button_hidden="true")
     form = AddSomethingToLessonForm()
     all_trainers = db_sess.query(Trainers).all()
@@ -923,7 +930,8 @@ def add_tests_to_lesson(lesson_id):  # добавление тестов к ур
         return render_template("object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
     current_course = lesson.courses[0]
-    if current_course.id not in [c.id for c in current_user.courses]:
+    user = db_sess.query(User).get(current_user.id)
+    if current_course.id not in [c.id for c in user.courses]:
         return render_template("access_denied.html", back_button_hidden="true")
     form = AddSomethingToLessonForm()
     all_tests = db_sess.query(Tests).all()
@@ -978,7 +986,8 @@ def add_words_to_lesson(lesson_id):  # добавляет слова к урок
             if word not in other_lesson_words:
                 other_lesson_words.append(word)
     course_items = other_lesson_words
-    not_course_items = list(filter(lambda x: x not in course_items, all_items))
+    course_items_id = [item["id"] for item in course_items]
+    not_course_items = list(filter(lambda x: x["id"] not in course_items_id, all_items))
     items_js = {
         "max_id": max_id,
         "all_items": all_items,
