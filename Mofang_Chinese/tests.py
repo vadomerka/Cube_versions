@@ -15,6 +15,9 @@ def db_sess_start_data():
     create_first_course()
 
 
+# тесты были разработаны для тестирования пустой базы данных
+
+
 class Test1UserResourses(unittest.TestCase):
     def test_1_get_all_users(self):
         req = len(get(root + '/rest_users').json()["users"])
@@ -44,7 +47,7 @@ class Test1UserResourses(unittest.TestCase):
     def test_6_check_users_number(self):
         create_first_users()
         req = len(get(root + '/rest_users').json()["users"])
-        self.assertEqual(req, 3)
+        self.assertEqual(req, 2)
 
 
 class Test2DictResourses(unittest.TestCase):
@@ -155,7 +158,7 @@ class Test4CourseResourses(unittest.TestCase):
     def test_7_check_courses_number(self):
         user_id = 1
         req = len(get(root + f'/rest_courses/{user_id}').json()["courses"])
-        self.assertEqual(req, 1)
+        self.assertEqual(req, 0)
 
 
 class Test5LessonResourses(unittest.TestCase):

@@ -20,7 +20,7 @@ def create_first_course():
 
     # empty_lesson = Lessons()
     # new_course.lessons.append(empty_lesson)
-    # teacher.courses.append(new_course)
+    teacher.courses.append(new_course)
     #
     # empty_course = Courses()
     # teacher.courses.append(empty_course)
