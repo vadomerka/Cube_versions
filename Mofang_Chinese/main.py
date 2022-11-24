@@ -52,7 +52,7 @@ mail_settings = {
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": 'pradomiri@yandex.ru',
-    "MAIL_PASSWORD": 'lP!NIpDGGr6ADxE^N6ElWc1pX$8vq4@WU2w37LfnNWG$F2heXh'
+    "MAIL_PASSWORD": 'brJupPE6QSm@1nd7cjNI$GJult86dt8H7^db7CSxLpq@cHoPuv'
 }
 app.config.update(mail_settings)
 mail = Mail(app)
