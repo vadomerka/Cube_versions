@@ -1,0 +1,15 @@
+2022-12-17 15:22:35,152 Logging test...
+2022-12-17 15:22:35,253  * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
+2022-12-17 15:22:39,518 Starting new HTTP connection (1): localhost:5000
+2022-12-17 15:22:39,540 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /rest_course/1 HTTP/1.1" 200 -
+2022-12-17 15:22:39,540 http://localhost:5000 "GET /rest_course/1 HTTP/1.1" 200 533
+2022-12-17 15:22:39,586 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /course/1 HTTP/1.1" 200 -
+2022-12-17 15:22:39,653 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/button_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,681 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/courses_view_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,722 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/item_view_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,761 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/add_items_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,775 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/task_view_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,822 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/lesson_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,873 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/profile_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,880 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/login_page_styles.css HTTP/1.1" 200 -
+2022-12-17 15:22:39,915 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/base_styles.css HTTP/1.1" 200 -

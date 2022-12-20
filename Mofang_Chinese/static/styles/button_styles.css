@@ -4,7 +4,7 @@
     width: auto;
 }
 
-.btn-primary {
+.btn-main {
     font-size: medium;
     white-space: nowrap;
     text-align: center;
@@ -20,7 +20,7 @@
     border-radius: 10px;
 }
 
-.btn-primary:focus {
+.btn-main:focus {
     display: inline-block;
     vertical-align: top;
     color: var(--contrast-red);
@@ -31,13 +31,13 @@
     border-radius: 10px;
 }
 
-.btn-primary:active {
+.btn-main:active {
     box-shadow: 0 5px #666;
     background-color: var(--red);
     transform: translateY(4px);
 }
 
-.btn-primary:hover {
+.btn-main:hover {
     background-color: var(--contrast-red);
     color: var(--red);
     border: solid 3px var(--red);
@@ -92,9 +92,35 @@
 }
 
 .btn-add {
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
     background-color: var(--green);
-    border: none;
+    border: solid 3px var(--contrast-green);
     color: var(--contrast-green);
+}
+
+.btn-add:focus {
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: var(--green);
+    border: solid 3px var(--contrast-green);
+    color: var(--contrast-green);
+}
+
+.btn-add:active {
+    background-color: var(--contrast-green);
+    color: var(--green);
+    border: solid 3px var(--green);
+}
+
+.btn-add:hover {
+    background-color: var(--contrast-green);
+    color: var(--green);
+    border: solid 3px var(--green);
 }
 
 .btn-delete{
@@ -106,6 +132,10 @@
     justify-content: center;
     align-items: center;
     display: flex;
+}
+
+.centered-button {
+    margin: 10px;
 }
 
 .submit-btn {

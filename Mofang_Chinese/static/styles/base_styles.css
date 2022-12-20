@@ -100,3 +100,7 @@ body {
     text-align: center;
     margin-bottom: 2.5rem;
 }
+
+.centering-box {
+    flex: 1;
+}

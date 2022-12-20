@@ -16,7 +16,6 @@
     <link href="{{ url_for('static', filename='styles/profile_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/login_page_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/base_styles.css') }}" rel="stylesheet" />
-    <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
     <title>Mofang Chinese</title>
 </head>
 <body>
@@ -30,7 +29,7 @@
                     <a class="btn btn-white nav-btn" id="back_button" href="{{ back_url }}" hidden>Назад</a>
                     </div>
                 {% if current_user.is_authenticated %}
-                <a class="btn btn-primary navbar-brand nav-btn" href="/profile/{{ current_user.id }}">{{ current_user.name }}</a>
+                <a class="btn btn-main navbar-brand nav-btn" href="/profile/{{ current_user.id }}">{{ current_user.name }}</a>
                 {% endif %}
                 </div>
                 {% if current_user.is_authenticated %}
@@ -56,7 +55,7 @@
             if (nav_button != null){
                 if (location.href == nav_button.href){
                     nav_button.classList.remove("btn-white");
-                    nav_button.classList.add("btn-primary");
+                    nav_button.classList.add("btn-main");
                 }
             }
         }

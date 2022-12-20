@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-div-container">
+	<div style="display: block;
+	    		min-width: 355px;">
+	    <h1>Ваши ученики: </h1>
+	</div>
+	<div class="instruments-box" style="">
+		<div class="instruments-group">
+			<div class="instrument input-group" style="max-width: var(--min-window-size);">
+			    <div class="input-group-prepend">
+			        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+			                                                              x="0px" y="0px"
+			                                                              width="30" height="30"
+			                                                              viewBox="0 0 30 30"
+			                                                              style=" fill:#000000;">
+			            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+			        </svg></span>
+			    </div>
+			    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
+			           aria-describedby="basic-addon1" style="height: 44px;" id="search-field"
+			           value="">
+			</div>
+			<div class="text-change-button">
+				<button id="text-change-button" type="button" class="btn-main">Включить просмотр почт</button>
+			</div>
+			<div class="instrument sort-button-group">
+				<div class="sort-group-layer">
+			    <button id="alphabet-sort-button" class="btn-main sort-button"> 
+			        а↑
+			    </button>
+			    <button id="rev_alphabet-sort-button" class="btn-main sort-button">
+			        а↓
+			    </button>
+			    <button id="time-sort-button" class="btn-main sort-button">
+			        🕔↓
+			    </button>
+			    <button id="rev_time-sort-button" class="btn-main sort-button">
+			        🕔↑
+			    </button>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="add-item-group">
+		{% if current_user.teacher %}
+		<!-- ? -->
+	        <div class="add-item-box">
+	            <a class="btn btn-add" href="/make_pupil">Добавить учеников</a>
+	        </div>
+    	{% endif %}
+	</div>
+	<div class="items-row" id="items-row">
+	    <h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
+	</div>
+	<div class="page-buttons-box">
+	    <div class="page-buttons-row" id="pages-row">
+	    	<div class="page-buttons-container" id="start-page-buttons-container">
+	    	</div>	
+	    	<div class="page-buttons-container" id="nums-page-buttons-container">
+	    	</div>	
+	    	<div class="page-buttons-container" id="end-page-buttons-container">
+	    	</div>	
+	    </div>
+	</div>
+</div>
+<script src="/static/templates_js/items_view.js"></script>
+<script>
+	sort_buttons_id =  ["alphabet-sort-button",
+	                    "rev_alphabet-sort-button",
+	                    "time-sort-button",
+	                    "rev_time-sort-button"];
+	for (var i = 0; i < sort_buttons_id.length; i++) {
+	    sort_button = document.getElementById(sort_buttons_id[i]);
+	    if (sort_button != null){
+	        sort_button.addEventListener("click", sortButtonClick, false);
+	    }
+	}
+
+   	var max_items_number_on_one_page = {{ max_items_number_on_one_page }};
+	var items_js = {{ items_js|tojson }};
+	var filter_button_state = 0;
+	var text_button_state = 0;
+	var button_texts = ["name", "email"];
+	var current_page = 1;
+
+	items_lists = [items_js.all_items];
+	for (let i = 0; i < items_lists.length; i++){
+	    if (items_lists[i][0] == ''){
+	        items_lists[i] = [];
+	    }
+	}
+
+	page_numbers = []
+	for (let i = 0; i < items_lists.length; i++){
+	    page_number = pageNumberCount(items_lists[i]);
+	    page_numbers.push(page_number);
+	}
+	page_lists = []
+	for (let i = 0; i < items_lists.length; i++){
+	    page_items = items_lists[i].slice(max_items_number_on_one_page * (current_page - 1),
+	    max_items_number_on_one_page * current_page);
+	    page_lists.push(page_items);
+	}
+
+	var current_item_list = searchArrayFilter(items_lists[filter_button_state]);
+	current_page_item_list = page_lists[filter_button_state];
+	current_page_max_number = page_numbers[filter_button_state];
+
+	createItemButtons(current_page_item_list);
+	if (current_page_max_number > 1){
+	    createPageButtons();
+	}
+
+	function onTextChangeButtonClick(event){
+	    text_button_state = (text_button_state + 1) % button_texts.length;
+	    event.target.innerText = ["Включить просмотр почт", "Включить просмотр имен"][text_button_state];
+	    showButtons();
+	}
+
+	search_field = document.getElementById("search-field");
+	search_field.addEventListener("keyup", onSearchChange, false);
+	text_change_button = document.getElementById("text-change-button");
+	text_change_button.addEventListener("click", onTextChangeButtonClick, false);
+</script>
+{% endblock %}

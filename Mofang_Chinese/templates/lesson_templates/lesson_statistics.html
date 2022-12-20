@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Статистика урока: {{ lesson_name }}</h1>
+<h3>Количество слов: {{ lesson_words_len }}</h3>
+<h3>Количество тренажеров: {{ lesson_trainers_len }}</h3>
+<h3>Количество тестов: {{ lesson_tests_len }}</h3>
+<h3>Средняя выученность урока {{ lesson_percentage }}%</h5>
+<h4>Чтобы посмотреть более подробную статистику по ученику, кликните на кнопку с его именем</h4>
+<div class="instruments-box" style="">
+		<div class="instruments-group">
+			<div class="instrument input-group" style="max-width: var(--min-window-size);">
+			    <div class="input-group-prepend">
+			        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+			                                                              x="0px" y="0px"
+			                                                              width="30" height="30"
+			                                                              viewBox="0 0 30 30"
+			                                                              style=" fill:#000000;">
+			            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+			        </svg></span>
+			    </div>
+			    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
+			           aria-describedby="basic-addon1" style="height: 44px;" id="search-field"
+			           value="">
+			</div>
+			<div class="text-change-button">
+				<button id="text-change-button" type="button" class="btn-main">Включить просмотр почт</button>
+			</div>
+			<div class="instrument sort-button-group">
+				<div class="sort-group-layer">
+			    <button id="alphabet-sort-button" class="btn-main sort-button"> 
+			        а↑
+			    </button>
+			    <button id="rev_alphabet-sort-button" class="btn-main sort-button">
+			        а↓
+			    </button>
+			    <button id="time-sort-button" class="btn-main sort-button">
+			        🕔↓
+			    </button>
+			    <button id="rev_time-sort-button" class="btn-main sort-button">
+			        🕔↑
+			    </button>
+			    </div>
+			</div>
+		</div>
+</div>
+<div id="pupil-stats-column" class="pupil-stats-column">
+	<h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
+</div>
+<script src="/static/templates_js/items_view.js"></script>
+<script type="text/javascript">
+	function showButtons(){
+    	current_item_list = searchArrayFilter(item_list);
+        createItemStatHolders();
+    }
+
+    function sortButtonClick(event){
+    	button_type = event.target.id;
+    	console.log(current_item_list);
+    	if (button_type == "alphabet-sort-button"){
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord[button_texts[text_button_state]].toUpperCase();
+				  const translation2 = secondWord[button_texts[text_button_state]].toUpperCase();
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+	    } else if (button_type == "rev_alphabet-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = firstWord[button_texts[text_button_state]].toUpperCase();
+				  const translation2 = secondWord[button_texts[text_button_state]].toUpperCase();
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		} else if (button_type == "time-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = parseInt(firstWord["id"]);
+				  const translation2 = parseInt(secondWord["id"]);
+				  if (translation1 < translation2) {return -1;}
+				  if (translation1 > translation2) {return 1;}
+				  return 0;
+			});
+		} else if (button_type == "rev_time-sort-button") {
+	    	current_item_list.sort((firstWord, secondWord) => {
+				  const translation1 = parseInt(firstWord["id"]);
+				  const translation2 = parseInt(secondWord["id"]);
+				  if (translation1 < translation2) {return 1;}
+				  if (translation1 > translation2) {return -1;}
+				  return 0;
+			});
+		}
+        current_item_list = searchArrayFilter(current_item_list);
+        createItemStatHolders();
+    }
+
+    function deleteItemButtons(){  // функция удаляет предыдущие кнопки объектов
+	    prev_containers = document.getElementsByClassName("pupil-stats-holder");
+	    for (var i = 0; i < prev_containers.length; i++) {
+	        if (prev_containers[i] != null){
+	            prev_containers[i].remove();
+	            i--;
+	        }
+	    }
+	}
+
+	function createItemStatHolders(){
+		pupil_stats_column = document.getElementById("pupil-stats-column");
+		deleteItemButtons();
+		// pupil_stats_column.innerHTML = '';
+        if (current_item_list.length == 0){
+        	document.getElementById("items-not-found-heading").hidden = false;
+        	return;
+        } else {
+        	document.getElementById("items-not-found-heading").hidden = true;
+        }
+		for (var i = 0; i < current_item_list.length; i++) {
+			pupil_stats_holder = document.createElement("div");
+			pupil_stats_holder.classList.add("pupil-stats-holder");
+			item_but = document.createElement("a");
+			item_but.classList.add("btn");
+			item_but.classList.add("btn-main");
+			item_but.classList.add("pupil-statistics-button");
+			item_but.href = "/course/{{ course_id }}/lesson_statistics/{{ lesson_id }}/pupil/" + current_item_list[i]["id"].toString();
+			item_but.innerText = current_item_list[i][[button_texts[text_button_state]]];
+			pupil_stats_holder.appendChild(item_but);
+			
+			stat_texts = ["Выучено слов: " + current_item_list[i]["words_learned"].toString(),
+						  "Просмотрено слов: " + current_item_list[i]["words_viewed"].toString(),
+						  "Пройдено тренажеров: " + current_item_list[i]["trainers_completed"].toString(),
+						  "Пройдено тестов: " + current_item_list[i]["tests_completed"].toString()]
+			for (var j = 0; j < stat_texts.length; j++) {
+				stat_text = document.createElement("h3");
+				stat_text.innerText = stat_texts[j];
+				pupil_stats_holder.appendChild(stat_text);
+			}
+			pupil_stats_holder.appendChild(stat_text);
+			pupil_stats_column.appendChild(pupil_stats_holder);
+		}
+	}
+
+	sort_buttons_id =  ["alphabet-sort-button", 
+					    "rev_alphabet-sort-button",
+					    "time-sort-button",
+					    "rev_time-sort-button"];
+    for (var i = 0; i < sort_buttons_id.length; i++) {
+    	sort_button = document.getElementById(sort_buttons_id[i]);
+    	if (sort_button != null){
+    		sort_button.addEventListener("click", sortButtonClick, false);
+    	}
+    }
+
+    var python_data = {{ python_data|tojson }};
+	var item_list = python_data.course_pupils;
+	
+    var text_button_state = 0;
+    var button_texts = ["name", "email"];
+    var current_item_list = searchArrayFilter(item_list);
+
+    createItemStatHolders();
+
+    function onSearchChange(event){
+        if (event.key != "Control"){
+            current_item_list = searchArrayFilter(item_list);
+            showButtons();
+        }
+    }
+
+    function onTextChangeButtonClick(event){
+        text_button_state = (text_button_state + 1) % button_texts.length;
+        event.target.innerText = ["Включить просмотр почт", "Включить просмотр имен"][text_button_state];
+        showButtons();
+    }
+
+    search_field = document.getElementById("search-field");
+	search_field.addEventListener("keyup", onSearchChange, false);
+	text_change_button = document.getElementById("text-change-button");
+	text_change_button.addEventListener("click", onTextChangeButtonClick, false);
+</script>
+{% endblock %}

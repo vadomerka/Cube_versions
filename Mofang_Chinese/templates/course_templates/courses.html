@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="courses-container">
+    {% if not courses %}
+        {% if not current_user.teacher %}
+            <h1>На данный момент вы не подключены ни к одному курсу.</h1>
+            <h3>Для подключения к курсу обратитесь к своему преподавателю</h3>
+        {% else %}
+            <h1>На данный момент вы не создали ни одного курса.</h1>
+            <h3>Для создания курса, нажмите на кнопку "Добавить курс"</h3>
+        {% endif %}
+    {% endif %}
+    {% for item in courses %}
+        <div class="course-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% if item.name %}
+                        {{ item.name }}
+                    {% endif %}
+                </h5>
+                <p class="card-text">
+                    {% if item.about %}
+                        {{ item.about }}
+                    {% endif %}
+                </p>
+                <div class="course-buttons">
+                    <a href="/course/{{ item.id }}" class="btn btn-main centered-button">Перейти на курс</a>
+                    {% if current_user.teacher %}
+                    <a href="/delete_course/{{ item.id }}"
+                       class="btn btn-danger btn-delete lesson-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor"
+                             class="bi bi-trash" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+                    <a href="/course_statistics/{{ item.id }}" class="btn btn-main lesson-button info-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                        width="21" height="21"
+                        viewBox="0 0 50 50" class="info-svg">
+                        <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 25 11 A 3 3 0 0 0 22 14 A 3 3 0 0 0 25 17 A 3 3 0 0 0 28 14 A 3 3 0 0 0 25 11 z M 21 21 L 21 23 L 22 23 L 23 23 L 23 36 L 22 36 L 21 36 L 21 38 L 22 38 L 23 38 L 27 38 L 28 38 L 29 38 L 29 36 L 28 36 L 27 36 L 27 21 L 26 21 L 22 21 L 21 21 z"></path></svg>
+                    </a>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% if current_user.teacher %}
+        <div class="course-card add-course-container">
+        <a style="margin: 10px;" class="btn btn-add" href="/make_course">Добавить курс</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

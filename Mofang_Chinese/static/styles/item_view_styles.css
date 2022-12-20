@@ -64,6 +64,11 @@
     display: flex;
 }
 
+.dict-item-container {
+    width: 275px;
+    margin: 0 1px;
+}
+
 .items-row {
     display: flex;
     flex-direction: row;
@@ -71,6 +76,10 @@
     justify-content: space-evenly;
     align-items: center;
     margin-bottom: 2vh;
+}
+
+.dict-items-row {
+    justify-content: flex-start;
 }
 
 .sort-button-group {

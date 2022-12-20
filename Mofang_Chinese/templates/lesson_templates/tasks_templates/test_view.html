@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 id="test-header">Выберете правильный вариант ответа</h1>
+<div class="test-box">
+<div class="test">
+    <div class="task-box">
+        {% if test.check_side < 6 %}
+        {% if test.check_side == 5 %}
+        <img src="" class="task-field-image" id="task-field-image" name="task-field-image">
+        {% else %}
+        <canvas src="" id="task-field-canvas" name="task-field-canvas" class="task-field-canvas"></canvas>
+        {% endif %}
+        {% else %}
+        <button id="audio_but" class="c-button task-audio" name="task-field">
+             <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
+                 <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"/>
+             </svg>
+         </button>
+        {% endif %}
+    </div>
+    <div class="answer-box" style="
+        display: flex;
+        justify-content: center;">
+        {% if test.ans_side < 6 %}
+        <div calss="answer-box-layer">
+        {% for i in range(answer_button_number_first_line) %}
+            <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+                {% if test.ans_side == 5 %}
+                <img name="{{ i }}" src="" id="id {{ i }}"/>  <!--value="myimage"-->
+                {% else %}
+                <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
+                {% endif %}
+            </button>
+        {% endfor %}
+        </div>
+        <div calss="answer-box-layer">
+        {% for i in range(answer_button_number_first_line, answer_button_number_first_line + answer_button_number_second_line) %}
+            <button id="{{ i }}" class="ans-button" name="ans1" value="myimage">
+                {% if test.ans_side == 5 %}
+                <img name="{{ i }}" src="" id="id {{ i }}"/>  <!--value="myimage"-->
+                {% else %}
+                <canvas src=""  name="{{ i }}" id="id {{ i }}"></canvas>
+                {% endif %}
+            </button>
+        {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <div id="mistakes-holder" class="mistakes-holder" hidden>
+        <h3 id="mistakes-text">Слова, требующие повторения</h3>
+    </div>
+    <div class="bottom-t">
+        <div id="bottom-t-first-layer" class="bottom-t-first-layer">
+            <h3 id="left_word_number">start text</h3>
+            <a id="continue" class="btn btn-main long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
+        </div>
+        <div id="bottom-t-second-layer" hidden>
+            <a id="back-to-lesson" class="btn btn-main long-buttons" style="color: var(--contrast-red);" href="{{ back_url }}">Вернуться к уроку</a>
+            {% if not is_last_test %}
+            <a id="next-test" class="btn btn-main long-buttons" hidden href="{{ next_test_href }}">Перейти к следующему тесту</a>
+            {% endif %}
+        </div>  
+    </div>
+</div>
+</div>
+<script src="/static/templates_js/cube_side_text.js"></script>
+<script src="/static/templates_js/lesson_test.js"></script>
+<script>
+    // var test_word_number = 10;
+    var width = window.innerWidth
+    var height = window.innerHeight
+    var extra_size_ansbut = 50;
+    var img_size = 100;
+    var answer_button_number = {{ answer_button_number }};
+    var back_url = "{{ back_url }}";
+    var result_url = "/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
+
+    python_data = {{ python_data|tojson }};
+    var all_words = python_data.all_words;
+    var lesson = python_data.lesson_words;
+    if (lesson  == "") {document.location.href = "{{ back_url }}"; alert("Урок пуст"); }
+
+    var task_audio;
+    var audio_playing = false;
+    var results = [];
+    var unlearned = [];
+    for (let i = 0; i < lesson.length; i++) {
+        results.push(false);
+        unlearned.push(i);
+    }
+    var current_word = 0;
+    var check_side = {{ test.check_side }};
+    var ans_side = {{ test.ans_side }};
+
+    word_wrong_variants = [];
+    for (let i = 0; i < lesson.length; i++){
+        tmp_wrong_vars = []
+        for (let i = 0; i < all_words.length; i++) {
+            if (all_words[i][0] != lesson[current_word][0]){
+                tmp_wrong_vars.push(all_words[i][ans_side]);
+            }
+        }
+        shuffle(tmp_wrong_vars);
+        word_wrong_variants.push(tmp_wrong_vars);
+    }
+
+    function ansButtonClick(event){
+        val = event.target.value;
+        unlearned = unlearned.slice(1, unlearned.length);  // удаляем первый элемент
+        if (val == lesson[current_word][ans_side]){
+            results[current_word] = true;
+            // alert("correct")
+            // если ответ верный ничего не делаем
+            if (event.target.type == undefined){
+                butId = parseInt(event.target.id.split(" ")[1]);
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'green';
+                // ev_but.style.color = 'blue';
+            } else {
+                event.target.style.backgroundColor = 'green';
+                // event.target.style.color = 'blue';
+            }
+        } else {
+            // alert("incorrect")
+            ans_buttons = document.getElementsByClassName("ans-button");
+            for (let i = 0; i < ans_buttons.length; i += 1){
+                if (ans_buttons[i].value == lesson[current_word][ans_side]){
+                    right_answer_id = i;
+                    // alert(right_answer_id);
+                    break;
+                }
+                // alert("for");
+            }
+            // alert("incorrect")
+
+            // правильный ответ становится зеленым
+            butId = right_answer_id;
+            // alert(butId);
+            ev_but = document.getElementById(butId);
+            ev_but.style.backgroundColor = 'green';
+
+            // нажатая кнопка становится красной
+            if (event.target.type == undefined){  // если человек нажал на картинку
+                butId = parseInt(event.target.id.split(" ")[1]);
+                // alert(butId);
+                ev_but = document.getElementById(butId);
+                ev_but.style.backgroundColor = 'salmon';
+                // ev_but.style.color = 'blue';
+            } else {  // если человек нажал на саму кнопку
+                event.target.style.backgroundColor = 'salmon';
+                // event.target.style.color = 'blue';
+            }
+            results[current_word] = false;
+            // если ответ неверный, добавляем элемент в конец unlearned
+            // unlearned.push(current_word);
+        }
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i += 1){
+            ans_buttons[i].disabled = true;
+        }
+        // alert(unlearned);
+        // берем следующий элемент unlearned
+        if (unlearned == ''){  // resultsCheck(results)
+            showMistakes();
+            sendTestReasults();
+        } else {
+            current_word = unlearned[0];
+        }
+        document.getElementById("continue").hidden = false;
+        // buttonsInit();
+    }
+
+    function continueButtonClick(event){
+        document.getElementById("continue").hidden = true;
+        buttonsInit();
+    }
+
+    // alert(ans_buttons[0]);
+    function buttonsInit(){
+        // задаем задание
+        if (check_side < 5) {
+            if (check_side == 0 || check_side == 3){
+                task_but = task_hieroglyph_text(document.getElementById("task-field-canvas"), lesson[current_word][check_side], 1000);
+            } else {
+                task_but = task_text(document.getElementById("task-field-canvas"), lesson[current_word][check_side], 1000);
+            }
+        } else if (check_side == 5) {
+            task_but = document.getElementById("task-field-image");
+            task_but.src = "/static/words_data/" + lesson[current_word][check_side];
+        } else {
+            task_audio = new Audio("/static/words_data/" + lesson[current_word][check_side]);
+            audio_but = document.getElementById("audio_but");
+            audio_but.addEventListener("click", audioButtonClick, false);
+        }
+
+        wrong_variants =  word_wrong_variants[current_word]
+        var ans_variants = [lesson[current_word][ans_side]];
+        for (let i = 0; i < ({{ answer_button_number }} - 1); i += 1){
+            ans_variants.push(wrong_variants[i]);
+        }
+        shuffle(ans_variants);
+
+        ans_buttons = document.getElementsByClassName("ans-button");
+        for (let i = 0; i < ans_buttons.length; i++) {
+            ans_buttons[i].addEventListener("click", ansButtonClick, false);
+            if (ans_side == 5) {
+                but_img = ans_buttons[i].getElementsByTagName("img")[0];
+                but_img.src = "/static/words_data/" + ans_variants[i];
+            } else {
+                if (ans_side == 0 || ans_side == 3){
+                    but_img = task_hieroglyph_text(ans_buttons[i].getElementsByTagName("canvas")[0], ans_variants[i], 1000);;
+                } else {
+                    but_img = task_text(ans_buttons[i].getElementsByTagName("canvas")[0], ans_variants[i], 1000);
+                }
+            }
+            ans_buttons[i].value = ans_variants[i];
+            but_img.value = ans_variants[i];
+            but_img.style.width = (img_size).toString() + "px";
+            but_img.style.height = (img_size).toString() + "px";
+            ans_buttons[i].style.minWidth = (Number(but_img.style.width.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            ans_buttons[i].style.minHeight = (Number(but_img.style.height.slice(0, -2)) + extra_size_ansbut).toString() + "px";
+            ans_buttons[i].style.backgroundColor = 'white';
+            ans_buttons[i].disabled = false;
+        };
+        // сколько слов осталось
+        left_words_number_string = unlearned.length.toString();
+        document.getElementById("left_word_number").innerText = "Осталось слов: " +
+        left_words_number_string + "/" + lesson.length.toString();
+    }
+
+    continue_button = document.getElementById("continue");
+    continue_button.addEventListener("click", continueButtonClick, false);
+    buttonsInit();
+
+
+</script>
+{% endblock %}

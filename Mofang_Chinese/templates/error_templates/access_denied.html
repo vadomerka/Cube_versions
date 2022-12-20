@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="message-page-container">
+    {% if message %}
+        <h1 class="message-page-header">{{ message }}</h1>
+    {% else %}
+        <h1 class="message-page-header">Доступ запрещен</h1>
+    {% endif %}
+    <h3 class="message-page-help-text">У вас не достаточно прав, чтобы попасть на эту страницу</h3>
+    <a class="btn btn-main" href="/">Вернуться на главную страницу</a>
+</div>
+{% endblock %}

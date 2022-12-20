@@ -105,5 +105,13 @@
 .course-lessons{}
 
 .lessons {
-    margin: 4vh 0px 4vh 0px;
+    margin-top: 1.5rem;
+}
+
+.course-buttons-line {
+    display: flex;
+}
+
+.flex-buttons-line {
+    display: flex;
 }
