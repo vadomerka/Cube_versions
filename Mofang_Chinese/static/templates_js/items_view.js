@@ -40,7 +40,7 @@ function createOnePageButton(row, text, onClickFunction) {  // функция с
     page_button = document.createElement("button");
     page_button.onclick = onClickFunction;
     page_button.id = "page_button " + text;
-    page_button.classList.add("btn-primary");
+    page_button.classList.add("btn-main");
     if (text == current_page){
         page_button.classList.add("current-page-button")
     } else {
@@ -235,7 +235,7 @@ function createItemButtons(item_list) {  // функция создает кно
         item_button.type = "button";
         item_button.href = "/profile/" + item_list[i].id;
         item_button.classList.add("btn");
-        item_button.classList.add("btn-primary");
+        item_button.classList.add("btn-main");
         item_button.classList.add("item-button");
 
         button_id = item_list[i].id;

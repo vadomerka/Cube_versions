@@ -50,7 +50,7 @@ function showMistakes(){
             mistake_but.id = word_id.toString();
             mistake_but.innerText = lesson[i][0] + ' ' + lesson[i][1];
             mistake_but.classList.add("btn");
-            mistake_but.classList.add("btn-primary");
+            mistake_but.classList.add("btn-main");
             mistake_but.classList.add("item-button");
             mistakes_holder.appendChild(mistake_but);
         }

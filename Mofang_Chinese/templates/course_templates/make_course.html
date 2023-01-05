@@ -24,6 +24,8 @@
         {% endfor %}
     </p>
     <p>{{ form.submit(type="submit", class="btn btn-main") }}</p>
-    {{message}}
+    {% if message %}
+        <div class="message-container">{{ message }}</div>
+    {% endif %}
 </form>
 {% endblock %}

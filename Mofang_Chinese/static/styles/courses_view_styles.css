@@ -48,7 +48,7 @@
 }
 
 .lesson-card {
-    max-width: 500px;
+    width: 500px;
     border-style: solid;
     border-color: var(--red);
     margin: 10px 10px 10px 10px;
@@ -57,7 +57,7 @@
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 .course-center-column{
@@ -93,10 +93,6 @@
     margin-bottom: 5px;
 }
 
-.course-data{
-    margin-bottom: 6vh;
-}
-
 .course-about {
     background-color: white;
     padding: 10px;
@@ -108,10 +104,50 @@
     margin-top: 1.5rem;
 }
 
-.course-buttons-line {
+.top-buttons-line {
     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .flex-buttons-line {
     display: flex;
+}
+
+.data-container {
+    margin: 2.5rem 2rem;
+}
+
+.statistics-lesson-card {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+.lesson-statistics-top {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+
+}
+.text-block {
+    margin: 0.6rem;
+}
+
+.lesson-cards-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.add-task-button {
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    margin: 5px 5px 5px 5px;
 }

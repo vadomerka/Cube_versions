@@ -23,7 +23,7 @@ function createEmptyItemButton(num, item_list) {
     item_button.type = "button";
     item_button.addEventListener("click", itemButtonClick, false);
     item_button.classList.add("btn");
-    item_button.classList.add("btn-primary");
+    item_button.classList.add("btn-main");
     item_button.classList.add("item-button");
     item_button.classList.add("user-item-button");
     button_id = item_list[num].id;

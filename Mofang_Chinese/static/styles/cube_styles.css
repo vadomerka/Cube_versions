@@ -1,0 +1,178 @@
+.audio-button {
+    position: absolute;
+    min-width: 50px;
+    min-height: 50px;
+    appearance: none;
+    border: 0;
+    background: #4676d7;
+    color: #fff;
+    border-radius: 50%;
+}
+
+.url-word-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-between;
+    margin-top: 2vh;
+}
+
+.back-help-word-buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.help-button {
+    width: 45px;
+    height: 45px;
+    border-color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
+
+.explanation-container {
+    width: 100%;
+    min-height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow: hidden;
+    position: fixed;
+    top: 0px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.explanation-content {
+    background-color: #ffffff;
+    width: 75%;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
+
+.all-buttons {
+    position: absolute;
+    min-width: 400px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.cube-tutorial {
+    width: 100%;
+}
+
+.image-explanation {
+    width: 80%;
+    margin: 1rem;
+}
+
+.text-explanation {
+    display: flex;
+    flex-direction: column;
+    margin-left: 1rem;
+}
+
+.explanation-body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.cube-sides-explanation {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+}
+
+.explanation-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.close-button {
+    background: transparent;
+    border: transparent;
+    position: absolute;
+}
+
+.close-button-container {
+    display: flex;
+    flex-direction: row-reverse;
+    margin: 0.5rem 0rem 0.5rem 0.5rem;
+}
+
+.tutorial-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 1rem;
+}
+
+.image-hint-explanation {
+    width: 60%;
+    margin: 1rem;
+}
+
+.trainer-button {
+    margin-bottom: 17vh;
+    position: fixed;
+    bottom: 0%;
+}
+
+
+.side-image {
+    padding: 10px;
+    max-width: 441px;
+    max-height: 287px;
+}
+
+.file-fields {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.audio-file-fields {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.audio-file-line {
+    width: 85%;  /* constant */
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.audio-file-line::after {
+    content: "";
+    clear: both;
+    display: table;
+}

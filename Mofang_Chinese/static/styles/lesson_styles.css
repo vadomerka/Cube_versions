@@ -39,7 +39,7 @@
     margin-bottom: 10px;
 }
 
-.trainer-buttons {
+.task-buttons {
     display: flex;
     flex-wrap: nowrap;
     flex-direction: row;
@@ -74,4 +74,49 @@
 
 .pupil-statistics-button {
     max-width: 350px;
+}
+
+
+.page-but {
+    margin: 5px 5px 5px 5px;
+}
+.current_page_button {
+    margin: 0px 0px 0px 0px;
+    border-style: solid;
+    border-color: red;
+    border-width: 5px;
+}
+.item-button{
+    width: 250px;
+    height: 43px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.unstarted-trainer {
+    background-color: var(--orange);
+    color: var(--contrast-orange);
+}
+
+.unfinished-trainer {
+    background-color: var(--yellow);
+    color: var(--contrast-yellow);
+}
+
+.finished-trainer{
+    background-color: var(--green);
+    color: var(--contrast-green);
+}
+
+.lesson-view-heading {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.pupil-data-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin: 2vh;
 }

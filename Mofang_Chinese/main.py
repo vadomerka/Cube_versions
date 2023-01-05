@@ -656,6 +656,7 @@ def course_statistics(course_id):  # статистика курса
     else:
         python_data = {"course_about": []}
     lessons_data = {}
+    pupil_count = 0
     for lesson in course.lessons:
         pupil_count = 0
         lesson_percentage = 0
@@ -1775,7 +1776,10 @@ def change_word(word_id):  # изменить слово
     form = WordsForm()
 
     all_words = db_sess.query(Words).all()
-    python_data = {"json_all_words": get(root + "/rest_dict").json()["words"]}
+    ret_all_words = list(filter(lambda item: int(item["id"]) != word_id,
+                                get(root + "/rest_dict").json()["words"]))
+
+    python_data = {"json_all_words": ret_all_words}
 
     path_to_file = os.path.dirname(__file__)
     full_path = os.path.join(path_to_file)

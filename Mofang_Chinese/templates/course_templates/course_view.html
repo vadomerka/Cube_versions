@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="course-data">
+<div class="data-container">
     {% if current_user.teacher %}
         <form action="" method="post">
             {{ form.hidden_tag() }}
@@ -23,12 +23,16 @@
                     </p>
                 {% endfor %}
             </p>
-            <div class="course-buttons-line">
-                <div class="centering-box">{{ form.submit(type="submit", class="btn btn-main") }}</div>
+            <div class="top-buttons-line">
+                <div>{{ form.submit(type="submit", class="btn btn-main centered-button") }}</div>
                 <div>
                     <a href="/course/{{ course.id }}/pupils" class="btn btn-add centered-button">Просмотреть учеников курса</a>
                 </div>
-                <div class="centering-box"></div>
+                <div>
+                    <a href="/course_statistics/{{ course.id }}" class="btn btn-main lesson-button info-button">
+                        Статистика курса
+                    </a>
+                </div>
             </div>
             {% if message %}
                 <div class="message-container">{{ message }}</div>
@@ -38,8 +42,7 @@
         <h1 id="course_name">{{ course.name }}</h1>
         {% if course.about %}
             <h3>О курсе</h3>
-            <div id="course_about" class="course-about">
-            </div>
+            <div id="course_about" class="course-about"></div>
         {% endif %}
     {% endif %}
 </div>

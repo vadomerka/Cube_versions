@@ -146,6 +146,90 @@ function buf_check(side, x, y, buffer_size){
     }
 }
 
+function rotateUp() {
+    if (angle_of_rotation_y == 0){  // и куб при этом стоял на месте
+        if (cube_sides_y[current_side_y] != "up"){  // если это не сторона up
+            angle_of_rotation_y = Math.PI * 0.5;  // крутимся
+            current_side_y = (current_side_y + 1) % 4;  // измененяем сторону
+            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "front"){
+                changeAudio("front");
+            }
+            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "left"){
+                changeAudio("left");
+            }
+            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "right"){
+                changeAudio("right");
+            }
+            if (cube_sides_y[current_side_y] == "up"){  // если уже на стороне up
+                changeSides("up", 90 * current_side_x);  // поворочиваем картинку на стороне up
+                changeAudio("up");  // меняем аудио на сторону up
+            }
+        }
+    }
+}
+
+function rotateDown() {
+    if (angle_of_rotation_y == 0){
+        if (cube_sides_y[current_side_y] != "down"){
+            angle_of_rotation_y = -Math.PI * 0.5;
+            current_side_y -= 1;
+            if (current_side_y == -1){current_side_y = 3};
+            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "front"){
+                changeAudio("front");
+            }
+            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "left"){
+                changeAudio("left");
+            }
+            if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "right"){
+                changeAudio("right");
+            }
+            if (cube_sides_y[current_side_y] == "down"){
+                changeSides("down", 90 * current_side_x);
+                changeAudio("down");
+            }
+        }
+    }
+}
+
+function rotateRight() {
+    if (angle_of_rotation_x == 0){
+        if (cube_sides_x[current_side_x] != "right"){
+            if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
+                angle_of_rotation_x = -Math.PI * 0.5;
+                current_side_x = (current_side_x + 1) % 4;
+                if (cube_sides_y[current_side_y] == "x side"){
+                    if (cube_sides_x[current_side_x] == "front"){
+                        changeAudio("front");
+                    }
+                    if (cube_sides_x[current_side_x] == "right"){
+                        changeAudio("right");
+                    }
+                }
+            }
+        }
+    }
+}
+
+function rotateLeft() {
+    if (angle_of_rotation_x == 0){
+        if (cube_sides_x[current_side_x] != "left"){
+            if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
+                angle_of_rotation_x = Math.PI * 0.5;
+                current_side_x -= 1;
+                if (current_side_x == -1){current_side_x = 3};
+                if (cube_sides_y[current_side_y] == "x side"){
+                    if (cube_sides_x[current_side_x] == "front"){
+                        changeAudio("front");
+                    }
+                    if (cube_sides_x[current_side_x] == "left"){
+                        changeAudio("left");
+                    }
+                }
+            }
+        }
+    }
+}
+
 function mouseListenerCubeRotation(e) {
     if (e.which == 1){
         mousex = e.clientX;
@@ -154,86 +238,36 @@ function mouseListenerCubeRotation(e) {
         buffer_coef = 0.3
 
         if (buf_check("up", mousex, mousey, buffer_coef)){  // если пользователь нажал вверх
-            if (angle_of_rotation_y == 0){  // и куб при этом стоял на месте
-                if (cube_sides_y[current_side_y] != "up"){  // если это не сторона up
-                    angle_of_rotation_y = Math.PI * 0.5;  // крутимся
-                    current_side_y = (current_side_y + 1) % 4;  // измененяем сторону
-                    if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "front"){
-                        changeAudio("front");
-                    }
-                    if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "left"){
-                        changeAudio("left");
-                    }
-                    if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "right"){
-                        changeAudio("right");
-                    }
-                    if (cube_sides_y[current_side_y] == "up"){  // если уже на стороне up
-                        changeSides("up", 90 * current_side_x);  // поворочиваем картинку на стороне up
-                        changeAudio("up");  // меняем аудио на сторону up
-                    }
-                }
-            }
+            rotateUp();
         }
         else if (buf_check("down", mousex, mousey, buffer_coef)){
-            if (angle_of_rotation_y == 0){
-                if (cube_sides_y[current_side_y] != "down"){
-                    angle_of_rotation_y = -Math.PI * 0.5;
-                    current_side_y -= 1;
-                    if (current_side_y == -1){current_side_y = 3};
-                    if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "front"){
-                        changeAudio("front");
-                    }
-                    if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "left"){
-                        changeAudio("left");
-                    }
-                    if (cube_sides_y[current_side_y] == "x side" && cube_sides_x[current_side_x] == "right"){
-                        changeAudio("right");
-                    }
-                    if (cube_sides_y[current_side_y] == "down"){
-                        changeSides("down", 90 * current_side_x);
-                        changeAudio("down");
-                    }
-                }
-            }
+            rotateDown();
         }
         else if (buf_check("right", mousex, mousey, buffer_coef)){
-            if (angle_of_rotation_x == 0){
-                if (cube_sides_x[current_side_x] != "right"){
-                    if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
-                        angle_of_rotation_x = -Math.PI * 0.5;
-                        current_side_x = (current_side_x + 1) % 4;
-                        if (cube_sides_y[current_side_y] == "x side"){
-                            if (cube_sides_x[current_side_x] == "front"){
-                                changeAudio("front");
-                            }
-                            if (cube_sides_x[current_side_x] == "right"){
-                                changeAudio("right");
-                            }
-                        }
-                    }
-                }
-            }
+            rotateRight();
         }
         else if (buf_check("left", mousex, mousey, buffer_coef)){
-            if (angle_of_rotation_x == 0){
-                if (cube_sides_x[current_side_x] != "left"){
-                    if ((cube_sides_y[current_side_y] != "down") && (cube_sides_y[current_side_y] != "up")){
-                        angle_of_rotation_x = Math.PI * 0.5;
-                        current_side_x -= 1;
-                        if (current_side_x == -1){current_side_x = 3};
-                        if (cube_sides_y[current_side_y] == "x side"){
-                            if (cube_sides_x[current_side_x] == "front"){
-                                changeAudio("front");
-                            }
-                            if (cube_sides_x[current_side_x] == "left"){
-                                changeAudio("left");
-                            }
-                        }
-                    }
-                }
-            }
+            rotateLeft();
         }
     }
+}
+
+function arrowsCubeRotation(e) {
+    if (e.key == "ArrowUp") {
+        console.log("Up");
+        rotateUp();
+    } else if (e.key == "ArrowDown") {
+        console.log("Down");
+        rotateDown();
+    } else if (e.key == "ArrowRight") {
+        console.log("Right");
+        rotateRight();
+    } else if (e.key == "ArrowLeft") {
+        console.log("Left");
+        rotateLeft();
+    }
+    // console.log(e.key);
+    // console.log(arrowsCubeRotation);
 }
 
 function cubeRotation(){

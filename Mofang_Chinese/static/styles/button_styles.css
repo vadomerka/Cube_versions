@@ -92,13 +92,17 @@
 }
 
 .btn-add {
-    display: inline-block;
+    display: flex;
+    min-height: 45px;
     vertical-align: top;
     overflow: hidden;
     text-overflow: ellipsis;
     background-color: var(--green);
     border: solid 3px var(--contrast-green);
     color: var(--contrast-green);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-add:focus {
@@ -164,6 +168,7 @@
 }
 
 .info-button {
+    width: fit-content;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -180,4 +185,8 @@
 
 .info-svg {
     fill:var(--contrast-blue);
+}
+
+.full-red-btn {
+    border-color: var(--red);
 }

@@ -1,115 +1,110 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    .column {
-        float: left;
-        width: 50%;
-    }
-    .row {
-        display: -ms-flexbox;
-        display: flex;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-        margin-right: -15px;
-        margin-left: -15px;
-        justify-content: center;
-    }
-    .row:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-    .page-but {
-        margin: 5px 5px 5px 5px;
-    }
-    .current_page_button {
-        margin: 0px 0px 0px 0px;
-        border-style: solid;
-        border-color: red;
-        border-width: 5px;
-    }
-    .item-button{
-        width: 250px;
-        height: 43px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .unstarted-trainer{
-        background-color: var(--orange);
-        color: var(--contrast-orange);
-    }
-
-    .unfinished-trainer{
-        background-color: var(--yellow);
-        color: var(--contrast-yellow);
-    }
-
-    .finished-trainer{
-        background-color: var(--green);
-        color: var(--contrast-green);
-    }
-</style>
 <div class="main-div-container">
 {% if current_user.teacher %}
-<form action="" method="post" name="checks">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.name.label }}<span class="vnumgf" style="color: #d93025;">*</span><br>
-        {{ form.name(class="form-control") }}<br>
-        {% for error in form.name.errors %}
-    <p content="alert alert-danger" role="alert">
-        {{ error }}
-    </p>
-    {% endfor %}
-    </p>
-    <p>{{ form.submit(type="submit", class="btn btn-main") }}</p>
-    {{message}}
-</form>
+    <form action="" method="post" name="checks">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<span class="vnumgf required-field-span">*</span><br>
+            {{ form.name(class="form-control") }}<br>
+            {% for error in form.name.errors %}
+        <p content="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+        {% endfor %}
+        </p>
+        <div class="top-buttons-line">
+            <div>
+                {{ form.submit(type="submit", class="btn btn-main") }}
+            </div>
+            <div>
+                <a href="/course/{{ course_id }}/lesson_statistics/{{ lesson_data.id }}" class="btn btn-main lesson-button info-button">
+                    Статистика урока
+                </a>
+            </div>
+        </div>
+        {% if message %}
+            <div class="message-container">{{ message }}</div>
+        {% endif %}
+    </form>
 {% else %}
     <div style="display: block;
                 min-width: 355px;">
         <h1>{{ lesson_name }}</h1>
     </div>
 {% endif %}
-    <div class="add-item-group">
-        <h2 style="text-align: center;" id="items-heading">Материалы урока</h2>
+<div class="add-item-group">
+    <h2 class="lesson-view-heading" id="items-heading">Материалы урока</h2>
+    {% if current_user.teacher %}
+        <div class="add-item-box">
+            <a class="btn btn-add" href="/add_words_to_lesson/{{ lesson_data.id }}">Добавить слова</a>
+        </div>
+    {% endif %}
+</div>
+<div class="items-row" id="items-row">
+    <h3 id="items-not-found-heading" hidden>Слова не добавлены</h3>
+</div>
+<div class="page-buttons-box">
+    <div class="page-buttons-row" id="pages-row">
+        <div class="page-buttons-container" id="start-page-buttons-container">
+        </div>  
+        <div class="page-buttons-container" id="nums-page-buttons-container">
+        </div>  
+        <div class="page-buttons-container" id="end-page-buttons-container">
+        </div>  
+    </div>
+</div>
+<div class="lesson-tasks">
+    <div class="lesson-task-column">
+        {% if not lesson_data.trainers %}
+        <h3 class="lesson-view-heading">Тренажеры не добавлены</h3>
+        {% else %}
+        <h2 class="lesson-view-heading">Тренажеры урока</h2>
+        {% endif %}
+        {% for trainer in lesson_data.trainers %}
+        <div class="task-buttons">
+            <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
+               class="btn btn-main item-button" style="min-width: 250px; margin-bottom: 10px;" id="trainer {{ trainer.id }}">
+                {{ trainer.name }}
+            </a>
+            {% if current_user.teacher %}
+            <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}"
+               class="btn btn-danger btn-delete trainer-delete-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd"
+                          d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
         {% if current_user.teacher %}
-            <div class="add-item-box">
-                <a class="btn btn-add" href="/add_words_to_lesson/{{ lesson_data.id }}">Добавить слова</a>
-            </div>
+        <div class="add-task-button">
+            <a class="btn btn-add" href="/add_trainers_to_lesson/{{ lesson_data.id }}">Добавить
+                тренажеры</a>
+        </div>
         {% endif %}
     </div>
-    <div class="items-row" id="items-row">
-        <h3 id="items-not-found-heading" hidden>Слова не добавлены</h3>
-    </div>
-    <div class="page-buttons-box">
-        <div class="page-buttons-row" id="pages-row">
-            <div class="page-buttons-container" id="start-page-buttons-container">
-            </div>  
-            <div class="page-buttons-container" id="nums-page-buttons-container">
-            </div>  
-            <div class="page-buttons-container" id="end-page-buttons-container">
-            </div>  
-        </div>
-    </div>
-    <div class="lesson-tasks">
-        <div class="lesson-task-column">
-            {% if not lesson_data.trainers %}
-            <h3 style="text-align: center;">Тренажеры не добавлены</h3>
-            {% else %}
-            <h2 style="text-align: center;">Тренажеры урока</h2>
-            {% endif %}
-            {% for trainer in lesson_data.trainers %}
-            <div class="trainer-buttons">
-                <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
-                   class="btn btn-main item-button" style="min-width: 250px; margin-bottom: 10px;" id="trainer {{ trainer.id }}">
-                    {{ trainer.name }}
+    <div class="lesson-task-column">
+        {% if not lesson_data.tests %}
+        <h3 class="lesson-view-heading">Тесты не добавлены</h3>
+        {% else %}
+        <h2 class="lesson-view-heading">Тесты урока</h2>
+        {% endif %}
+
+        {% for test in lesson_data.tests %}
+            <div class="task-buttons">
+                <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
+                   class="btn btn-main item-button unstarted-trainer" style="min-width: 250px" id="test {{ test.id }}">
+                    {{ test.name }}
                 </a>
+                <h3 id="test result {{ test.id }}"> 0%</h3>
                 {% if current_user.teacher %}
-                <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}"
-                   class="btn btn-danger btn-delete trainer-delete-button">
+                <a href="/delete_test_from_lesson/{{ lesson_data.id }}/{{ test.id }}"
+                   class="btn btn-danger btn-delete">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          class="bi bi-trash" viewBox="0 0 16 16">
                         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -119,66 +114,18 @@
                 </a>
                 {% endif %}
             </div>
-            {% endfor %}
-            {% if current_user.teacher %}
-            <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
-                <a class="btn btn-add" href="/add_trainers_to_lesson/{{ lesson_data.id }}">Добавить
-                    тренажеры</a>
+        {% endfor %}
+
+        {% if current_user.teacher %}
+            <div class="add-task-button">
+                <a class="btn btn-add" href="/add_tests_to_lesson/{{ lesson_data.id }}">Добавить тесты</a>
             </div>
-            {% endif %}
-        </div>
-        <div class="lesson-task-column">
-            {% if not lesson_data.tests %}
-            <h3 style="text-align: center;">Тесты не добавлены</h3>
-            {% else %}
-            <h2 style="text-align: center;">Тесты урока</h2>
-            {% endif %}
-            <div class="row">
-            <div style="display: flex;
-                        direction: row;
-                        flex-direction: column;
-                        justify-content: space-evenly;
-                        flex-wrap: wrap;
-                        align-content: center;">
-                {% for test in lesson_data.tests %}
-                    <div class="test-buttons">
-                        <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
-                           class="btn btn-main item-button unstarted-trainer" style="min-width: 250px" id="test {{ test.id }}">
-                            {{ test.name }}
-                        </a>
-                        <h3 id="test result {{ test.id }}"> 0%</h3>
-                        {% if current_user.teacher %}
-                        <a href="/delete_test_from_lesson/{{ lesson_data.id }}/{{ test.id }}"
-                           class="btn btn-danger btn-delete">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-trash" viewBox="0 0 16 16">
-                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                <path fill-rule="evenodd"
-                                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                            </svg>
-                        </a>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-            {% if current_user.teacher %}
-            <div style="align-items: center; width: 100%; justify-content: center; display: flex; margin: 5px 5px 5px 5px">
-                <a class="btn btn-add" href="/add_tests_to_lesson/{{ lesson_data.id }}">Добавить
-                    тесты</a>
-            </div>
-            {% endif %}
-        </div>
+        {% endif %}
     </div>
-</div>
-<div>
 </div>
 <script src="/static/templates_js/items_view.js"></script>
 <script src="/static/templates_js/word_items_funtions.js"></script>
 <script>
-    function searchArrayFilter(item_list){
-        ret_array = item_list;
-        return ret_array;
-    }
     function createItemButtons(item_list){
         deleteItemButtons();
         if (item_list.length == 0) {

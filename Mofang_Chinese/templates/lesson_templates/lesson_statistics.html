@@ -1,48 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Статистика урока: {{ lesson_name }}</h1>
-<h3>Количество слов: {{ lesson_words_len }}</h3>
-<h3>Количество тренажеров: {{ lesson_trainers_len }}</h3>
-<h3>Количество тестов: {{ lesson_tests_len }}</h3>
-<h3>Средняя выученность урока {{ lesson_percentage }}%</h5>
-<h4>Чтобы посмотреть более подробную статистику по ученику, кликните на кнопку с его именем</h4>
+<div class="data-container">
+	<h1>Статистика урока: {{ lesson_name }}</h1>
+	<h3>Количество слов: {{ lesson_words_len }}</h3>
+	<h3>Количество тренажеров: {{ lesson_trainers_len }}</h3>
+	<h3>Количество тестов: {{ lesson_tests_len }}</h3>
+	<h3>Средняя выученность урока {{ lesson_percentage }}%</h5>
+	<h4>Чтобы посмотреть более подробную статистику по ученику, кликните на кнопку с его именем</h4>
+</div>
 <div class="instruments-box" style="">
-		<div class="instruments-group">
-			<div class="instrument input-group" style="max-width: var(--min-window-size);">
-			    <div class="input-group-prepend">
-			        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
-			                                                              x="0px" y="0px"
-			                                                              width="30" height="30"
-			                                                              viewBox="0 0 30 30"
-			                                                              style=" fill:#000000;">
-			            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
-			        </svg></span>
-			    </div>
-			    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
-			           aria-describedby="basic-addon1" style="height: 44px;" id="search-field"
-			           value="">
-			</div>
-			<div class="text-change-button">
-				<button id="text-change-button" type="button" class="btn-main">Включить просмотр почт</button>
-			</div>
-			<div class="instrument sort-button-group">
-				<div class="sort-group-layer">
-			    <button id="alphabet-sort-button" class="btn-main sort-button"> 
-			        а↑
-			    </button>
-			    <button id="rev_alphabet-sort-button" class="btn-main sort-button">
-			        а↓
-			    </button>
-			    <button id="time-sort-button" class="btn-main sort-button">
-			        🕔↓
-			    </button>
-			    <button id="rev_time-sort-button" class="btn-main sort-button">
-			        🕔↑
-			    </button>
-			    </div>
-			</div>
+	<div class="instruments-group">
+		<div class="instrument input-group" style="max-width: var(--min-window-size);">
+		    <div class="input-group-prepend">
+		        <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg"
+		                                                              x="0px" y="0px"
+		                                                              width="30" height="30"
+		                                                              viewBox="0 0 30 30"
+		                                                              style=" fill:#000000;">
+		            <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+		        </svg></span>
+		    </div>
+		    <input type="text" class="form-control" placeholder="Поиск ученика" aria-label="Поиск"
+		           aria-describedby="basic-addon1" style="height: 44px;" id="search-field"
+		           value="">
 		</div>
+		<div class="text-change-button">
+			<button id="text-change-button" type="button" class="btn-main">Включить просмотр почт</button>
+		</div>
+		<div class="instrument sort-button-group">
+			<div class="sort-group-layer">
+		    <button id="alphabet-sort-button" class="btn-main sort-button"> 
+		        а↑
+		    </button>
+		    <button id="rev_alphabet-sort-button" class="btn-main sort-button">
+		        а↓
+		    </button>
+		    <button id="time-sort-button" class="btn-main sort-button">
+		        🕔↓
+		    </button>
+		    <button id="rev_time-sort-button" class="btn-main sort-button">
+		        🕔↑
+		    </button>
+		    </div>
+		</div>
+	</div>
 </div>
 <div id="pupil-stats-column" class="pupil-stats-column">
 	<h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>

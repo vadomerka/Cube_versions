@@ -98,9 +98,9 @@
 	        item_button.classList.add("btn");
 	        item_button.classList.add("btn-main");
 	        item_button.classList.add("item-button");
-
-	        button_id = item_list[i].id;
 	        item_button.classList.add("user-item-button");
+			item_button.style = "width: 185px;";
+	        button_id = item_list[i].id;
 	        item_button.innerText = item_list[i].hieroglyph + ' '
 	        + item_list[i].translation;
 
@@ -148,6 +148,7 @@
 	            column.appendChild(change_but);
 	            column.appendChild(delete_but);
 	        }
+	        
         	document.getElementById("items-row").appendChild(column);
     	}
 	}

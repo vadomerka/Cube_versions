@@ -1,14 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1>Статистика ученика {{ pupil.name }}</h1>
-<h2>по уроку {{ lesson_name }}</h2>
-<div style="display: flex;
-		    flex-direction: column;
-		    flex-wrap: wrap;
-		    align-items: flex-start;
-		    margin: 2vh;">
+<div class="data-container">
+	<h1>Статистика ученика {{ pupil.name }}</h1>
+	<h2>по уроку {{ lesson_name }}</h2>
+</div>
+<div class="pupil-data-container">
 	<a class="btn btn-main" href="/profile/{{ pupil.id }}">{{ pupil.email }}</a>
 	<h3>Выучено слов: {{ words_learned }}</h3>
 	<h3>Просмотрено слов: {{ words_viewed }}</h3>

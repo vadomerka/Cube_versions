@@ -15,6 +15,7 @@
     <link href="{{ url_for('static', filename='styles/lesson_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/profile_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/login_page_styles.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='styles/cube_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/base_styles.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
     <style>
@@ -23,144 +24,6 @@
           overflow: hidden;
           margin: 0;
         }
-        .c-button {
-            position: absolute;
-            left:50%;
-            top:50%   ;
-            min-width: 50px;
-            min-height: 50px;
-            appearance: none;
-            border: 0;
-            border-radius: 5px;
-            background: #4676d7;
-            color: #fff;
-          
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .c-button:hover {
-          background: #1d49aa;
-        }
-
-        .my-btn {
-            border-color: var(--red);
-        }
-        .url-word-buttons {
-        	display: flex;
-		    flex-wrap: nowrap;
-		    flex-direction: row;
-		    align-content: center;
-		    justify-content: space-between;
-		    margin-top: 2vh;
-        }
-        .back-help-word-buttons {
-    	    width: 100%;
-		    display: flex;
-		    flex-direction: row;
-		    justify-content: space-between;
-		    align-items: center;
-        }
-        .help-button {
-        	width: 45px;
-        	height: 45px;
-            border-color: var(--red);
-    	    display: flex;
-		    align-items: center;
-		    justify-content: center;
-		    flex-wrap: nowrap;
-		    flex-direction: column;
-        }
-        .explanation-container {
-		    width: 100%;
-		    min-height: 100%;
-		    background-color: rgba(0,0,0,0.5);
-		    overflow: hidden;
-		    position: fixed;
-		    top: 0px;
-		    display: flex;
-		    flex-direction: row;
-		    flex-wrap: nowrap;
-		    align-items: center;
-		    justify-content: center;
-		}
-		.explanation-content {
-			background-color: #ffffff;
-			width: 75%;
-			height: 80vh;
-			display: flex;
-			align-items: center;
-			flex-wrap: nowrap;
-			flex-direction: column;
-		}
-        .all-buttons {
-        	position: absolute;
-			min-width: 400px;
-			width: 100%;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			flex-direction: column;
-			flex-wrap: nowrap;
-        }
-        .cube-tutorial {
-        	width: 100%;
-        }
-        .image-explanation {
-    	    width: 80%;
-			margin: 1rem;
-        }
-        .text-explanation {
-    	    display: flex;
-			flex-direction: column;
-		    margin-left: 1rem;
-        }
-        .explanation-body {
-        	display: flex;
-		    flex-direction: column;
-		    flex-wrap: nowrap;
-		    align-items: center;
-		    justify-content: space-between;
-		    align-content: center;
-        }
-        .cube-sides-explanation {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-			align-content: center;
-        }
-        .explanation-header {
-    	    display: flex;
-		    flex-direction: column;
-		    align-items: center;
-        }
-        .close-button {
-    	    background: transparent;
-			border: transparent;
-			position: absolute;
-        }
-        .close-button-container {
-	        display: flex;
-		    flex-direction: row-reverse;
-		    margin: 0.5rem 0rem 0.5rem 0.5rem;
-        }
-        .tutorial-button-container {
-        	display: flex;
-    		justify-content: center;
-    		margin: 1rem;
-        }
-        .image-hint-explanation {
-        	width: 60%;
-			margin: 1rem;
-        }
-
-        .trainer-button {
-        	margin-bottom: 17vh;
-			position: fixed;
-			bottom: 0%;
-        }
     </style>
 </head>
 <body>
@@ -168,7 +31,7 @@
 <div class="all-buttons">
 	<div class="top-word-buttons" style="width: 100%;">
 		<div class="back-help-word-buttons" style="width: 100%;">
-			<a href="{{ back_url }}" class="btn btn-main my-btn"> Назад </a>
+			<a href="{{ back_url }}" class="btn btn-main full-red-btn"> Назад </a>
 			<button id="help-button" class="btn btn-main help-button">
 				<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
 				    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -176,7 +39,7 @@
 				</svg>
 			</button>
 		</div>
-		<button style="left: 673px; top: 216px;" id="playButton" class="c-button">
+		<button style="left: 673px; top: 216px;" id="playButton" class="audio-button">
 		    <svg aria-hidden="true" focusable="false" viewBox="0 0 200 200">
 		        <polygon points="67,57 67,157, 157,107" style="fill:lime;fill-rule:evenodd;"></polygon>
 		    </svg>
@@ -186,16 +49,16 @@
 		</div>
 		<div class="url-word-buttons">
 			<div id="prev_url" style="visibility: {{ prev_button_visibility }};">
-			    <a href="{{ prev_word_url }}" class="btn btn-main my-btn"
+			    <a href="{{ prev_word_url }}" class="btn btn-main full-red-btn"
 			       style="top: 50px; left: 0px; {{ disabled_style }}"> Предыдущее слово </a>
 			</div>
 			<div id="next_url" style="visibility: {{ next_button_visibility }};">
-			    <a href="{{ next_word_url }}" class="btn btn-main my-btn" style="top: 50px; right: 0px">
+			    <a href="{{ next_word_url }}" class="btn btn-main full-red-btn" style="top: 50px; right: 0px">
 			        Следующее слово </a>
 			</div>
 		</div>
 	</div>
-	<a id="trainer-button" href="{{ trainer_href }}" class="btn btn-main my-btn trainer-button" hidden style="margin-bottom: 17vh;">Перейти к тренажерам</a>
+	<a id="trainer-button" href="{{ trainer_href }}" class="btn btn-main full-red-btn trainer-button" hidden style="margin-bottom: 17vh;">Перейти к тренажерам</a>
 </div>
 <div id="explanation-container" class="explanation-container" hidden=true>
 	<div class="explanation-content">
@@ -379,6 +242,12 @@
     document.getElementById("close-button").addEventListener("click", onCloseButtonClick, false)
 
     document.addEventListener('mousedown', mouseListenerCubeRotation);
+    document.addEventListener("keydown", arrowsCubeRotation);
+        // function(event) {
+        //         if (event.key == "Backspace" && document.activeElement.nodeName != "INPUT" && document.activeElement.nodeName != "TEXTAREA") {
+        //             location.href = '{{ back_url }}';
+        //         }
+        //     })
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( size_of_scene, window.innerWidth / window.innerHeight,
