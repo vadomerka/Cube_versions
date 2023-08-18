@@ -1,15 +1,142 @@
-2022-12-17 15:22:35,152 Logging test...
-2022-12-17 15:22:35,253  * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
-2022-12-17 15:22:39,518 Starting new HTTP connection (1): localhost:5000
-2022-12-17 15:22:39,540 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /rest_course/1 HTTP/1.1" 200 -
-2022-12-17 15:22:39,540 http://localhost:5000 "GET /rest_course/1 HTTP/1.1" 200 533
-2022-12-17 15:22:39,586 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /course/1 HTTP/1.1" 200 -
-2022-12-17 15:22:39,653 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/button_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,681 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/courses_view_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,722 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/item_view_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,761 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/add_items_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,775 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/task_view_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,822 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/lesson_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,873 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/profile_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,880 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/login_page_styles.css HTTP/1.1" 200 -
-2022-12-17 15:22:39,915 127.0.0.1 - - [17/Dec/2022 15:22:39] "GET /static/styles/base_styles.css HTTP/1.1" 200 -
+2023-08-18 16:09:24,352 Logging test...
+2023-08-18 16:09:25,119  * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.50:5000 (Press CTRL+C to quit)
+2023-08-18 16:09:28,870 127.0.0.1 - - [18/Aug/2023 16:09:28] "[32mGET / HTTP/1.1[0m" 302 -
+2023-08-18 16:09:28,947 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:28,963 127.0.0.1 - - [18/Aug/2023 16:09:28] "GET /rest_courses/1 HTTP/1.1" 200 -
+2023-08-18 16:09:28,964 http://localhost:5000 "GET /rest_courses/1 HTTP/1.1" 200 159
+2023-08-18 16:09:29,001 127.0.0.1 - - [18/Aug/2023 16:09:29] "GET /courses HTTP/1.1" 200 -
+2023-08-18 16:09:29,357 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,361 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,367 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,371 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,379 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,381 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/task_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,389 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,396 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,401 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:29,406 127.0.0.1 - - [18/Aug/2023 16:09:29] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:30,969 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:30,992 127.0.0.1 - - [18/Aug/2023 16:09:30] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:09:30,993 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18317
+2023-08-18 16:09:31,004 127.0.0.1 - - [18/Aug/2023 16:09:31] "GET /dictionary HTTP/1.1" 200 -
+2023-08-18 16:09:31,370 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,372 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,376 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,385 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/task_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,391 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,395 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,399 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,408 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,415 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,417 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,425 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/templates_js/items_view.js HTTP/1.1[0m" 304 -
+2023-08-18 16:09:31,423 127.0.0.1 - - [18/Aug/2023 16:09:31] "[36mGET /static/templates_js/word_items_funtions.js HTTP/1.1[0m" 304 -
+2023-08-18 16:09:33,963 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:33,991 127.0.0.1 - - [18/Aug/2023 16:09:33] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:09:33,991 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18317
+2023-08-18 16:09:34,023 127.0.0.1 - - [18/Aug/2023 16:09:34] "GET /add_word HTTP/1.1" 200 -
+2023-08-18 16:09:34,362 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,382 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,389 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/task_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,391 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,395 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,398 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,400 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,406 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,417 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,419 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,424 127.0.0.1 - - [18/Aug/2023 16:09:34] "[33mGET /static/data_parser.js HTTP/1.1[0m" 404 -
+2023-08-18 16:09:34,437 127.0.0.1 - - [18/Aug/2023 16:09:34] "[36mGET /static/words_data/tutorial_down.png HTTP/1.1[0m" 304 -
+2023-08-18 16:09:34,613 127.0.0.1 - - [18/Aug/2023 16:09:34] "[33mGET /static/data_parser.js HTTP/1.1[0m" 404 -
+2023-08-18 16:09:43,900 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:43,924 127.0.0.1 - - [18/Aug/2023 16:09:43] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:09:43,926 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18317
+2023-08-18 16:09:44,658 subprocess.call(['ffmpeg', '-y', '-i', '/home/rad/PycharmProjects/Mofang_Chinese/static/words_data/-5620512931698755982_phrase_audio.mp3', '-acodec', 'pcm_s16le', '-vn', '-f', 'wav', '-'])
+2023-08-18 16:09:44,973 127.0.0.1 - - [18/Aug/2023 16:09:44] "[32mPOST /add_word HTTP/1.1[0m" 302 -
+2023-08-18 16:09:44,997 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:45,024 127.0.0.1 - - [18/Aug/2023 16:09:45] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:09:45,025 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18715
+2023-08-18 16:09:45,030 127.0.0.1 - - [18/Aug/2023 16:09:45] "GET /dictionary HTTP/1.1" 200 -
+2023-08-18 16:09:45,614 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,621 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,634 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,637 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,651 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/task_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,665 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,671 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,673 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/templates_js/items_view.js HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,681 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,689 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,690 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:45,696 127.0.0.1 - - [18/Aug/2023 16:09:45] "[36mGET /static/templates_js/word_items_funtions.js HTTP/1.1[0m" 304 -
+2023-08-18 16:09:49,856 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:49,882 127.0.0.1 - - [18/Aug/2023 16:09:49] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:09:49,882 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18715
+2023-08-18 16:09:49,930 STREAM b'IHDR' 16 13
+2023-08-18 16:09:49,930 STREAM b'bKGD' 41 6
+2023-08-18 16:09:49,930 b'bKGD' 41 6 (unknown)
+2023-08-18 16:09:49,930 STREAM b'pHYs' 59 9
+2023-08-18 16:09:49,930 STREAM b'tIME' 80 7
+2023-08-18 16:09:49,930 b'tIME' 80 7 (unknown)
+2023-08-18 16:09:49,930 STREAM b'iTXt' 99 29
+2023-08-18 16:09:49,930 STREAM b'IDAT' 140 7382
+2023-08-18 16:09:49,937 127.0.0.1 - - [18/Aug/2023 16:09:49] "GET /change_word/37 HTTP/1.1" 200 -
+2023-08-18 16:09:50,333 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,344 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,348 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,352 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,360 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,361 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/task_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,368 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,376 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,378 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,387 127.0.0.1 - - [18/Aug/2023 16:09:50] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:50,395 127.0.0.1 - - [18/Aug/2023 16:09:50] "GET /static/words_data/undefined_image.png HTTP/1.1" 200 -
+2023-08-18 16:09:50,398 127.0.0.1 - - [18/Aug/2023 16:09:50] "[33mGET /static/data_parser.js HTTP/1.1[0m" 404 -
+2023-08-18 16:09:50,573 127.0.0.1 - - [18/Aug/2023 16:09:50] "[33mGET /static/data_parser.js HTTP/1.1[0m" 404 -
+2023-08-18 16:09:54,155 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:54,168 127.0.0.1 - - [18/Aug/2023 16:09:54] "GET /rest_word/37 HTTP/1.1" 200 -
+2023-08-18 16:09:54,169 http://localhost:5000 "GET /rest_word/37 HTTP/1.1" 200 407
+2023-08-18 16:09:54,172 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:09:54,196 127.0.0.1 - - [18/Aug/2023 16:09:54] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:09:54,198 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18715
+2023-08-18 16:09:54,240 127.0.0.1 - - [18/Aug/2023 16:09:54] "GET /dict_word/37 HTTP/1.1" 200 -
+2023-08-18 16:09:54,606 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,621 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,626 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,631 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,633 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,643 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,645 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,658 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,660 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,669 127.0.0.1 - - [18/Aug/2023 16:09:54] "GET /static/styles/style.css HTTP/1.1" 200 -
+2023-08-18 16:09:54,674 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/words_data/undefined_image.png HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,695 127.0.0.1 - - [18/Aug/2023 16:09:54] "GET /static/hints_tutorial_white.png HTTP/1.1" 200 -
+2023-08-18 16:09:54,702 127.0.0.1 - - [18/Aug/2023 16:09:54] "GET /static/cube_tutorial.png HTTP/1.1" 200 -
+2023-08-18 16:09:54,705 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/templates_js/cube_side_text.js HTTP/1.1[0m" 304 -
+2023-08-18 16:09:54,710 127.0.0.1 - - [18/Aug/2023 16:09:54] "[36mGET /static/templates_js/word_view.js HTTP/1.1[0m" 304 -
+2023-08-18 16:09:55,227 127.0.0.1 - - [18/Aug/2023 16:09:55] "[32mGET /static//words_data/-5620512931698755982_phrase_audio.wav HTTP/1.1[0m" 308 -
+2023-08-18 16:09:55,233 127.0.0.1 - - [18/Aug/2023 16:09:55] "[32mGET /static//words_data/undefined_trans_audio.wav HTTP/1.1[0m" 308 -
+2023-08-18 16:09:56,403 127.0.0.1 - - [18/Aug/2023 16:09:56] "GET /static/words_data/-5620512931698755982_phrase_audio.wav HTTP/1.1" 200 -
+2023-08-18 16:09:56,413 127.0.0.1 - - [18/Aug/2023 16:09:56] "[36mGET /static/words_data/undefined_trans_audio.wav HTTP/1.1[0m" 304 -
+2023-08-18 16:09:56,426 127.0.0.1 - - [18/Aug/2023 16:09:56] "[36mGET /static/words_data/undefined_translation_audio.wav HTTP/1.1[0m" 304 -
+2023-08-18 16:10:01,655 Starting new HTTP connection (1): localhost:5000
+2023-08-18 16:10:01,692 127.0.0.1 - - [18/Aug/2023 16:10:01] "GET /rest_dict HTTP/1.1" 200 -
+2023-08-18 16:10:01,693 http://localhost:5000 "GET /rest_dict HTTP/1.1" 200 18715
+2023-08-18 16:10:01,698 127.0.0.1 - - [18/Aug/2023 16:10:01] "GET /dictionary HTTP/1.1" 200 -
+2023-08-18 16:10:02,369 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/button_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,372 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/courses_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,397 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/profile_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,399 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/task_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,403 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/add_items_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,405 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/lesson_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,407 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/item_view_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,414 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/login_page_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,416 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/cube_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,430 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/styles/base_styles.css HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,436 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/templates_js/word_items_funtions.js HTTP/1.1[0m" 304 -
+2023-08-18 16:10:02,438 127.0.0.1 - - [18/Aug/2023 16:10:02] "[36mGET /static/templates_js/items_view.js HTTP/1.1[0m" 304 -

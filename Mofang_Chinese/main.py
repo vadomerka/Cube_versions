@@ -32,7 +32,9 @@ import json
 import os
 import datetime as dt
 from PIL import Image
-import vlc
+# import vlc
+import wave
+from pydub import AudioSegment
 from itsdangerous import URLSafeTimedSerializer
 import logging
 import random
@@ -52,7 +54,7 @@ mail_settings = {
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": 'pradomiri@yandex.ru',
-    "MAIL_PASSWORD": 'pr220677'
+    "MAIL_PASSWORD": 'AMT45gkSn8HeumPa'
 }
 app.config.update(mail_settings)
 mail = Mail(app)
@@ -70,7 +72,11 @@ api.add_resource(UserListResource, "/rest_users")
 api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/<int:user_id>/<int:word_id>')
 login_manager = LoginManager()
 login_manager.init_app(app)
+# root = "http://mofang.ru"
 root = "http://localhost:5000"
+
+# создание базы данных
+db_session.global_init("db/users.db")
 
 
 # используется для удаления лишних пробелов в тексте при создании слова
@@ -364,7 +370,6 @@ def reset_password_email_send():  # сценарий "пользователь �
             try:
                 send_email(user_email, subject, html)  # отправление письма
             except Exception as e:
-                # print(str(e))
                 return render_template("user_templates/reset_password.html", form=form,
                                        message="Не удалось отправить письмо, пожалуйста, повторите попытку позже.",
                                        back_url="/")
@@ -846,7 +851,7 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
 def make_lesson(course_id):  # создать урок
-    if not current_user.is_authenticated:  # ff
+    if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
     if not current_user.teacher:
@@ -913,7 +918,8 @@ def add_trainers_to_lesson(lesson_id):  # добавление тренажер�
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/course/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('lesson_templates/tasks_templates/add_trainers_to_lesson.html', trainers=all_trainers, form=form,
+    return render_template('lesson_templates/tasks_templates/add_trainers_to_lesson.html', trainers=all_trainers,
+                           form=form,
                            len_trainers=len(all_trainers),
                            lesson_trainers=lesson_trainers, unused_trainers=unused_trainers)
 
@@ -1318,8 +1324,13 @@ def dict_view():  # просмотр словаря
         "rest_items_js": rest_words,
         "all_items_js": all_words
     }
+    db_sess = db_session.create_session()
+    # print([w.id for w in db_sess.query(Words).all()])
+    # print(items_js)  # ff
+    # print([w['id'] for w in all_words])
     max_words_number_on_one_page = 32
-    return render_template("lesson_templates/word_templates/dictionary.html", all_words=all_words, current_user=current_user,
+    return render_template("lesson_templates/word_templates/dictionary.html", all_words=all_words,
+                           current_user=current_user,
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
                            back_button_hidden="true", items_js=items_js,
@@ -1350,10 +1361,13 @@ def add_word():  # добавление слова в словарь
         transcription_audio = request.files['transcription_audio']
         phrase_audio = request.files['phrase_audio']
         translation_audio = request.files['translation_audio']
+        fex1 = "." + transcription_audio.filename.split(".")[-1]
+        fex2 = "." + phrase_audio.filename.split(".")[-1]
+        fex3 = "." + translation_audio.filename.split(".")[-1]
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
-        save_name = str(hash(
-            str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
+        save_name = str(hash(str(new_word.id) + "_" + str(new_word.author) + "_" +
+                             str(new_word.translation) + "_" + str(new_word.hieroglyph)))
         filepath = os.path.join(full_path, "static", "words_data", save_name)
         if image:
             image.save(filepath + "_image.png")
@@ -1362,24 +1376,37 @@ def add_word():  # добавление слова в словарь
             new_word.image = "undefined_image.png"
 
         if transcription_audio:
-            transcription_audio.save(filepath + "_trans_audio.mp3")
-            new_word.front_side_audio = save_name + "_trans_audio.mp3"
-            new_word.right_side_audio = save_name + "_trans_audio.mp3"
+            audfname = filepath + "_trans_audio" + fex1
+            transcription_audio.save(audfname)
+            x = AudioSegment.from_file(audfname)
+            os.remove(audfname)
+            x.export(audfname.replace(fex1, ".wav"), format='wav')
+            new_word.front_side_audio = save_name + "_trans_audio.wav"
+            new_word.right_side_audio = save_name + "_trans_audio.wav"
         else:
-            new_word.front_side_audio = "undefined_trans_audio.mp3"
-            new_word.right_side_audio = "undefined_trans_audio.mp3"
+            new_word.front_side_audio = "undefined_trans_audio.wav"
+            new_word.right_side_audio = "undefined_trans_audio.wav"
         if phrase_audio:
-            phrase_audio.save(filepath + "_phrase_audio.mp3")
-            new_word.up_side_audio = save_name + "_phrase_audio.mp3"
-            new_word.left_side_audio = save_name + "_phrase_audio.mp3"
+            audfname = filepath + "_phrase_audio" + fex2
+            phrase_audio.save(audfname)
+            x = AudioSegment.from_file(audfname)
+            os.remove(audfname)
+            x.export(audfname.replace(fex2, ".wav"), format='wav')
+            new_word.up_side_audio = save_name + "_phrase_audio.wav"
+            new_word.left_side_audio = save_name + "_phrase_audio.wav"
         else:
-            new_word.up_side_audio = "undefined_phrase_audio.mp3"
-            new_word.left_side_audio = "undefined_phrase_audio.mp3"
+            new_word.up_side_audio = "undefined_phrase_audio.wav"
+            new_word.left_side_audio = "undefined_phrase_audio.wav"
         if translation_audio:
-            translation_audio.save(filepath + "_translation_audio.mp3")
-            new_word.down_side_audio = save_name + "_translation_audio.mp3"
+            audfname = filepath + "_translation_audio" + fex3
+            translation_audio.save(audfname)
+            x = AudioSegment.from_file(audfname)
+            os.remove(audfname)
+            x.export(audfname.replace(fex3, ".wav"), format='wav')
+            new_word.down_side_audio = save_name + "_translation_audio.wav"
         else:
-            new_word.down_side_audio = "undefined_translation_audio.mp3"
+            new_word.down_side_audio = "undefined_translation_audio.wav"
+
         new_word.creation_time = dt.datetime.now()
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
         cur_user.words.append(new_word)
@@ -1414,7 +1441,7 @@ def delete_word(word_id):  # удаление слова
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Слово", message="Слово не найдено")
     message = "Что-то пошло не так при удалении слова"
-    return render_template("error_templates/delete_error.html", message=message)
+    return render_template("error_templates/delete_error.html", message=message + "\n" + str(ret))  # ff
 
 
 @app.route('/dict_word/<int:word_id>', methods=['GET', 'POST'])
@@ -1460,7 +1487,8 @@ def dict_word_view(word_id):  # просмотр слова
         }
     }
 
-    return render_template('lesson_templates/word_templates/word_view.html', header_disabled="true", python_data=python_data,
+    return render_template('lesson_templates/word_templates/word_view.html', header_disabled="true",
+                           python_data=python_data,
                            image_name=url_for("static", filename="words_data/" + word["image"]),
                            back_url="/dictionary",
                            dict=all_words,
@@ -1539,7 +1567,8 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
             "down_audio": url_for("static", filename="/words_data/" + word["down_side_audio"])
         }
     }
-    return render_template('lesson_templates/word_templates/word_view.html', header_disabled="true", python_data=python_data,
+    return render_template('lesson_templates/word_templates/word_view.html', header_disabled="true",
+                           python_data=python_data,
                            image_name=url_for("static", filename="words_data/" + word["image"]),
                            back_url="/course/" + str(course_id) + "/lesson/" + str(lesson_id),
                            dict=lesson_words,
@@ -1610,7 +1639,8 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
     answer_button_number_first_line = 3
     answer_button_number_second_line = 3
     answer_button_number = answer_button_number_first_line + answer_button_number_second_line
-    return render_template('lesson_templates/tasks_templates/trainer_view.html', course=course, lesson=lesson, trainer=trainer,
+    return render_template('lesson_templates/tasks_templates/trainer_view.html', course=course, lesson=lesson,
+                           trainer=trainer,
                            answer_button_number_first_line=answer_button_number_first_line,
                            answer_button_number_second_line=answer_button_number_second_line,
                            answer_button_number=answer_button_number,
@@ -1694,7 +1724,8 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
         tests_list.append(str(rand_test.check_side) + " " + str(rand_test.ans_side))
     tests_list = "  ".join(tests_list)
     if test.check_side == -1 and test.ans_side == -1:
-        return render_template('lesson_templates/tasks_templates/ultimate_test_view.html', course=course, lesson=lesson, test=test,
+        return render_template('lesson_templates/tasks_templates/ultimate_test_view.html', course=course, lesson=lesson,
+                               test=test,
                                python_data=python_data,
                                back_url=f"/course/{course_id}/lesson/{lesson_id}",
                                tests_list=tests_list, is_last_test=is_last_test,
@@ -1761,20 +1792,21 @@ def test_result(course_id, lesson_id, test_id):
 
 @app.route('/change_word/<int:word_id>', methods=['GET', 'POST'])
 def change_word(word_id):  # изменить слово
-    if not current_user.is_authenticated:
+    db_sess = db_session.create_session()
+    cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
+    if not cur_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    if not current_user.teacher:
+    if not cur_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    db_sess = db_session.create_session()
+
     new_word = db_sess.query(Words).get(word_id)
     if not new_word:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Слово", message="Слово не найдено")
-    if word_id not in [w.id for w in current_user.words]:
+    if word_id not in [w.id for w in cur_user.words]:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     form = WordsForm()
-
     all_words = db_sess.query(Words).all()
     ret_all_words = list(filter(lambda item: int(item["id"]) != word_id,
                                 get(root + "/rest_dict").json()["words"]))
@@ -1792,13 +1824,27 @@ def change_word(word_id):  # изменить слово
 
     image_file = Image.open(os.path.join(full_path, "static", "words_data", new_word.image))
 
-    transcription_audio_file = vlc.MediaPlayer(os.path.join(
-        full_path, "static", "words_data", new_word.front_side_audio))
-    phrase_audio_file = vlc.MediaPlayer(
-        os.path.join(full_path, "static", "words_data", new_word.up_side_audio))
-    translation_audio_file = vlc.MediaPlayer(
-        os.path.join(full_path, "static", "words_data", new_word.down_side_audio))
-
+    fn1 = os.path.join(full_path, "static", "words_data", new_word.front_side_audio)
+    fn2 = os.path.join(full_path, "static", "words_data", new_word.up_side_audio)
+    fn3 = os.path.join(full_path, "static", "words_data", new_word.down_side_audio)
+    undefined_path = os.path.join(full_path, "static", "words_data", "undefined")
+    if os.path.exists(fn1):
+        transcription_audio_file = wave.open(fn1, mode="rb")
+    else:
+        transcription_audio_file = wave.open(undefined_path + "_trans_audio.wav", mode="rb")
+        new_word.front_side_audio = "undefined_trans_audio.wav"
+        new_word.right_side_audio = "undefined_trans_audio.wav"
+    if os.path.exists(fn2):
+        phrase_audio_file = wave.open(fn2, mode="rb")
+    else:
+        phrase_audio_file = wave.open(undefined_path + "_phrase_audio.wav", mode="rb")
+        new_word.up_side_audio = "undefined_phrase_audio.wav"
+        new_word.left_side_audio = "undefined_phrase_audio.wav"
+    if os.path.exists(fn3):
+        translation_audio_file = wave.open(fn3, mode="rb")
+    else:
+        translation_audio_file = wave.open(undefined_path + "_translation_audio.wav", mode="rb")
+        new_word.down_side_audio = "undefined_translation_audio.wav"
     if "undefined" not in new_word.front_side_audio:
         is_transcription_audio = "true"
     else:
@@ -1811,11 +1857,10 @@ def change_word(word_id):  # изменить слово
         is_translation_audio = "true"
     else:
         is_translation_audio = "false"
-
     image_start_preview = "/static/words_data/" + new_word.image
     if form.validate_on_submit():
         new_word = db_sess.query(Words).get(word_id)
-        new_word.author = current_user.id
+        new_word.author = cur_user.id
         new_word.hieroglyph = delete_extra_spaces(form.hieroglyph.data)
         new_word.translation = delete_extra_spaces(form.translation.data)
         new_word.transcription = delete_extra_spaces(form.transcription.data)
@@ -1827,26 +1872,33 @@ def change_word(word_id):  # изменить слово
         translation_audio = request.files['translation_audio']
         path_to_file = os.path.dirname(__file__)
         full_path = os.path.join(path_to_file)
-        save_name = str(hash(
-            str(new_word.author) + "_" + str(new_word.translation) + "_" + str(new_word.hieroglyph)))
+        save_name = str(hash(str(new_word.id) + "_" + str(new_word.author) + "_" +
+                             str(new_word.translation) + "_" + str(new_word.hieroglyph)))
         filepath = os.path.join(full_path, "static", "words_data", save_name)
         if image:
             image.save(filepath + "_image.png")
             new_word.image = save_name + "_image.png"
         if transcription_audio:
-            transcription_audio.save(filepath + "_trans_audio.mp3")
-            new_word.front_side_audio = save_name + "_trans_audio.mp3"
-            new_word.right_side_audio = save_name + "_trans_audio.mp3"
+            transcription_audio.save(filepath + "_trans_audio.wav")
+            new_word.front_side_audio = save_name + "_trans_audio.wav"
+            new_word.right_side_audio = save_name + "_trans_audio.wav"
+        else:
+            new_word.front_side_audio = "undefined_trans_audio.wav"
+            new_word.right_side_audio = "undefined_trans_audio.wav"
         if phrase_audio:
-            phrase_audio.save(filepath + "_phrase_audio.mp3")
-            new_word.up_side_audio = save_name + "_phrase_audio.mp3"
-            new_word.left_side_audio = save_name + "_phrase_audio.mp3"
+            phrase_audio.save(filepath + "_phrase_audio.wav")
+            new_word.up_side_audio = save_name + "_phrase_audio.wav"
+            new_word.left_side_audio = save_name + "_phrase_audio.wav"
+        else:
+            new_word.up_side_audio = "undefined_phrase_audio.wav"
+            new_word.left_side_audio = "undefined_phrase_audio.wav"
         if translation_audio:
-            translation_audio.save(filepath + "_translation_audio.mp3")
-            new_word.down_side_audio = save_name + "_translation_audio.mp3"
-
+            translation_audio.save(filepath + "_translation_audio.wav")
+            new_word.down_side_audio = save_name + "_translation_audio.wav"
+        else:
+            new_word.down_side_audio = "undefined_translation_audio.wav"
         new_word.creation_time = dt.datetime.now()
-        cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
+        cur_user = db_sess.query(User).filter(User.id == cur_user.id).first()
         cur_user.words.append(new_word)
         for user in db_sess.query(User).all():
             db_sess.add(WordsToUsers(
@@ -1857,7 +1909,8 @@ def change_word(word_id):  # изменить слово
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
-    return render_template('lesson_templates/word_templates/make_word.html', form=form, dictionary=all_words, filename="tmp",
+    return render_template('lesson_templates/word_templates/make_word.html', form=form, dictionary=all_words,
+                           filename="tmp",
                            prev_hieroglyph=prev_hieroglyph, prev_translation=prev_translation,
                            prev_transcription=prev_transcription, prev_phrase_ch=prev_phrase_ch,
                            prev_phrase_ru=prev_phrase_ru,
@@ -1873,7 +1926,7 @@ def change_word(word_id):  # изменить слово
 
 def main():
     db_session.global_init("db/users.db")
-    app.run()
+    app.run(host='0.0.0.0')
 
 
 if __name__ == '__main__':
