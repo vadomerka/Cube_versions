@@ -32,9 +32,7 @@ import json
 import os
 import datetime as dt
 from PIL import Image
-# import vlc
-import wave
-from pydub import AudioSegment
+
 from itsdangerous import URLSafeTimedSerializer
 import logging
 import random
@@ -1378,34 +1376,25 @@ def add_word():  # добавление слова в словарь
         if transcription_audio:
             audfname = filepath + "_trans_audio" + fex1
             transcription_audio.save(audfname)
-            x = AudioSegment.from_file(audfname)
-            os.remove(audfname)
-            x.export(audfname.replace(fex1, ".wav"), format='wav')
-            new_word.front_side_audio = save_name + "_trans_audio.wav"
-            new_word.right_side_audio = save_name + "_trans_audio.wav"
+            new_word.front_side_audio = save_name + "_trans_audio" + fex1
+            new_word.right_side_audio = save_name + "_trans_audio" + fex1
         else:
-            new_word.front_side_audio = "undefined_trans_audio.wav"
-            new_word.right_side_audio = "undefined_trans_audio.wav"
+            new_word.front_side_audio = "undefined_trans_audio.mp3"
+            new_word.right_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
             audfname = filepath + "_phrase_audio" + fex2
             phrase_audio.save(audfname)
-            x = AudioSegment.from_file(audfname)
-            os.remove(audfname)
-            x.export(audfname.replace(fex2, ".wav"), format='wav')
-            new_word.up_side_audio = save_name + "_phrase_audio.wav"
-            new_word.left_side_audio = save_name + "_phrase_audio.wav"
+            new_word.up_side_audio = save_name + "_phrase_audio" + fex2
+            new_word.left_side_audio = save_name + "_phrase_audio" + fex2
         else:
-            new_word.up_side_audio = "undefined_phrase_audio.wav"
-            new_word.left_side_audio = "undefined_phrase_audio.wav"
+            new_word.up_side_audio = "undefined_phrase_audio.mp3"
+            new_word.left_side_audio = "undefined_phrase_audio.mp3"
         if translation_audio:
             audfname = filepath + "_translation_audio" + fex3
             translation_audio.save(audfname)
-            x = AudioSegment.from_file(audfname)
-            os.remove(audfname)
-            x.export(audfname.replace(fex3, ".wav"), format='wav')
-            new_word.down_side_audio = save_name + "_translation_audio.wav"
+            new_word.down_side_audio = save_name + "_translation_audio" + fex3
         else:
-            new_word.down_side_audio = "undefined_translation_audio.wav"
+            new_word.down_side_audio = "undefined_translation_audio.mp3"
 
         new_word.creation_time = dt.datetime.now()
         cur_user = db_sess.query(User).filter(User.id == current_user.id).first()
@@ -1829,22 +1818,22 @@ def change_word(word_id):  # изменить слово
     fn3 = os.path.join(full_path, "static", "words_data", new_word.down_side_audio)
     undefined_path = os.path.join(full_path, "static", "words_data", "undefined")
     if os.path.exists(fn1):
-        transcription_audio_file = wave.open(fn1, mode="rb")
+        transcription_audio_file = open(fn1, mode="r")
     else:
-        transcription_audio_file = wave.open(undefined_path + "_trans_audio.wav", mode="rb")
-        new_word.front_side_audio = "undefined_trans_audio.wav"
-        new_word.right_side_audio = "undefined_trans_audio.wav"
+        transcription_audio_file = open(undefined_path + "_trans_audio.mp3", mode="r")
+        new_word.front_side_audio = "undefined_trans_audio.mp3"
+        new_word.right_side_audio = "undefined_trans_audio.mp3"
     if os.path.exists(fn2):
-        phrase_audio_file = wave.open(fn2, mode="rb")
+        phrase_audio_file = open(fn2, mode="r")
     else:
-        phrase_audio_file = wave.open(undefined_path + "_phrase_audio.wav", mode="rb")
-        new_word.up_side_audio = "undefined_phrase_audio.wav"
-        new_word.left_side_audio = "undefined_phrase_audio.wav"
+        phrase_audio_file = open(undefined_path + "_phrase_audio.mp3", mode="r")
+        new_word.up_side_audio = "undefined_phrase_audio.mp3"
+        new_word.left_side_audio = "undefined_phrase_audio.mp3"
     if os.path.exists(fn3):
-        translation_audio_file = wave.open(fn3, mode="rb")
+        translation_audio_file = open(fn3, mode="r")
     else:
-        translation_audio_file = wave.open(undefined_path + "_translation_audio.wav", mode="rb")
-        new_word.down_side_audio = "undefined_translation_audio.wav"
+        translation_audio_file = open(undefined_path + "_translation_audio.mp3", mode="r")
+        new_word.down_side_audio = "undefined_translation_audio.mp3"
     if "undefined" not in new_word.front_side_audio:
         is_transcription_audio = "true"
     else:
@@ -1878,25 +1867,31 @@ def change_word(word_id):  # изменить слово
         if image:
             image.save(filepath + "_image.png")
             new_word.image = save_name + "_image.png"
+        fex1 = "." + transcription_audio.filename.split(".")[-1]
+        fex2 = "." + phrase_audio.filename.split(".")[-1]
+        fex3 = "." + translation_audio.filename.split(".")[-1]
         if transcription_audio:
-            transcription_audio.save(filepath + "_trans_audio.wav")
-            new_word.front_side_audio = save_name + "_trans_audio.wav"
-            new_word.right_side_audio = save_name + "_trans_audio.wav"
+            audfname = filepath + "_trans_audio" + fex1
+            transcription_audio.save(audfname)
+            new_word.front_side_audio = save_name + "_trans_audio" + fex1
+            new_word.right_side_audio = save_name + "_trans_audio" + fex1
         else:
-            new_word.front_side_audio = "undefined_trans_audio.wav"
-            new_word.right_side_audio = "undefined_trans_audio.wav"
+            new_word.front_side_audio = "undefined_trans_audio.mp3"
+            new_word.right_side_audio = "undefined_trans_audio.mp3"
         if phrase_audio:
-            phrase_audio.save(filepath + "_phrase_audio.wav")
-            new_word.up_side_audio = save_name + "_phrase_audio.wav"
-            new_word.left_side_audio = save_name + "_phrase_audio.wav"
+            audfname = filepath + "_phrase_audio" + fex2
+            phrase_audio.save(audfname)
+            new_word.up_side_audio = save_name + "_phrase_audio" + fex2
+            new_word.left_side_audio = save_name + "_phrase_audio" + fex2
         else:
-            new_word.up_side_audio = "undefined_phrase_audio.wav"
-            new_word.left_side_audio = "undefined_phrase_audio.wav"
+            new_word.up_side_audio = "undefined_phrase_audio.mp3"
+            new_word.left_side_audio = "undefined_phrase_audio.mp3"
         if translation_audio:
-            translation_audio.save(filepath + "_translation_audio.wav")
-            new_word.down_side_audio = save_name + "_translation_audio.wav"
+            audfname = filepath + "_translation_audio" + fex3
+            translation_audio.save(audfname)
+            new_word.down_side_audio = save_name + "_translation_audio" + fex3
         else:
-            new_word.down_side_audio = "undefined_translation_audio.wav"
+            new_word.down_side_audio = "undefined_translation_audio.mp3"
         new_word.creation_time = dt.datetime.now()
         cur_user = db_sess.query(User).filter(User.id == cur_user.id).first()
         cur_user.words.append(new_word)
