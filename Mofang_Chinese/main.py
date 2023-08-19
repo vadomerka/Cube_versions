@@ -22,7 +22,7 @@ from forms.word import WordsForm
 
 # flask resourses
 from resourses.course_resourses import CourseListResource, CourseResource
-from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource
+from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource  # , WordDeleteResourse
 from resourses.lesson_resourses import LessonResource, LessonListResource, UserLessonListResource
 from resourses.user_resourses import UserResource, UserListResource
 # from resourses.user_resourses import UserResource, UserListResource
@@ -62,6 +62,7 @@ api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
 api.add_resource(CourseResource, '/rest_course/<int:course_id>')
 api.add_resource(DictResourse, "/rest_dict")
 api.add_resource(WordResourse, "/rest_word/<int:word_id>")
+# api.add_resource(WordDeleteResourse, "/rest_word_delete/<int:word_id>")
 api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
 api.add_resource(LessonListResource, "/rest_lessons")
 api.add_resource(UserLessonListResource, "/rest_user_lessons/<int:user_id>")
@@ -159,6 +160,91 @@ def t_word_to_javascript(array):  # перевод списка слов в сп
                          word.left_side_audio,
                          word.id])
     return array_js
+
+
+def abort_if_not_found(id, table):
+    session = db_session.create_session()
+    word = session.query(table).get(id)
+    if not word:
+        return True
+        # abort(404, message="Object not found")
+    return False
+
+
+def del_word(word_id):
+    if abort_if_not_found(word_id, Words):
+        return {'message': 'Object not found'}
+    session = db_session.create_session()
+    word = session.query(Words).get(word_id)
+    path = "static/words_data/"
+    side_list = []
+    for x in [word.image,
+              word.front_side_audio,
+              word.left_side_audio,
+              word.right_side_audio,
+              word.down_side_audio,
+              word.up_side_audio]:
+        if x and "undefined" not in x:
+            side_list.append(x)
+    for name in side_list:
+        filename = path + str(name)
+        if os.path.exists(filename):
+            os.remove(filename)
+    this_word_to_users = session.query(WordsToUsers).filter(WordsToUsers.words == word_id).all()
+    if this_word_to_users:
+        for wtu in this_word_to_users:
+            session.delete(wtu)
+    session.delete(word)
+    session.commit()
+    return {'success': 'OK'}
+
+
+def del_user(user_id):
+    if abort_if_not_found(user_id, User):
+        return {'message': 'Object not found'}
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    words_to_this_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id).all()
+    if words_to_this_user:
+        for wtu in words_to_this_user:
+            session.delete(wtu)
+    tests_to_this_user = session.query(TestsToUsers).filter(TestsToUsers.user_id == user_id).all()
+    if tests_to_this_user:
+        for tu in tests_to_this_user:
+            session.delete(tu)
+    trainers_to_this_user = session.query(TrainersToUsers).filter(TrainersToUsers.user_id == user_id).all()
+    if trainers_to_this_user:
+        for tu in trainers_to_this_user:
+            session.delete(tu)
+    session.delete(user)
+    session.commit()
+    return {'success': 'OK'}
+
+
+def del_course(course_id):
+    if abort_if_not_found(course_id, Courses):
+        return {'message': 'Object not found'}
+    session = db_session.create_session()
+    for ttu in session.query(TrainersToUsers).filter(TrainersToUsers.course_id == course_id).all():
+        session.delete(ttu)
+    for ttu in session.query(TestsToUsers).filter(TestsToUsers.course_id == course_id).all():
+        session.delete(ttu)
+    course = session.query(Courses).get(course_id)
+    for lesson in course.lessons:
+        session.delete(lesson)
+    session.delete(course)
+    session.commit()
+    return {'success': 'OK'}
+
+
+def del_lesson(lesson_id):
+    if abort_if_not_found(lesson_id, Lessons):
+        return {'message': 'Object not found'}
+    session = db_session.create_session()
+    lesson = session.query(Lessons).get(lesson_id)
+    session.delete(lesson)
+    session.commit()
+    return {'success': 'OK'}
 
 
 @app.route("/")
@@ -551,7 +637,8 @@ def delete_user(user_id):  # удалить профиль пользовате�
                                header_disabled="true")
     if current_user.id != user_id:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    ret = delete(root + "/rest_user/" + str(user_id)).json()  # request
+    # ret = delete(root + "/rest_user/" + str(user_id)).json()  # request
+    ret = del_user(user_id)
     if ret == {'success': 'OK'}:
         return redirect("/")
     elif ret == {'message': 'Object not found'}:
@@ -756,7 +843,8 @@ def delete_course(course_id):  # удалить курс
                                header_disabled="true", object="Курс")
     if current_user not in course.users:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    ret = delete(root + "/rest_course/" + str(course_id)).json()
+    # ret = delete(root + "/rest_course/" + str(course_id)).json()
+    ret = del_course(course_id)
     if ret == {'success': 'OK'}:
         return redirect("/courses")
     elif ret == {'message': 'Object not found'}:
@@ -1052,7 +1140,8 @@ def delete_lesson(course_id, lesson_id):  # удаление урока
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    ret = delete(root + "/rest_lesson/" + str(lesson_id)).json()
+    # ret = delete(root + "/rest_lesson/" + str(lesson_id)).json()
+    ret = del_lesson(lesson_id)
     if ret == {'success': 'OK'}:
         return redirect("/course/" + str(course_id))
     else:
@@ -1423,7 +1512,8 @@ def delete_word(word_id):  # удаление слова
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     if word_id not in [w.id for w in current_user.words]:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    ret = delete(root + "/rest_word/" + str(word_id)).json()
+    # ret = delete(root + "/rest_word_delete/" + str(word_id)).json()
+    ret = del_word(word_id)
     if ret == {'success': 'OK'}:
         return redirect("/dictionary")
     elif ret == {'message': 'Object not found'}:
