@@ -247,6 +247,20 @@ def del_lesson(lesson_id):
     return {'success': 'OK'}
 
 
+def post_lesson_word(user_id, word_id):
+    session = db_session.create_session()
+    word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
+                                                      WordsToUsers.words == word_id).first()
+    if not word_to_user:
+        return {'message': 'Object not found'}
+    if word_to_user.learn_state == 0:
+        word_to_user.learn_state = 1
+    session.merge(word_to_user)
+    session.commit()
+    session.close()
+    return {'success': 'OK'}
+
+
 @app.route("/")
 def index():  # основная страница, переадресация на курсы/словарь либо на страницу авторизации
     if current_user.is_authenticated:
@@ -1598,8 +1612,7 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
     db_sess = db_session.create_session()
     lesson = get(root + '/rest_lesson/' + str(lesson_id)).json()["lesson"]
     lesson_words = lesson["words"]
-    ret = post(
-        root + f"/rest_word_view_recording/{current_user.id}/{word_id}")  # запись того, что пользователь просмотрел слово
+    ret = post_lesson_word(current_user.id, word_id)
     words_learn_state = 1
     for w in lesson_words:
         word_learn_state = db_sess.query(WordsToUsers).filter(
