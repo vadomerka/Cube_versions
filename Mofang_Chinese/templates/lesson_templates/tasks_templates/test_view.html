@@ -58,7 +58,7 @@
         <div id="bottom-t-second-layer" hidden>
             <a id="back-to-lesson" class="btn btn-main long-buttons" style="color: var(--contrast-red);">Вернуться к уроку</a>
             {% if not is_last_test %}
-            <a id="next-test" class="btn btn-main long-buttons" hidden>Перейти к следующему тесту</a>
+            <a id="next-test" class="btn btn-main long-buttons" hidden style="color: var(--contrast-red);">Перейти к следующему тесту</a>
             {% endif %}
         </div>  
     </div>
@@ -90,15 +90,18 @@
         unlearned.push(i);
     }
     var current_word = 0;
+    var data_id_ind = 9;
     var check_side = {{ test.check_side }};
     var ans_side = {{ test.ans_side }};
 
     word_wrong_variants = [];
     for (let i = 0; i < lesson.length; i++){
         tmp_wrong_vars = []
-        for (let i = 0; i < all_words.length; i++) {
-            if (all_words[i][0] != lesson[current_word][0]){
-                tmp_wrong_vars.push(all_words[i][ans_side]);
+        word_id = lesson[i][data_id_ind];
+        for (let j = 0; j < all_words.length; j++) {
+            wrong_word_id = all_words[j][data_id_ind];
+            if (word_id != wrong_word_id){
+                tmp_wrong_vars.push(all_words[j][ans_side]);
             }
         }
         shuffle(tmp_wrong_vars);
