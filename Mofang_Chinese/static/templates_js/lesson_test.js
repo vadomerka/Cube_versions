@@ -76,10 +76,10 @@ function sendTestReasults(){
         word_ids += lesson[i][lesson[i].length - 1] + '.';
     }
 
-    next_trainer_button = document.getElementById("next-trainer");
-    if (next_trainer_button) {
-        next_trainer_button.hidden = false;
-        next_trainer_button.addEventListener("click", async function(event){
+    next_test_button = document.getElementById("next-test");
+    if (next_test_button) {
+        next_test_button.hidden = false;
+        next_test_button.addEventListener("click", async function(event){
         const response = await fetch(result_url, {
         method: 'POST',
         headers: {
@@ -95,6 +95,7 @@ function sendTestReasults(){
 
             response.json().then(data => {
               console.log(data);
+              window.location.href = next_test_href;
             });
         }, false)
     }
@@ -116,6 +117,7 @@ function sendTestReasults(){
 
         response.json().then(data => {
           console.log(data);
+          window.location.href = back_url;
         });
     }, false)
 }

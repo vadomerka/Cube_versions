@@ -56,9 +56,9 @@
             <a id="continue" class="btn btn-main long-buttons" style="color: var(--contrast-red);" hidden>Продолжить</a>
         </div>
         <div id="bottom-t-second-layer" hidden>
-            <a id="back-to-lesson" class="btn btn-main long-buttons" style="color: var(--contrast-red);" href="{{ back_url }}">Вернуться к уроку</a>
+            <a id="back-to-lesson" class="btn btn-main long-buttons" style="color: var(--contrast-red);">Вернуться к уроку</a>
             {% if not is_last_test %}
-            <a id="next-test" class="btn btn-main long-buttons" hidden href="{{ next_test_href }}">Перейти к следующему тесту</a>
+            <a id="next-test" class="btn btn-main long-buttons" hidden>Перейти к следующему тесту</a>
             {% endif %}
         </div>  
     </div>
@@ -75,7 +75,7 @@
     var answer_button_number = {{ answer_button_number }};
     var back_url = "{{ back_url }}";
     var result_url = "/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/test/" + "{{ test.id }}" + "/result";
-
+    var next_test_href = "{{ next_test_href }}";
     python_data = {{ python_data|tojson }};
     var all_words = python_data.all_words;
     var lesson = python_data.lesson_words;

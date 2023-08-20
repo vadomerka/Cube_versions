@@ -22,7 +22,8 @@ from forms.word import WordsForm
 
 # flask resourses
 from resourses.course_resourses import CourseListResource, CourseResource
-from resourses.dict_resourses import DictResourse, WordResourse, WordViewRecordingResource  # , WordDeleteResourse
+from resourses.dict_resourses import DictResourse, WordResourse, \
+    WordViewRecordingResource  # , WordDeleteResourse
 from resourses.lesson_resourses import LessonResource, LessonListResource, UserLessonListResource
 from resourses.user_resourses import UserResource, UserListResource
 # from resourses.user_resourses import UserResource, UserListResource
@@ -212,7 +213,8 @@ def del_user(user_id):
     if tests_to_this_user:
         for tu in tests_to_this_user:
             session.delete(tu)
-    trainers_to_this_user = session.query(TrainersToUsers).filter(TrainersToUsers.user_id == user_id).all()
+    trainers_to_this_user = session.query(TrainersToUsers).filter(
+        TrainersToUsers.user_id == user_id).all()
     if trainers_to_this_user:
         for tu in trainers_to_this_user:
             session.delete(tu)
@@ -291,7 +293,8 @@ def login():  # страница авторизации пользователя
         return render_template('user_templates/login.html',
                                message="Пользователя с такой почтой не существует",
                                form=form, back_button_hidden="true", header_disabled="true")
-    return render_template('user_templates/login.html', title='Авторизация', form=form, back_button_hidden="true",
+    return render_template('user_templates/login.html', title='Авторизация', form=form,
+                           back_button_hidden="true",
                            header_disabled="true")
 
 
@@ -332,7 +335,8 @@ def change_profile(token):  # первый вход ученика по ссыл
     email = confirm_user_password_token(token)
     if not email:
         message = 'Ссылка для создания пароля недействительна или срок ее действия истек.'
-        return render_template("error_templates/wrong_link.html", message=message, back_button_hidden="true")
+        return render_template("error_templates/wrong_link.html", message=message,
+                               back_button_hidden="true")
     user = db_sess.query(User).filter(User.email == email).first()
     if not user:
         return render_template("error_templates/wrong_link.html", back_button_hidden="true")
@@ -364,7 +368,8 @@ def change_profile(token):  # первый вход ученика по ссыл
                                        email_data=email_data, header_disabled="true",
                                        message="Неправильный пароль")
         if form.password.data != form.password_again.data:
-            return render_template('user_templates/change_profile.html', form=form, user=user, name_data=name_data,
+            return render_template('user_templates/change_profile.html', form=form, user=user,
+                                   name_data=name_data,
                                    last_name_data=last_name_data, patronymic_data=patronymic_data,
                                    python_data=python_data, email_data=email_data,
                                    header_disabled="true", message="Пароли не совпадают")
@@ -379,7 +384,8 @@ def change_profile(token):  # первый вход ученика по ссыл
         db_sess.merge(user)
         db_sess.commit()
         return redirect('/')
-    return render_template("user_templates/change_profile.html", user=user, form=form, name_data=name_data,
+    return render_template("user_templates/change_profile.html", user=user, form=form,
+                           name_data=name_data,
                            last_name_data=last_name_data, patronymic_data=patronymic_data,
                            python_data=python_data, email_data=email_data, header_disabled="true")
 
@@ -481,17 +487,20 @@ def reset_password(token):  # если пользователь получил �
     email = confirm_user_password_token(token)
     if not email:
         message = 'Ссылка для восстановления пароля недействительна или срок ее действия истек.'
-        return render_template("error_templates/wrong_link.html", message=message, back_button_hidden="true")
+        return render_template("error_templates/wrong_link.html", message=message,
+                               back_button_hidden="true")
     user = db_sess.query(User).filter(User.email == email).first()
     if not user:
         message = 'Пользователя с такой почтой не существует'
-        return render_template("error_templates/wrong_link.html", message=message, back_button_hidden="true")
+        return render_template("error_templates/wrong_link.html", message=message,
+                               back_button_hidden="true")
     user.hashed_password = None
     logout_user()
     form = MakePasswordForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('user_templates/make_password.html', form=form, back_button_hidden="true",
+            return render_template('user_templates/make_password.html', form=form,
+                                   back_button_hidden="true",
                                    message="Пароли не совпадают",
                                    forgot_password=True)
         db_sess = db_session.create_session()
@@ -518,7 +527,8 @@ def pupils():  # список учеников учителя
     users_pupils = list(filter(lambda x: x["creator"] == current_user.id and not x["teacher"],
                                all_users))
     items_js = {"all_items": users_pupils}
-    return render_template('user_templates/pupils.html', pupils=users_pupils, back_button_hidden="true",
+    return render_template('user_templates/pupils.html', pupils=users_pupils,
+                           back_button_hidden="true",
                            items_js=items_js, max_items_number_on_one_page=60)
 
 
@@ -713,7 +723,8 @@ def course_view(course_id):  # просмотр курса
     else:
         python_data = {"course_about": []}
     if not current_user.teacher:
-        return render_template('course_templates/course_view.html', course=course, back_url="/courses",
+        return render_template('course_templates/course_view.html', course=course,
+                               back_url="/courses",
                                current_user=current_user,
                                python_data=python_data)
     form = CoursesForm()
@@ -732,11 +743,13 @@ def course_view(course_id):  # просмотр курса
         user.courses.append(course)
         db_sess.merge(user)
         db_sess.commit()
-        return render_template('course_templates/course_view.html', course=course, back_url="/courses",
+        return render_template('course_templates/course_view.html', course=course,
+                               back_url="/courses",
                                form=form,
                                current_user=current_user,
                                python_data=python_data)
-    return render_template('course_templates/course_view.html', course=course, back_url="/courses", form=form,
+    return render_template('course_templates/course_view.html', course=course, back_url="/courses",
+                           form=form,
                            current_user=current_user,
                            python_data=python_data)
 
@@ -784,7 +797,8 @@ def course_statistics(course_id):  # статистика курса
             lesson_percentage = 0
         lessons_data[lesson.id] = (
             lesson_percentage, completed_lesson, started_lesson, unstarted_lesson)
-    return render_template("course_templates/course_statistics.html", course=course, lessons_data=lessons_data,
+    return render_template("course_templates/course_statistics.html", course=course,
+                           lessons_data=lessons_data,
                            len_course_lessons=len(course.lessons),
                            len_course_pupils=pupil_count, python_data=python_data,
                            back_url=f"/courses")
@@ -865,7 +879,8 @@ def delete_course(course_id):  # удалить курс
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Курс")
     else:
-        return render_template("error_templates/delete_error.html", message="Что-то пошло не так при удалении курса",
+        return render_template("error_templates/delete_error.html",
+                               message="Что-то пошло не так при удалении курса",
                                back_button_hidden="true")
 
 
@@ -913,6 +928,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
     test_results = [[res.test_id, res.id, res.last_result, res.best_result] for res in test_results]
     lesson = db_sess.query(Lessons).get(lesson_id)
     lesson_name = lesson.name
+    # print(trainer_results)
+
     if current_user.teacher:
         form = LessonsForm()
         if form.validate_on_submit():
@@ -923,7 +940,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
             current_course.lessons.append(lesson)
             db_sess.merge(current_course)
             db_sess.commit()
-            return render_template('lesson_templates/lesson_view.html', lesson_data=lesson, course_id=course_id,
+            return render_template('lesson_templates/lesson_view.html', lesson_data=lesson,
+                                   course_id=course_id,
                                    back_url=f"/course/{course_id}",
                                    test_results=test_results,
                                    trainer_results=trainer_results,
@@ -931,7 +949,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
                                    words_learn_states=words_learn_states, form=form,
                                    lesson_name=lesson_name, items_js=items_js,
                                    max_items_number_on_one_page=max_items_number_on_one_page)
-        return render_template('lesson_templates/lesson_view.html', lesson_data=lesson, course_id=course_id,
+        return render_template('lesson_templates/lesson_view.html', lesson_data=lesson,
+                               course_id=course_id,
                                back_url=f"/course/{course_id}",
                                test_results=test_results,
                                trainer_results=trainer_results,
@@ -940,7 +959,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
                                lesson_name=lesson_name, items_js=items_js,
                                max_items_number_on_one_page=max_items_number_on_one_page)
 
-    return render_template('lesson_templates/lesson_view.html', lesson_data=lesson, course_id=course_id,
+    return render_template('lesson_templates/lesson_view.html', lesson_data=lesson,
+                           course_id=course_id,
                            back_url=f"/course/{course_id}", test_results=test_results,
                            trainer_results=trainer_results,
                            len_test_results=len(test_results),
@@ -982,7 +1002,8 @@ def make_lesson(course_id):  # создать урок
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/course/' + str(course_id))
-    return render_template('lesson_templates/make_lesson.html', form=form, back_url=f"/course/{course_id}",
+    return render_template('lesson_templates/make_lesson.html', form=form,
+                           back_url=f"/course/{course_id}",
                            trainers=all_trainers, tests=all_tests,
                            len_trainers=len(all_trainers), len_tests=len(all_tests))
 
@@ -1018,7 +1039,8 @@ def add_trainers_to_lesson(lesson_id):  # добавление тренажер�
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/course/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('lesson_templates/tasks_templates/add_trainers_to_lesson.html', trainers=all_trainers,
+    return render_template('lesson_templates/tasks_templates/add_trainers_to_lesson.html',
+                           trainers=all_trainers,
                            form=form,
                            len_trainers=len(all_trainers),
                            lesson_trainers=lesson_trainers, unused_trainers=unused_trainers)
@@ -1056,7 +1078,8 @@ def add_tests_to_lesson(lesson_id):  # добавление тестов к ур
         db_sess.merge(current_course)
         db_sess.commit()
         return redirect('/course/' + str(current_course.id) + '/lesson/' + str(lesson_id))
-    return render_template('lesson_templates/tasks_templates/add_tests_to_lesson.html', tests=all_tests, form=form,
+    return render_template('lesson_templates/tasks_templates/add_tests_to_lesson.html',
+                           tests=all_tests, form=form,
                            len_tests=len(all_tests),
                            lesson_tests=lesson_tests, unused_tests=unused_tests)
 
@@ -1159,7 +1182,8 @@ def delete_lesson(course_id, lesson_id):  # удаление урока
     if ret == {'success': 'OK'}:
         return redirect("/course/" + str(course_id))
     else:
-        return render_template("error_templates/delete_error.html", message="Что-то пошло не так при удалении урока",
+        return render_template("error_templates/delete_error.html",
+                               message="Что-то пошло не так при удалении урока",
                                back_button_hidden="true")
 
 
@@ -1511,7 +1535,8 @@ def add_word():  # добавление слова в словарь
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
-    return render_template('lesson_templates/word_templates/make_word.html', form=form, filename="tmp",
+    return render_template('lesson_templates/word_templates/make_word.html', form=form,
+                           filename="tmp",
                            image_start_preview=image_start_preview,
                            back_url="/dictionary",
                            all_words=all_words, python_data=python_data)
@@ -1534,7 +1559,8 @@ def delete_word(word_id):  # удаление слова
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Слово", message="Слово не найдено")
     message = "Что-то пошло не так при удалении слова"
-    return render_template("error_templates/delete_error.html", message=message + "\n" + str(ret))  # ff
+    return render_template("error_templates/delete_error.html",
+                           message=message + "\n" + str(ret))  # ff
 
 
 @app.route('/dict_word/<int:word_id>', methods=['GET', 'POST'])
@@ -1697,20 +1723,22 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
     }
 
     is_last_trainer = False
-    next_trainer_href = ""
-    next_test_href = ""
+    # next_trainer_href = ""
+    # next_test_href = ""
+    next_task_href = ""
     if lesson_trainers[-1]["id"] == trainer_id:
         is_last_trainer = True
         if len(lesson_tests) != 0:
-            next_test_href = \
+            next_task_href = \
                 f"/course/{course_id}/lesson/{lesson_id}/test/{lesson_tests[0]['id']}"
     else:
         for i in range(len(lesson_trainers)):
             t = lesson_trainers[i]
             if t["id"] == trainer_id:
-                next_trainer_href = \
+                next_task_href = \
                     f"/course/{course_id}/lesson/{lesson_id}/trainer/{lesson_trainers[i + 1]['id']}"
                 break
+    # print(next_task_href)
     prev_result = db_sess.query(TrainersToUsers).filter(TrainersToUsers.trainer_id == trainer_id,
                                                         TrainersToUsers.course_id == course_id,
                                                         TrainersToUsers.lesson_id == lesson_id,
@@ -1731,14 +1759,15 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
     answer_button_number_first_line = 3
     answer_button_number_second_line = 3
     answer_button_number = answer_button_number_first_line + answer_button_number_second_line
-    return render_template('lesson_templates/tasks_templates/trainer_view.html', course=course, lesson=lesson,
+    return render_template('lesson_templates/tasks_templates/trainer_view.html', course=course,
+                           lesson=lesson,
                            trainer=trainer,
                            answer_button_number_first_line=answer_button_number_first_line,
                            answer_button_number_second_line=answer_button_number_second_line,
                            answer_button_number=answer_button_number,
                            back_url=f"/course/{course_id}/lesson/{lesson_id}",
-                           is_last_trainer=is_last_trainer, next_trainer_href=next_trainer_href,
-                           next_test_href=next_test_href, python_data=python_data)
+                           is_last_trainer=is_last_trainer, next_task_href=next_task_href,
+                           python_data=python_data)
 
 
 @app.route('/course/<int:course_id>/lesson/<int:lesson_id>/trainer/<int:trainer_id>/result',
@@ -1747,7 +1776,8 @@ def trainer_result(course_id, lesson_id, trainer_id):  # запись резул
     if request.method != 'POST':
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     db_sess = db_session.create_session()
-    db_sess.query(TrainersToUsers).filter()
+    # db_sess.query(TrainersToUsers).filter()
+    # print("trainer_result post")
     prev_result = db_sess.query(TrainersToUsers).filter(TrainersToUsers.trainer_id == trainer_id,
                                                         TrainersToUsers.course_id == course_id,
                                                         TrainersToUsers.lesson_id == lesson_id,
@@ -1816,7 +1846,8 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
         tests_list.append(str(rand_test.check_side) + " " + str(rand_test.ans_side))
     tests_list = "  ".join(tests_list)
     if test.check_side == -1 and test.ans_side == -1:
-        return render_template('lesson_templates/tasks_templates/ultimate_test_view.html', course=course, lesson=lesson,
+        return render_template('lesson_templates/tasks_templates/ultimate_test_view.html',
+                               course=course, lesson=lesson,
                                test=test,
                                python_data=python_data,
                                back_url=f"/course/{course_id}/lesson/{lesson_id}",
@@ -1825,7 +1856,8 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
                                answer_button_number_first_line=answer_button_number_first_line,
                                answer_button_number_second_line=answer_button_number_second_line,
                                answer_button_number=answer_button_number)
-    return render_template('lesson_templates/tasks_templates/test_view.html', course=course, lesson=lesson, test=test,
+    return render_template('lesson_templates/tasks_templates/test_view.html', course=course,
+                           lesson=lesson, test=test,
                            python_data=python_data,
                            back_url=f"/course/{course_id}/lesson/{lesson_id}",
                            is_last_test=is_last_test, next_test_href=next_test_href,
@@ -2007,7 +2039,8 @@ def change_word(word_id):  # изменить слово
         db_sess.commit()
         db_sess.close()
         return redirect('/dictionary')
-    return render_template('lesson_templates/word_templates/make_word.html', form=form, dictionary=all_words,
+    return render_template('lesson_templates/word_templates/make_word.html', form=form,
+                           dictionary=all_words,
                            filename="tmp",
                            prev_hieroglyph=prev_hieroglyph, prev_translation=prev_translation,
                            prev_transcription=prev_transcription, prev_phrase_ch=prev_phrase_ch,

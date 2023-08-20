@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 style="color: white;">Выберете правильный вариант ответа</h1>
+<h1 id="trainer-header">Выберете правильный вариант ответа</h1>
 <div class="trainer">
     <div class="task-box">
         {% if trainer.check_side < 6 %}
@@ -63,10 +63,10 @@
         </div>
         <div>
             {% if not is_last_trainer %}
-            <a id="next-trainer" class="btn btn-main long-buttons" hidden href="{{ next_trainer_href }}">Перейти к следующему тренажеру</a>
+            <a id="next-trainer" class="btn btn-main long-buttons" style="color: var(--contrast-red);" hidden>Перейти к следующему тренажеру</a>
             {% else %}
-            {% if next_test_href != "" %}
-            <a id="next-trainer" class="btn btn-main long-buttons" hidden href="{{ next_test_href }}">Перейти к проверке знаний</a>
+            {% if next_task_hrefф != "" %}
+            <a id="next-trainer" class="btn btn-main long-buttons" style="color: var(--contrast-red);" hidden>Перейти к проверке знаний</a>
             {% endif %}
             {% endif %}
         </div>  
@@ -93,6 +93,7 @@
         unlearned.push(i);
     }
     var current_word = 0;
+    var data_id_ind = 9;
     var check_side = {{ trainer.check_side }};
     var ans_side = {{ trainer.ans_side }};
 
@@ -100,7 +101,9 @@
     for (let i = 0; i < lesson.length; i++){
         tmp_wrong_vars = []
         for (let i = 0; i < all_words.length; i++) {
-            if (i != current_word){
+            wrong_word_id = all_words[i][data_id_ind];
+            cur_word_id = lesson[current_word][data_id_ind];
+            if (cur_word_id != wrong_word_id){
                 tmp_wrong_vars.push(all_words[i][ans_side]);
             }
         }
@@ -224,16 +227,18 @@
 
                     response.json().then(data => {
                       console.log(data);
+                      window.location.href = "{{ next_task_href }}";
                     });
                 }, false)
             }
 
             continue_button = document.getElementById("continue");
             continue_button.innerText = "Вернуться к уроку";
-            continue_button.href = "{{ back_url }}";
+            // continue_button.href = "{{ back_url }}";
             continue_button.removeEventListener("click", continueButtonClick, false);
 
             continue_button.addEventListener("click", async function(event){
+                // "/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result"
                 const response = await fetch("/course/" + "{{ course.id }}" + "/lesson/" + "{{ lesson.id }}" + "/trainer/" + "{{ trainer.id }}" + "/result", {
                 method: 'POST',
                 headers: {
@@ -248,6 +253,7 @@
 
                 response.json().then(data => {
                   console.log(data);
+                  window.location.href = "{{ back_url }}";
                 });
             }, false)
         } else {
@@ -326,7 +332,5 @@
     continue_button = document.getElementById("continue");
     continue_button.addEventListener("click", continueButtonClick, false);
     buttonsInit();
-
-
 </script>
 {% endblock %}
