@@ -1,24 +1,25 @@
 :root {
-  --red: #9C1313;
-  --backgrpund-red: #f8d7da;
-  --bright-red: #d93025;
-  --dark-red: #721c24;
-  --orange: #FF660C;
-  --yellow: #ffc107;
-  --green: #158903;
-  --blue: #006AFF;
-  --contrast-red: white;
-  --contrast-orange: white;
-  --contrast-yellow: #3E2314;
-  --contrast-green: white;
-  --contrast-blue: white;
+    --red: #9C1313;
+    --background-red: #f8d7da;
+    --background-grey: #c9c9c9;
+    --bright-red: #d93025;
+    --dark-red: #721c24;
+    --orange: #FF660C;
+    --yellow: #ffc107;
+    --green: #158903;
+    --blue: #006AFF;
+    --contrast-red: white;
+    --contrast-orange: white;
+    --contrast-yellow: #3E2314;
+    --contrast-green: white;
+    --contrast-blue: white;
 
-  --min-window-size: 400px;
+    --min-window-size: 400px;
 }
 
 body {
-    font-family: font-family: times New Roman;
-    font-size: 15px;
+    font-family: Ubuntu;
+    font-size: medium;
     color: #33;
 }
 
@@ -30,12 +31,17 @@ body {
     z-index: 1000;
 }
 
-.nav {
+.nav-container {
+    margin-bottom: 1.5rem;
+}
+
+.nav-buttons {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
     width: var(--min-window-size);
     justify-content: flex-start;
+    margin-bottom: 1.5rem;
 }
 
 .upper-navbar {
@@ -67,11 +73,13 @@ body {
 }
 
 .message-container {
-    background-color: var(--backgrpund-red);
+    background-color: var(--background-red);
     border-radius: 6px;
     margin-bottom: 2em;
     padding: 16px 16px;
+    text-align: center;
     color: var(--dark-red);
+    font-size: medium;
 }
 
 .message-page-container {
@@ -103,4 +111,61 @@ body {
 
 .centering-box {
     flex: 1;
+}
+
+.form-control {
+    font-size: 1.2rem;
+}
+
+.page-header {
+    margin: 2rem;
+}
+
+.header-container {
+
+}
+
+.text-header {
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+a:not([href]) {
+    color: var(--contrast-red);
+}
+
+.center-header-box {
+    text-align: center;
+    margin: 1rem;
+}
+
+.text-container {
+    margin: 3rem 1rem;
+    padding: 1rem;
+    border: 4px solid var(--red);
+}
+
+.text-line-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: solid 1px var(--red);
+    padding: 0.5rem;
+}
+
+.text-table {
+    display: flex;
+    flex-direction: column;
+    border: solid 1px var(--red);
+    margin: 1rem;
+}
+
+.statistics-message-container {
+    margin: 1rem;
+    padding: 0.5rem;
+}
+
+.statistics-message {
+    text-align: center;
 }

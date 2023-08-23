@@ -10,4 +10,43 @@
 
 .remember-me-label {
     margin: 0.5rem 0rem 0.5rem 0.5rem;
+    font-size: 0.9rem;
 }
+
+.page-title {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.login-page {
+    padding: 16px;
+    width: 475px;
+}
+
+.login-page-content {
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: #3A3542;
+    padding: 15px;
+    background-color: #c9c9c9;
+    margin: auto;
+}
+
+.remember-me-container {
+    width: 9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-content: center;"
+}
+
+.forgot-password-container {
+    width: 9rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.forgot-password-btn {
+    font-size: medium;
+}
+

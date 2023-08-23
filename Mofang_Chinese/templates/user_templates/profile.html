@@ -1,56 +1,96 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Профиль пользователя</h1>
-{% if not user.name and not user.last_name and not user.patronymic %}
-    <h3>Данные не указаны</h3>
+
+{% if is_owner %}
+    <h1 class="page-header">Ваш профиль</h1>
 {% else %}
-    {% if user.name %}
-        <h3>Имя: {{ user.name }}</h3>
+    <h1 class="page-header">Профиль пользователя</h1>
+{% endif %}
+<div class="profile-text-container">
+    {% if not user.name and not user.last_name and not user.patronymic %}
+        <h3 class="text-header">Данные не указаны</h3>
     {% else %}
-        <h3>Имя не указано</h3>
-    {% endif %}
-
-    {% if user.last_name %}
-        <h3>Фамилия: {{ user.last_name }}</h3>
-    {% else %}
-        <h3>Фамилия не указана</h3>
-    {% endif %}
-
-    {% if user.patronymic %}
-        <h3>Отчество: {{ user.patronymic }}</h3>
-    {% else %}
-        <h3>Отчество не указано</h3>
-    {% endif %}
-
-    {% if user.about %}
-        <h3>О пользователе</h3>
-        <div id="user-about" class="user-about">
+        <div class="header-container">
+            {% if user.name %}
+                <h3 class="text-header">Имя: {{ user.name }}</h3>
+            {% else %}
+                <h3 class="text-header">Имя не указано</h3>
+            {% endif %}
+        </div>
+        <div class="header-container">
+            {% if user.last_name %}
+                <h3 class="text-header">Фамилия: {{ user.last_name }}</h3>
+            {% else %}
+                <h3 class="text-header">Фамилия не указана</h3>
+            {% endif %}
+        </div>
+        <div class="header-container">
+            {% if user.patronymic %}
+                <h3 class="text-header">Отчество: {{ user.patronymic }}</h3>
+            {% else %}
+                <h3 class="text-header">Отчество не указано</h3>
+            {% endif %}
+        </div>
+        <div class="about-container">
+            {% if user.about %}
+                <h3 class="text-header">О пользователе</h3>
+                <div id="user-about" class="user-about">
+                </div>
+            {% endif %}
         </div>
     {% endif %}
-{% endif %}
 
-{% if user.teacher %}
-    <h3>Пользователь является учителем</h3>
-{% else %}
-    <h3>Пользователь является учеником</h3>
-{% endif %}
-{% if is_owner %}
-<a href="/change_data" class="btn btn-main">Изменить данные</a>
-<a href="/change_password" class="btn btn-main">Изменить пароль</a>
-<a href="/logout" class="btn btn-main">Выйти из аккаунта</a>
-<a href="/delete_user/{{ user.id }}" class="btn btn-main">Удалить аккаунт</a>
-{% else %}
-    {% if current_user.id == user.creator %}
-        <a class="btn btn-main" href="/generate_link/{{ user.id }}">Создать ссылку для входа</a>
-        <a class="btn btn-main" href="/pupil/{{ user.id }}/courses">Добавить курсы ученику</a>
+    {% if is_owner %}
+        <!-- как лучше составить эту фразу? -->
+        {% if user.teacher %}
+            <h3 class="text-header">Вы учитель</h3>
+        {% else %}
+            <h3 class="text-header">Вы ученик</h3>
+        {% endif %}
+    {% else %}
+        {% if user.teacher %}
+            <h3 class="text-header">Пользователь является учителем</h3>
+        {% else %}
+            <h3 class="text-header">Пользователь является учеником</h3>
+        {% endif %}
     {% endif %}
-{% endif %}
+</div>
+<div class="profile-buttons-container">
+    {% if is_owner %}
+        <a href="/change_data" class="btn btn-main">Изменить данные</a>
+        <a href="/change_password" class="btn btn-main">Изменить пароль</a>
+        <a href="/logout" class="btn btn-main">Выйти из аккаунта</a>
+        <a id="delete-user-btn" class="btn btn-main btn-danger">Удалить аккаунт</a>
+        <!-- href="/delete_user/{{ user.id }}" -->
+    {% else %}
+        {% if current_user.id == user.creator %}
+            <a class="btn btn-main" href="/generate_link/{{ user.id }}">Создать ссылку для входа</a>
+            <a class="btn btn-main" href="/pupil/{{ user.id }}/courses">Добавить курсы ученику</a>
+        {% endif %}
+    {% endif %}
+</div>
 <script>
     var user_about = {{ python_data|tojson }}.user_about;
     if (user_about){
-        text_holder = document.getElementById("user-about");
-        text_holder.innerText = user_about;
+        for (let i = 0; i < user_about.length; i++){
+            text_holder = document.getElementById("user-about");
+            new_line = document.createElement('p');
+            new_line.classList.add("text-line");
+            new_line.innerText = user_about[i];
+            text_holder.appendChild(new_line);
+        }
     }
+
+    function deleteUserButtonClick(event) {
+        message = "Вы уверены, что хотите удалить профиль?";
+        var retVal = confirm(message);
+        if( retVal == true ) {
+            window.location.href = "/delete_user/{{ user.id }}";
+        }
+    }
+
+    delete_user_btn = document.getElementById("delete-user-btn");
+    delete_user_btn.addEventListener("click", deleteUserButtonClick, false);
 </script>
 {% endblock %}

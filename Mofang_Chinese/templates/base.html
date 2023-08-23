@@ -24,17 +24,17 @@
 <header class="header">
     <div class="container">
         <div class="header_inner">
-            <nav>
+            <nav class="nav-container">
                 <div class="upper-navbar">
                     <div>
-                    <a class="btn btn-white nav-btn" id="back_button" href="{{ back_url }}" hidden>Назад</a>
+                        <a class="btn btn-white nav-btn" id="back_button" href="{{ back_url }}" hidden>Назад</a>
                     </div>
-                {% if current_user.is_authenticated %}
-                <a class="btn btn-main navbar-brand nav-btn" href="/profile/{{ current_user.id }}">{{ current_user.name }}</a>
-                {% endif %}
+                    {% if current_user.is_authenticated %}
+                    <a class="btn btn-main navbar-brand nav-btn" href="/profile/{{ current_user.id }}">{{ current_user.name }}</a>
+                    {% endif %}
                 </div>
                 {% if current_user.is_authenticated %}
-                <div class="nav" id="up buttons">
+                <div class="nav-buttons" id="up buttons">
                     <a id="nav button 1" class="btn btn-white" href="/courses">Мои Курсы</a>
                     <a id="nav button 2" class="btn btn-white" href="/dictionary">Словарь</a>
                     {% if current_user.teacher %}

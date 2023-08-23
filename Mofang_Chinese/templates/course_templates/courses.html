@@ -3,22 +3,24 @@
 {% block content %}
 <div class="courses-container">
     {% if not courses %}
+        <div class="course-message-container">
         {% if not current_user.teacher %}
-            <h1>На данный момент вы не подключены ни к одному курсу.</h1>
-            <h3>Для подключения к курсу обратитесь к своему преподавателю</h3>
+            <h1 class="course-message">На данный момент вы не подключены ни к одному курсу.</h1>
+            <h3 class="course-message">Для подключения к курсу обратитесь к своему преподавателю</h3>
         {% else %}
             <h1>На данный момент вы не создали ни одного курса.</h1>
             <h3>Для создания курса, нажмите на кнопку "Добавить курс"</h3>
         {% endif %}
+        </div>
     {% endif %}
     {% for item in courses %}
         <div class="course-card">
             <div class="card-body">
-                <h5 class="card-title">
+                <h4 class="card-title">
                     {% if item.name %}
                         {{ item.name }}
                     {% endif %}
-                </h5>
+                </h4>
                 <p class="card-text">
                     {% if item.about %}
                         {{ item.about }}

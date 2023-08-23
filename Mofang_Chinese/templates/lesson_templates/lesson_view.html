@@ -14,9 +14,9 @@
         </p>
         {% endfor %}
         </p>
-        <div class="top-buttons-line">
+        <div class="lesson-top-buttons-line">
             <div>
-                {{ form.submit(type="submit", class="btn btn-main") }}
+                {{ form.submit(type="submit", class="btn btn-main centered-button") }}
             </div>
             <div>
                 <a href="/course/{{ course_id }}/lesson_statistics/{{ lesson_data.id }}" class="btn btn-main lesson-button info-button">
@@ -29,22 +29,21 @@
         {% endif %}
     </form>
 {% else %}
-    <div style="display: block;
-                min-width: 355px;">
-        <h1>{{ lesson_name }}</h1>
+    <div class="center-header-box">
+        <h1 class="text-header">{{ lesson_name }}</h1>
     </div>
 {% endif %}
 <div class="add-item-group">
     <h2 class="lesson-view-heading" id="items-heading">Материалы урока</h2>
-    {% if current_user.teacher %}
-        <div class="add-item-box">
-            <a class="btn btn-add" href="/add_words_to_lesson/{{ lesson_data.id }}">Добавить слова</a>
-        </div>
-    {% endif %}
 </div>
 <div class="items-row" id="items-row">
     <h3 id="items-not-found-heading" hidden>Слова не добавлены</h3>
 </div>
+{% if current_user.teacher %}
+    <div class="add-item-box">
+        <a class="btn btn-add" href="/add_words_to_lesson/{{ lesson_data.id }}">Добавить слова</a>
+    </div>
+{% endif %}
 <div class="page-buttons-box">
     <div class="page-buttons-row" id="pages-row">
         <div class="page-buttons-container" id="start-page-buttons-container">
@@ -63,23 +62,23 @@
         <h2 class="lesson-view-heading">Тренажеры урока</h2>
         {% endif %}
         {% for trainer in lesson_data.trainers %}
-        <div class="task-buttons">
-            <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
-               class="btn btn-main item-button" style="min-width: 250px; margin-bottom: 10px;" id="trainer {{ trainer.id }}">
-                {{ trainer.name }}
-            </a>
-            {% if current_user.teacher %}
-            <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}"
-               class="btn btn-danger btn-delete trainer-delete-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-trash" viewBox="0 0 16 16">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd"
-                          d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                </svg>
-            </a>
-            {% endif %}
-        </div>
+            <div class="task-buttons">
+                <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/trainer/{{ trainer.id }}"
+                   class="btn btn-main item-button" style="min-width: 250px; margin-bottom: 10px;" id="trainer {{ trainer.id }}">
+                    {{ trainer.name }}
+                </a>
+                {% if current_user.teacher %}
+                    <a href="/delete_trainer_from_lesson/{{ lesson_data.id }}/{{ trainer.id }}"
+                       class="btn btn-danger btn-delete trainer-delete-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-trash" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+                {% endif %}
+            </div>
         {% endfor %}
         {% if current_user.teacher %}
         <div class="add-task-button">
@@ -96,12 +95,12 @@
         {% endif %}
 
         {% for test in lesson_data.tests %}
-            <div class="task-buttons">
+            <div class="task-buttons test-list-buttons">
                 <a href="/course/{{ course_id }}/lesson/{{ lesson_data.id }}/test/{{ test.id }}"
                    class="btn btn-main item-button unstarted-trainer" style="min-width: 250px" id="test {{ test.id }}">
                     {{ test.name }}
                 </a>
-                <h3 id="test result {{ test.id }}"> 0%</h3>
+                <h3 class="test-result-header" id="test result {{ test.id }}"> 0%</h3>
                 {% if current_user.teacher %}
                 <a href="/delete_test_from_lesson/{{ lesson_data.id }}/{{ test.id }}"
                    class="btn btn-danger btn-delete">
@@ -120,6 +119,18 @@
             <div class="add-task-button">
                 <a class="btn btn-add" href="/add_tests_to_lesson/{{ lesson_data.id }}">Добавить тесты</a>
             </div>
+        {% endif %}
+    </div>
+</div>
+<div class="lesson-bottom-buttons-line">
+    <div class="next-lesson-href-box">
+        {% if prev_les_id %}
+            <a class="btn btn-main" href="/course/{{ course_id }}/lesson/{{ prev_les_id }}">Предыдущий урок</a>
+        {% endif %}
+    </div>
+    <div class="next-lesson-href-box">
+        {% if next_les_id %}
+            <a class="btn btn-main" href="/course/{{ course_id }}/lesson/{{ next_les_id }}">Следующий урок</a>
         {% endif %}
     </div>
 </div>

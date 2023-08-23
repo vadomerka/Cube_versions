@@ -2,12 +2,32 @@
 
 {% block content %}
 <div class="data-container">
-	<h1>Статистика урока: {{ lesson_name }}</h1>
-	<h3>Количество слов: {{ lesson_words_len }}</h3>
-	<h3>Количество тренажеров: {{ lesson_trainers_len }}</h3>
-	<h3>Количество тестов: {{ lesson_tests_len }}</h3>
-	<h3>Средняя выученность урока {{ lesson_percentage }}%</h5>
-	<h4>Чтобы посмотреть более подробную статистику по ученику, кликните на кнопку с его именем</h4>
+	<div class="center-header-box">
+		<h1 class="text-header">Статистика урока</h1>
+	</div>
+	<div class="text-container">
+		<div class="center-header-box">
+			<h1 class="text-header">{{ lesson_name }}</h1>
+		</div>
+		<div class="text-table">
+			<div class="text-line-container">
+				<h3>Количество слов:</h3>
+				<h3>{{ lesson_words_len }}</h3>
+			</div>
+			<div class="text-line-container">
+				<h3>Количество тренажеров:</h3>
+				<h3>{{ lesson_trainers_len }}</h3>
+			</div>
+			<div class="text-line-container">
+				<h3>Количество тестов:</h3>
+				<h3>{{ lesson_tests_len }}</h3>
+			</div>
+			<div class="text-line-container">
+				<h3>Средняя выученность урока</h3>
+				<h3>{{ lesson_percentage }}%</h3>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="instruments-box" style="">
 	<div class="instruments-group">
@@ -45,6 +65,9 @@
 		    </div>
 		</div>
 	</div>
+</div>
+<div class="statistics-message-container">
+	<h4 class="statistics-message">Чтобы посмотреть более подробную статистику по ученику, кликните на кнопку с его именем</h4>
 </div>
 <div id="pupil-stats-column" class="pupil-stats-column">
 	<h3 id="items-not-found-heading" hidden>Ученики не найдены</h3>
@@ -119,24 +142,42 @@
 		for (var i = 0; i < current_item_list.length; i++) {
 			pupil_stats_holder = document.createElement("div");
 			pupil_stats_holder.classList.add("pupil-stats-holder");
+			center_header_box = document.createElement("div");
+			center_header_box.classList.add("center-header-box");
+
 			item_but = document.createElement("a");
 			item_but.classList.add("btn");
 			item_but.classList.add("btn-main");
 			item_but.classList.add("pupil-statistics-button");
+			item_but.classList.add("centered-button");
 			item_but.href = "/course/{{ course_id }}/lesson_statistics/{{ lesson_id }}/pupil/" + current_item_list[i]["id"].toString();
 			item_but.innerText = current_item_list[i][[button_texts[text_button_state]]];
-			pupil_stats_holder.appendChild(item_but);
+
+			center_header_box.appendChild(item_but);
+			pupil_stats_holder.appendChild(center_header_box);
 			
-			stat_texts = ["Выучено слов: " + current_item_list[i]["words_learned"].toString(),
-						  "Просмотрено слов: " + current_item_list[i]["words_viewed"].toString(),
-						  "Пройдено тренажеров: " + current_item_list[i]["trainers_completed"].toString(),
-						  "Пройдено тестов: " + current_item_list[i]["tests_completed"].toString()]
+			stat_texts = ["Выучено слов:",
+						  "Просмотрено слов:",
+						  "Пройдено тренажеров:",
+						  "Пройдено тестов:"]
+			stat_data = [current_item_list[i]["words_learned"].toString(),
+						 current_item_list[i]["words_viewed"].toString(),
+						 current_item_list[i]["trainers_completed"].toString(),
+						 current_item_list[i]["tests_completed"].toString()]
+			text_table = document.createElement("div");
+			text_table.classList.add("text-table");
 			for (var j = 0; j < stat_texts.length; j++) {
-				stat_text = document.createElement("h3");
-				stat_text.innerText = stat_texts[j];
-				pupil_stats_holder.appendChild(stat_text);
+				text_line_container = document.createElement("div");
+				text_line_container.classList.add("text-line-container");
+				stext = document.createElement("h3");
+				sdata = document.createElement("h3");
+				stext.innerText = stat_texts[j];
+				sdata.innerText = stat_data[j];
+				text_line_container.appendChild(stext);
+				text_line_container.appendChild(sdata);
+				text_table.appendChild(text_line_container);
 			}
-			pupil_stats_holder.appendChild(stat_text);
+			pupil_stats_holder.appendChild(text_table);
 			pupil_stats_column.appendChild(pupil_stats_holder);
 		}
 	}

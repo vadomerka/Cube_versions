@@ -53,7 +53,7 @@
 
 .explanation-content {
     background-color: #ffffff;
-    width: 75%;
+    width: 100%;
     height: 80vh;
     display: flex;
     align-items: center;
@@ -77,14 +77,17 @@
 }
 
 .image-explanation {
-    width: 80%;
+    width: 40vh;
     margin: 1rem;
 }
 
-.text-explanation {
+.text-explanation-container {
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    min-width: 365px;
+    max-width: fit-content;
 }
 
 .explanation-body {
@@ -102,7 +105,9 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    margin: 1rem;
     align-content: center;
+    margin-bottom: 2rem;
 }
 
 .explanation-header {
@@ -115,6 +120,7 @@
     background: transparent;
     border: transparent;
     position: absolute;
+    margin: 0.25rem;
 }
 
 .close-button-container {
@@ -175,4 +181,41 @@
     content: "";
     clear: both;
     display: table;
+}
+
+.explanation-text {
+    font-size: 1.15rem;
+    margin: 0px;
+}
+
+.cube-audio-explanation {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.resize {
+   width: 65%;
+}
+
+@media only screen and (max-width: 1024) {
+   .resize {
+      width: 80%;
+   }
+}
+
+@media only screen and (max-width: 900px) {
+   .resize {
+      width: 90%;
+   }
+}
+
+@media only screen and (max-width: 700px) {
+   .resize {
+      width: 100%;
+   }
 }

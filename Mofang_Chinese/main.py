@@ -324,7 +324,11 @@ def user_profile(user_id):  # просмотр профиля пользоват
     is_owner = 0
     if current_user.id == user_id:
         is_owner = 1
-    python_data = {"user_about": profile_user.about}
+    # python_data = {"user_about": profile_user.about}
+    if profile_user.about:
+        python_data = {"user_about": profile_user.about.split("\n")}
+    else:
+        python_data = {"user_about": []}
     return render_template('user_templates/profile.html', user=profile_user, is_owner=is_owner,
                            python_data=python_data, back_url="/pupils")
 
@@ -899,6 +903,24 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
                                header_disabled="true", object="Урок")
     lesson = lesson_response["lesson"]
     db_sess = db_session.create_session()
+    course = db_sess.query(Courses).get(course_id)
+    # print(course.lessons)
+    prev_les_id = 0
+    next_les_id = 0
+    for i in range(1, len(course.lessons) - 1):
+        les = course.lessons[i]
+        if les.id == lesson_id:
+            prev_les_id = course.lessons[i - 1].id
+            next_les_id = course.lessons[i + 1].id
+            break
+    if len(course.lessons) > 1:
+        if course.lessons[0].id == lesson_id:
+            next_les_id = course.lessons[1].id
+        elif course.lessons[-1].id == lesson_id:
+            prev_les_id = course.lessons[-2].id
+    print([x.id for x in course.lessons])
+    print(lesson_id)
+    print(prev_les_id, next_les_id)
     all_items = lesson["words"]
     items_js = {"all_items": all_items}
     max_items_number_on_one_page = 13
@@ -948,7 +970,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
                                    len_test_results=len(test_results),
                                    words_learn_states=words_learn_states, form=form,
                                    lesson_name=lesson_name, items_js=items_js,
-                                   max_items_number_on_one_page=max_items_number_on_one_page)
+                                   max_items_number_on_one_page=max_items_number_on_one_page,
+                                   prev_les_id=prev_les_id, next_les_id=next_les_id)
         return render_template('lesson_templates/lesson_view.html', lesson_data=lesson,
                                course_id=course_id,
                                back_url=f"/course/{course_id}",
@@ -957,7 +980,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
                                len_test_results=len(test_results),
                                words_learn_states=words_learn_states, form=form,
                                lesson_name=lesson_name, items_js=items_js,
-                               max_items_number_on_one_page=max_items_number_on_one_page)
+                               max_items_number_on_one_page=max_items_number_on_one_page,
+                               prev_les_id=prev_les_id, next_les_id=next_les_id)
 
     return render_template('lesson_templates/lesson_view.html', lesson_data=lesson,
                            course_id=course_id,
@@ -966,7 +990,8 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
                            len_test_results=len(test_results),
                            words_learn_states=words_learn_states, lesson_name=lesson.name,
                            items_js=items_js,
-                           max_items_number_on_one_page=max_items_number_on_one_page)
+                           max_items_number_on_one_page=max_items_number_on_one_page,
+                           prev_les_id=prev_les_id, next_les_id=next_les_id)
 
 
 @app.route('/make_lesson/<int:course_id>', methods=['GET', 'POST'])
@@ -1454,12 +1479,14 @@ def dict_view():  # просмотр словаря
     # print(items_js)  # ff
     # print([w['id'] for w in all_words])
     max_words_number_on_one_page = 32
+    max_words_number_on_one_pupil_page = 60
     return render_template("lesson_templates/word_templates/dictionary.html", all_words=all_words,
                            current_user=current_user,
                            len_all_words=len_all_words,
                            my_words=my_words, rest_words=rest_words,
                            back_button_hidden="true", items_js=items_js,
-                           max_items_number_on_one_page=max_words_number_on_one_page)
+                           max_items_number_on_one_page=max_words_number_on_one_page,
+                           max_words_number_on_one_pupil_page=max_words_number_on_one_pupil_page)
 
 
 @app.route('/add_word', methods=['GET', 'POST'])

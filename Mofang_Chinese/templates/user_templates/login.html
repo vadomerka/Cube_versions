@@ -5,23 +5,14 @@
     .main-container {
         height: 100vh;
         display: grid;
-        width: min-content;
         align-items: center;
         margin: auto;
         padding-right: 0px;
         padding-left: 0px;
     }
-    .login-page {
-        padding: 16px;
-        width: 475px;
-    }
-    .login-page-content {
-        box-sizing: border-box;
-        border-style: solid;
-        border-color: #3A3542;
-        padding: 15px;
-        background-color: #c9c9c9;
-        margin: auto;
+
+    body {
+        font-size: large;
     }
 </style>
 <div class="login-page">
@@ -53,16 +44,13 @@
                 <div class="message-container">{{ message }}</div>
                 {% endif %}
                 <div class="sign-in-container">
-                    <div style="display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                align-content: center;">{{ form.remember_me() }} {{ form.remember_me.label(class="remember-me-label") }}
+                    <div class="remember-me-container">{{ form.remember_me() }} {{ form.remember_me.label(class="remember-me-label") }}
                     </div>
                     <div class="sign-in-button-container">{{ form.submit(type="submit", class="btn
-                        btn-main submit-btn") }}
+                        btn-main submit-btn login-btn") }}
                     </div>
-                    <div style="margin-left: 0.5rem">
-                        <a href="/reset_password">Забыли пароль?</a>
+                    <div class="forgot-password-container">
+                        <a class="forgot-password-btn" href="/reset_password">Забыли пароль?</a>
                     </div>
                 </div>
             </form>

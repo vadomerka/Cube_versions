@@ -8,6 +8,15 @@
     align-content: center;
 }
 
+.course-message-container {
+    text-align: center;
+    border: 0.3rem var(--red) solid;
+}
+
+.course-message {
+    margin: 1rem;
+}
+
 .course-card {
     width: 360px;
     height: auto;
@@ -27,13 +36,15 @@
 }
 
 .card-title{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     text-align: center;
     width: 100%;
 }
 
 .card-text{
-    width: 260px;
-    height: 22.5px;
+    width: 100%;
     overflow:hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -47,19 +58,6 @@
     flex-wrap: nowrap;
 }
 
-.lesson-card {
-    width: 500px;
-    border-style: solid;
-    border-color: var(--red);
-    margin: 10px 10px 10px 10px;
-    background-color: white;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    align-items: center;
-    justify-content: space-between;
-}
-
 .course-center-column{
     display: flex;
     flex-direction: column;
@@ -67,20 +65,12 @@
 }
 
 .lesson-name {
-    overflow:hidden;
+    height: 72px;
     margin: 1rem;
 }
 
-.lesson-button{
+.lesson-button {
     margin: 10px 10px 10px 10px;
-}
-
-.lesson-buttons{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
 }
 
 .text-line {
@@ -107,8 +97,9 @@
 .top-buttons-line {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .flex-buttons-line {
@@ -119,21 +110,6 @@
     margin: 2.5rem 2rem;
 }
 
-.statistics-lesson-card {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-}
-.lesson-statistics-top {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-
-}
 .text-block {
     margin: 0.6rem;
 }
@@ -142,6 +118,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .add-task-button {
@@ -150,4 +127,67 @@
     justify-content: center;
     display: flex;
     margin: 5px 5px 5px 5px;
+}
+
+.lesson-name-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    width: 50%;
+    height: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lesson-card-buttons-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 50%;
+}
+
+.lesson-statistics-card {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 1rem;
+    border: 3px solid var(--red);
+    padding: 0.5rem;
+    width: 475px;
+}
+
+.lesson-statistics-top {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lesson-buttons-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    max-width: 60%;
+}
+
+.lesson-card {
+    min-width: 400px;
+    width: -webkit-fill-available;
+    border-style: solid;
+    border-color: var(--red);
+    margin: 10px;
+    background-color: white;
+    display: flex;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
 }

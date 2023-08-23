@@ -49,9 +49,11 @@
 			    </button>
 			    </div>
 			</div>
-			<div class="instrument filter-button-group">
-				<button id="filter_button" class="btn btn-add" style="margin: 0px;">Показать только свои слова</button>
-			</div>
+			{% if current_user.teacher %}
+				<div class="instrument filter-button-group">
+					<button id="filter_button" class="btn btn-add" style="margin: 0px;">Показать только свои слова</button>
+				</div>
+			{% endif %}
 		</div>
 	</div>
 	<div class="add-item-group">
@@ -61,8 +63,11 @@
 			</div>
 		{% endif %}
 	</div>
-	<div class="items-row dict-items-row" id="items-row">
-	    <h3 id="items-not-found-heading" hidden>Слова не найдены</h3>
+	<!-- можно отцентровать на экране телефона, но тогда конец списка будет неровным -->
+	<div class="dict-items-container">
+		<div class="items-row dict-items-row" id="items-row">
+		    <h3 id="items-not-found-heading" hidden>Слова не найдены</h3>
+		</div>
 	</div>
 	<div class="page-buttons-box">
 	    <div class="page-buttons-row" id="pages-row">
@@ -86,11 +91,17 @@
 	    } else {
 	        document.getElementById("items-not-found-heading").hidden = true;
 	    }
+	    if ("{{ current_user.teacher }}" == "True") {
+	    	container_class = "dict-item-container";
+	    } else {
+	    	container_class = "dict-pupil-item-container";
+	    }
 	    for (let i = 0; i < item_list.length; i++){
+	    	;
 	        column = document.createElement("div")
 	        column.id = "item-container " + (i).toString();
 	        column.classList.add("item-container");
-	        column.classList.add("dict-item-container");
+	        column.classList.add(container_class);
 
 	        item_button = document.createElement("a");
 	        item_button.id = "item_button " + i.toString();
@@ -130,7 +141,7 @@
 	            delete_but.classList.add("btn");
 	            delete_but.classList.add("btn-danger");
 	            delete_but.classList.add("btn-delete");
-	            delete_but.style = "margin: 0px;"
+	            // delete_but.style = "margin: 0px;"
 	            trash_icon = document.createElementNS('http://www.w3.org/2000/svg',"svg");
 	            trash_icon.setAttributeNS(null, "width", "16");
 	            trash_icon.setAttributeNS(null, "fill", "currentColor");
@@ -167,6 +178,9 @@
 	}
 
 	var max_items_number_on_one_page = {{ max_items_number_on_one_page }};
+	if ("{{ current_user.teacher }}" == "False") {
+    	max_items_number_on_one_page = {{ max_words_number_on_one_pupil_page }};
+    }
 	var current_user_id = {{ current_user.id }};
 	var items_js = {{ items_js|tojson }};
 

@@ -34,13 +34,13 @@
     height: 43px;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 3px;
 }
 
 .user-item-button {
     height: 43px;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 0px;
     position: relative;
 }
 
@@ -62,10 +62,16 @@
 
 .item-container {
     display: flex;
+    justify-content: center;
 }
 
 .dict-item-container {
-    width: 275px;
+    width: 300px;
+    margin: 0 1px;
+}
+
+.dict-pupil-item-container {
+    width: 185px;
     margin: 0 1px;
 }
 
