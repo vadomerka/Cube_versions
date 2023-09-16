@@ -21,11 +21,13 @@
                         {{ item.name }}
                     {% endif %}
                 </h4>
-                <p class="card-text">
-                    {% if item.about %}
-                        {{ item.about }}
-                    {% endif %}
-                </p>
+                <div class="card-text-container">
+                    <p class="card-text">
+                        {% if item.about %}
+                            {{ item.about }}
+                        {% endif %}
+                    </p>
+                </div>
                 <div class="course-buttons">
                     <a href="/course/{{ item.id }}" class="btn btn-main centered-button">Перейти на курс</a>
                     {% if current_user.teacher %}

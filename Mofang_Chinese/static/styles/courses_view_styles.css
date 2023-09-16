@@ -43,7 +43,12 @@
     width: 100%;
 }
 
-.card-text{
+.card-text-container {
+    height: 24px;
+    margin: 1rem;
+}
+
+.card-text {
     width: 100%;
     overflow:hidden;
     white-space: nowrap;
