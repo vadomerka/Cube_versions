@@ -62,7 +62,7 @@
                     <h5 class="text-header lesson-name" >{{ less.name }}</h5>
                 </div>
                 <div class="lesson-buttons-container">
-                    <a href="/course/{{ course.id }}/lesson/{{ less.id }}" class="btn btn-main lesson-button">Перейти на урок</a>
+                    <a href="/course/{{ course.id }}/lesson/{{ less.id }}" class="btn btn-main lesson-button">Пройти</a>
                     {% if current_user.teacher %}
                         <a href="/course/{{ course.id }}/lesson_statistics/{{ less.id }}" class="btn-main lesson-button info-button">
                             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"

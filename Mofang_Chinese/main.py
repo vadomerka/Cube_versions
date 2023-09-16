@@ -40,7 +40,7 @@ import random
 
 logging.basicConfig(filename="log.txt", level=logging.DEBUG,
                     format="%(asctime)s %(message)s", filemode="w")
-logging.debug("Logging test...")
+# logging.debug("Logging test...")
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'mofang_chinese_secret_key'
@@ -59,17 +59,17 @@ app.config.update(mail_settings)
 mail = Mail(app)
 
 # настройка api
-api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
-api.add_resource(CourseResource, '/rest_course/<int:course_id>')
-api.add_resource(DictResourse, "/rest_dict")
-api.add_resource(WordResourse, "/rest_word/<int:word_id>")
+# api.add_resource(CourseListResource, '/rest_courses/<int:user_id>')
+# api.add_resource(CourseResource, '/rest_course/<int:course_id>')
+# api.add_resource(DictResourse, "/rest_dict")
+# api.add_resource(WordResourse, "/rest_word/<int:word_id>")
 # api.add_resource(WordDeleteResourse, "/rest_word_delete/<int:word_id>")
-api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
-api.add_resource(LessonListResource, "/rest_lessons")
-api.add_resource(UserLessonListResource, "/rest_user_lessons/<int:user_id>")
-api.add_resource(UserResource, "/rest_user/<int:user_id>")
-api.add_resource(UserListResource, "/rest_users")
-api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/<int:user_id>/<int:word_id>')
+# api.add_resource(LessonResource, "/rest_lesson/<int:lesson_id>")
+# api.add_resource(LessonListResource, "/rest_lessons")
+# api.add_resource(UserLessonListResource, "/rest_user_lessons/<int:user_id>")
+# api.add_resource(UserResource, "/rest_user/<int:user_id>")
+# api.add_resource(UserListResource, "/rest_users")
+# api.add_resource(WordViewRecordingResource, '/rest_word_view_recording/<int:user_id>/<int:word_id>')
 login_manager = LoginManager()
 login_manager.init_app(app)
 # root = "http://mofang.ru"
@@ -261,6 +261,169 @@ def post_lesson_word(user_id, word_id):
     session.commit()
     session.close()
     return {'success': 'OK'}
+
+
+def get_user(user_id):
+    abort_if_not_found(user_id, User)
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    ret = {'user': user.to_dict(only=('id',
+                                      'name',
+                                      'email',
+                                      "about",
+                                      "hashed_password",
+                                      "teacher"))}
+    ret["user"]["courses"] = [item.to_dict(only=('id', 'name', "about")) for item in
+                              list(user.courses)]
+    ret["user"]["words"] = [item.to_dict(only=('id',
+                                               'hieroglyph',
+                                               "translation")) for item in
+                            list(user.words)]
+    return ret
+
+
+def get_users():
+    session = db_session.create_session()
+    users = session.query(User).all()
+    ret = {"users": []}
+    for user in users:
+        u_item = user.to_dict(only=('id',
+                                    'name',
+                                    'email',
+                                    "about",
+                                    "hashed_password",
+                                    "teacher",
+                                    "creator"))
+        u_item["courses"] = [item.to_dict(only=('id', 'name', "about")) for item in
+                             list(user.courses)]
+        u_item["words"] = [item.to_dict(only=('id',
+                                              'hieroglyph',
+                                              "translation")) for item in
+                           list(user.words)]
+        ret["users"].append(u_item)
+    return ret
+
+
+def get_course(course_id):
+    abort_if_not_found(course_id, Courses)
+    session = db_session.create_session()
+    course = session.query(Courses).get(course_id)
+    ret = {'course': course.to_dict(only=('id', 'name', 'about'))}
+    ret["course"]["lessons"] = [item.to_dict(only=('id', 'name')) for item in
+                                list(course.lessons)]
+    ret["course"]["users"] = [item.to_dict(only=('id', 'name', 'email', 'teacher')) for item in
+                              list(course.users)]
+    return ret
+
+
+def get_courses(user_id):
+    session = db_session.create_session()
+    cur_user = session.query(User).get(user_id)
+    if cur_user:
+        return {'courses': [item.to_dict(
+            only=('id', 'name', 'about')) for item in cur_user.courses]}
+    return {'message': 'Object not found'}
+
+
+def get_dict():
+    session = db_session.create_session()
+    dictionary = session.query(Words).all()
+    ret = {'words': [item.to_dict(
+        only=("id",
+              "author",
+              "hieroglyph",
+              "translation",
+              "transcription",
+              "phrase_ch",
+              "phrase_ru",
+              "image",
+              "front_side_audio",
+              "left_side_audio",
+              "right_side_audio",
+              "up_side_audio",
+              "down_side_audio")) for item in dictionary]}
+    return ret
+
+
+def get_word(word_id):
+    abort_if_not_found(word_id, Words)
+    session = db_session.create_session()
+    word = session.query(Words).get(word_id)
+
+    ret = {'word': word.to_dict(
+        only=("id",
+              "author",
+              "hieroglyph",
+              "translation",
+              "transcription",
+              "phrase_ch",
+              "phrase_ru",
+              "image",
+              "front_side_audio",
+              "left_side_audio",
+              "right_side_audio",
+              "up_side_audio",
+              "down_side_audio",))}
+    return ret
+
+
+def get_word_view_recording(user_id, word_id):
+    session = db_session.create_session()
+    word_to_user = session.query(WordsToUsers).filter(WordsToUsers.users == user_id,
+                                                      WordsToUsers.words == word_id).first()
+    if not word_to_user:
+        abort(404, message=f"Object not found")
+    ret = {"word_to_user": {"id": word_to_user.id,
+                            "words": word_to_user.words,
+                            "users": word_to_user.users,
+                            "learn_state": word_to_user.learn_state}}
+    session.close()
+    return ret
+
+
+def get_lesson(lesson_id):
+    abort_if_not_found(lesson_id, Lessons)
+    session = db_session.create_session()
+    lesson = session.query(Lessons).get(lesson_id)
+    ret = {'lesson': lesson.to_dict(only=('id', 'name'))}
+    ret["lesson"]["words"] = \
+        [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+    ret["lesson"]["trainers"] = \
+        [item.to_dict(only=('id', 'name')) for item in list(lesson.trainers)]
+    ret["lesson"]["tests"] = \
+        [item.to_dict(only=('id', 'name')) for item in list(lesson.tests)]
+    ret["lesson"]["course"] = \
+        [item.to_dict(only=('id', 'name')) for item in list(lesson.courses)][0]
+    return ret
+
+
+def get_lessons():
+    session = db_session.create_session()
+    ret = {"lessons": []}
+    all_lessons = session.query(Lessons).all()
+    for lesson in all_lessons:
+        js_les = {lesson.to_dict(only=('id', 'name'))}
+        js_les["words"] = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+        js_les["trainers"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.trainers)]
+        js_les["tests"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.tests)]
+        js_les["course"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.courses)][0]
+        ret["lessons"].append(js_les)
+    return ret
+
+
+def get_user_lessons(user_id):
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    if not user:
+        return {'message': 'Object not found'}
+    cur_user = session.query(User).get(user_id)
+    user_lessons = {"user_lessons": []}
+    for c in cur_user.courses:
+        for lesson in c.lessons:
+            course_lesson = lesson.to_dict(only=('id', 'name'))
+            course_lesson["words"] = [item.to_dict(only=('id', 'hieroglyph', "translation")) for item in list(lesson.words)]
+            user_lessons["user_lessons"].append(course_lesson)
+    return user_lessons
 
 
 @app.route("/")
@@ -522,7 +685,7 @@ def pupils():  # список учеников учителя
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    all_users = get(root + '/rest_users').json()["users"]
+    all_users = get_users()["users"]
     for i in range(len(all_users)):
         if not all_users[i]["name"]:
             all_users[i]["name"] = "Имя не указано"
@@ -595,12 +758,12 @@ def pupil_courses_view(pupil_id):  # добавление курсов к уче
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    cur_user_response = get(root + '/rest_user/' + str(current_user.id)).json()  # request
+    cur_user_response = get_user(current_user.id)  # request
     if cur_user_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Пользователь")
     cur_user = cur_user_response["user"]
-    pupil_response = get(root + '/rest_user/' + str(pupil_id)).json()  # request
+    pupil_response = get_user(pupil_id)  # request
     if pupil_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Пользователь")
@@ -665,7 +828,6 @@ def delete_user(user_id):  # удалить профиль пользовате�
                                header_disabled="true")
     if current_user.id != user_id:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    # ret = delete(root + "/rest_user/" + str(user_id)).json()  # request
     ret = del_user(user_id)
     if ret == {'success': 'OK'}:
         return redirect("/")
@@ -682,7 +844,7 @@ def courses():  # просмотр курсов пользователя
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    user_courses = get(root + '/rest_courses/' + str(current_user.id)).json()["courses"]
+    user_courses = get_courses(current_user.id)["courses"]
     return render_template('course_templates/courses.html', courses=user_courses,
                            back_button_hidden='true', back_url='/dictionary')
 
@@ -713,7 +875,7 @@ def course_view(course_id):  # просмотр курса
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    course_response = get(root + '/rest_course/' + str(course_id)).json()
+    course_response = get_course(course_id)
     if course_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Курс")
@@ -817,7 +979,7 @@ def course_pupils_view(course_id):  # добавление учеников к �
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(current_user.id)
-    course_response = get(root + '/rest_course/' + str(course_id)).json()
+    course_response = get_course(course_id)
     if course_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Курс")
@@ -825,7 +987,7 @@ def course_pupils_view(course_id):  # добавление учеников к �
     if course_id not in [c.id for c in user.courses]:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     form = AddItemToSomethingForm()
-    all_users = get(root + '/rest_users').json()["users"]
+    all_users = get_users()["users"]
     all_items = list(filter(lambda x: x["creator"] == current_user.id and not x["teacher"],
                             all_users))
     max_id = max([item["id"] for item in all_items])
@@ -875,7 +1037,6 @@ def delete_course(course_id):  # удалить курс
                                header_disabled="true", object="Курс")
     if current_user not in course.users:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    # ret = delete(root + "/rest_course/" + str(course_id)).json()
     ret = del_course(course_id)
     if ret == {'success': 'OK'}:
         return redirect("/courses")
@@ -897,7 +1058,7 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
     user = db_sess.query(User).get(current_user.id)
     if course_id not in [c.id for c in user.courses]:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    lesson_response = get(root + '/rest_lesson/' + str(lesson_id)).json()
+    lesson_response = get_lesson(lesson_id)
     if lesson_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
@@ -918,9 +1079,9 @@ def lesson_view(course_id, lesson_id):  # просмотр урока
             next_les_id = course.lessons[1].id
         elif course.lessons[-1].id == lesson_id:
             prev_les_id = course.lessons[-2].id
-    print([x.id for x in course.lessons])
-    print(lesson_id)
-    print(prev_les_id, next_les_id)
+    # print([x.id for x in course.lessons])
+    # print(lesson_id)
+    # print(prev_les_id, next_les_id)
     all_items = lesson["words"]
     items_js = {"all_items": all_items}
     max_items_number_on_one_page = 13
@@ -1116,11 +1277,11 @@ def add_words_to_lesson(lesson_id):  # добавляет слова к урок
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    lesson_response = get(root + "/rest_lesson/" + str(lesson_id)).json()
+    lesson_response = get_lesson(lesson_id)
     if lesson_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1128,7 +1289,7 @@ def add_words_to_lesson(lesson_id):  # добавляет слова к урок
     form = AddSomethingToLessonForm()
     lesson = lesson_response["lesson"]
     current_course_id = lesson["course"]["id"]
-    all_items = get(root + "/rest_dict").json()["words"]
+    all_items = get_dict()["words"]
     max_id = max([item["id"] for item in all_items])
     my_items = list(filter(lambda x: x["author"] == current_user.id, all_items))
     rest_items = list(filter(lambda x: x["author"] != current_user.id, all_items))
@@ -1193,16 +1354,15 @@ def delete_lesson(course_id, lesson_id):  # удаление урока
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    lesson_response = get(root + "/rest_lesson/" + str(lesson_id)).json()
+    lesson_response = get_lesson(lesson_id)
     if lesson_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    # ret = delete(root + "/rest_lesson/" + str(lesson_id)).json()
     ret = del_lesson(lesson_id)
     if ret == {'success': 'OK'}:
         return redirect("/course/" + str(course_id))
@@ -1219,18 +1379,18 @@ def lesson_statistics(course_id, lesson_id):  # статистика урока
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    lesson_response = get(root + "/rest_lesson/" + str(lesson_id)).json()
+    lesson_response = get_lesson(lesson_id)
     if lesson_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     db_sess = db_session.create_session()
-    lesson = get(root + "/rest_lesson/" + str(lesson_id)).json()["lesson"]
-    course = get(root + "/rest_course/" + str(course_id)).json()["course"]
+    lesson = get_lesson(lesson_id)["lesson"]
+    course = get_course(course_id)["course"]
     course_pupils = list(filter(lambda x: not x['teacher'], course["users"]))
     for i in range(len(course_pupils)):
         words_learned = 0
@@ -1296,18 +1456,18 @@ def lesson_pupil_statistics(course_id, lesson_id, pupil_id):  # статисти
                                header_disabled="true")
     if not current_user.teacher:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    lesson_response = get(root + "/rest_lesson/" + str(lesson_id)).json()
+    lesson_response = get_lesson(lesson_id)
     if lesson_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Урок")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     db_sess = db_session.create_session()
-    lesson = get(root + "/rest_lesson/" + str(lesson_id)).json()["lesson"]
-    course = get(root + "/rest_course/" + str(course_id)).json()["course"]
+    lesson = get_lesson(lesson_id)["lesson"]
+    course = get_course(course_id)["course"]
     pupil = db_sess.query(User).get(pupil_id)
     words_learned = 0
     words_viewed = 0
@@ -1372,7 +1532,7 @@ def delete_word_from_lesson(lesson_id, word_id):  # удаление слова 
     if not word:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Слово", message="Слово не найдено")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1409,7 +1569,7 @@ def delete_trainer_from_lesson(lesson_id, trainer_id):  # удаление тр�
     if not trainer:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Тренажер")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1440,7 +1600,7 @@ def delete_test_from_lesson(lesson_id, test_id):  # удаление теста 
     if not test:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Тест")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1460,7 +1620,7 @@ def dict_view():  # просмотр словаря
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    all_words = get(root + "/rest_dict").json()["words"]
+    all_words = get_dict()["words"]
     my_words = []
     rest_words = []
     for word in all_words:
@@ -1476,7 +1636,7 @@ def dict_view():  # просмотр словаря
     }
     db_sess = db_session.create_session()
     # print([w.id for w in db_sess.query(Words).all()])
-    # print(items_js)  # ff
+    # print(items_js)
     # print([w['id'] for w in all_words])
     max_words_number_on_one_page = 32
     max_words_number_on_one_pupil_page = 60
@@ -1499,7 +1659,7 @@ def add_word():  # добавление слова в словарь
     form = WordsForm()
     db_sess = db_session.create_session()
     image_start_preview = "/static/words_data/tutorial_down.png"
-    all_words = get(root + "/rest_dict").json()["words"]
+    all_words = get_dict()["words"]
     python_data = {"json_all_words": all_words}
     if form.validate_on_submit():
         new_word = Words()
@@ -1578,7 +1738,6 @@ def delete_word(word_id):  # удаление слова
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     if word_id not in [w.id for w in current_user.words]:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
-    # ret = delete(root + "/rest_word_delete/" + str(word_id)).json()
     ret = del_word(word_id)
     if ret == {'success': 'OK'}:
         return redirect("/dictionary")
@@ -1595,12 +1754,12 @@ def dict_word_view(word_id):  # просмотр слова
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    word_response = get(root + '/rest_word/' + str(word_id)).json()
+    word_response = get_word(word_id)
     if word_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Слово", message="Слово не найдено")
     word = word_response["word"]
-    all_words = get(root + "/rest_dict").json()["words"]
+    all_words = get_dict()["words"]
     prev_id = word_id
     next_id = word_id
     prev_button_visibility = "visible"
@@ -1616,6 +1775,13 @@ def dict_word_view(word_id):  # просмотр слова
             else:
                 next_id = all_words[i + 1]["id"]
             break
+    # url_for("static", filename="words_data/" + word["image"])
+
+    image_filename = url_for("static", filename="words_data/" + word["image"])
+    if not os.path.exists(image_filename):
+        word["image"] = "undefined_image.png"
+    image_filename = url_for("static", filename="words_data/" + word["image"])
+
     python_data = {
         "word_data": {
             "hieroglyph": word["hieroglyph"],
@@ -1635,7 +1801,7 @@ def dict_word_view(word_id):  # просмотр слова
 
     return render_template('lesson_templates/word_templates/word_view.html', header_disabled="true",
                            python_data=python_data,
-                           image_name=url_for("static", filename="words_data/" + word["image"]),
+                           image_name=image_filename,
                            back_url="/dictionary",
                            dict=all_words,
                            prev_button_visibility=prev_button_visibility,
@@ -1652,18 +1818,18 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    word_response = get(root + '/rest_word/' + str(word_id)).json()
+    word_response = get_word(word_id)
     if word_response == {'message': 'Object not found'}:
         return render_template("error_templates/object_not_found.html", back_button_hidden="true",
                                header_disabled="true", object="Слово", message="Слово не найдено")
     word = word_response["word"]
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
         return render_template("error_templates/access_denied.html", back_button_hidden="true")
     db_sess = db_session.create_session()
-    lesson = get(root + '/rest_lesson/' + str(lesson_id)).json()["lesson"]
+    lesson = get_lesson(lesson_id)["lesson"]
     lesson_words = lesson["words"]
     ret = post_lesson_word(current_user.id, word_id)
     words_learn_state = 1
@@ -1696,6 +1862,12 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
             else:
                 next_id = lesson_words[i + 1]["id"]
             break
+
+    image_filename = url_for("static", filename="words_data/" + word["image"])
+    if not os.path.exists(image_filename):
+        word["image"] = "undefined_image.png"
+    image_filename = url_for("static", filename="words_data/" + word["image"])
+
     python_data = {
         "word_data": {
             "hieroglyph": word["hieroglyph"],
@@ -1714,7 +1886,7 @@ def lesson_word_view(course_id, lesson_id, word_id):  # просмотр сло�
     }
     return render_template('lesson_templates/word_templates/word_view.html', header_disabled="true",
                            python_data=python_data,
-                           image_name=url_for("static", filename="words_data/" + word["image"]),
+                           image_name=image_filename,
                            back_url="/course/" + str(course_id) + "/lesson/" + str(lesson_id),
                            dict=lesson_words,
                            prev_button_visibility=prev_button_visibility,
@@ -1731,7 +1903,7 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1739,7 +1911,7 @@ def lesson_trainer_view(course_id, lesson_id, trainer_id):  # просмотр �
     db_sess = db_session.create_session()
     course = db_sess.query(Courses).get(course_id)
     trainer = db_sess.query(Trainers).get(trainer_id)
-    lesson = get(root + '/rest_lesson/' + str(lesson_id)).json()["lesson"]
+    lesson = get_lesson(lesson_id)["lesson"]
     lesson_trainers = lesson["trainers"]
     lesson_tests = lesson["tests"]
     lesson_words = db_sess.query(Lessons).get(lesson_id).words
@@ -1831,7 +2003,7 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
     if not current_user.is_authenticated:
         return render_template("error_templates/unauthorized.html", back_button_hidden="true",
                                header_disabled="true")
-    lessons_response = get(root + '/rest_user_lessons/' + str(current_user.id)).json()
+    lessons_response = get_user_lessons(current_user.id)
     user_lessons = lessons_response["user_lessons"]
     lessons = [item["id"] for item in user_lessons]
     if lesson_id not in lessons:
@@ -1842,7 +2014,7 @@ def lesson_test_view(course_id, lesson_id, test_id):  # просмотр тес�
     test = db_sess.query(Tests).get(test_id)
     all_tests = db_sess.query(Tests).all()
 
-    les = get(root + '/rest_lesson/' + str(lesson_id)).json()
+    les = get_lesson(lesson_id)
     lesson_tests = les["lesson"]["tests"]
     lesson_words = db_sess.query(Lessons).get(lesson_id).words
     all_words = db_sess.query(Words).all()
@@ -1960,7 +2132,7 @@ def change_word(word_id):  # изменить слово
     form = WordsForm()
     all_words = db_sess.query(Words).all()
     ret_all_words = list(filter(lambda item: int(item["id"]) != word_id,
-                                get(root + "/rest_dict").json()["words"]))
+                                get_dict()["words"]))
 
     python_data = {"json_all_words": ret_all_words}
 
@@ -1973,7 +2145,11 @@ def change_word(word_id):  # изменить слово
     prev_phrase_ch = new_word.phrase_ch
     prev_phrase_ru = new_word.phrase_ru
 
-    image_file = Image.open(os.path.join(full_path, "static", "words_data", new_word.image))
+    image_filename = os.path.join(full_path, "static", "words_data", new_word.image)
+    if not os.path.exists(image_filename):
+        new_word.image = "undefined_image.png"
+    image_filename = os.path.join(full_path, "static", "words_data", new_word.image)
+    image_file = Image.open(image_filename)
 
     fn1 = os.path.join(full_path, "static", "words_data", new_word.front_side_audio)
     fn2 = os.path.join(full_path, "static", "words_data", new_word.up_side_audio)
